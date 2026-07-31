@@ -8,20 +8,23 @@
 
 /* Begin PBXBuildFile section */
 		8B91BBF72FF24D770033FABB /* Kinesia.wakatime-project in Resources */ = {isa = PBXBuildFile; fileRef = 8B91BBF52FF24D6E0033FABB /* Kinesia.wakatime-project */; };
+		8B91BC53301D2D880033FABB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B91BC47301D2D880033FABB /* Assets.xcassets */; };
+		8B91BC54301D2D880033FABB /* KinesiaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4A301D2D880033FABB /* KinesiaApp.swift */; };
+		8B91BC55301D2D880033FABB /* Kinesia.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4B301D2D880033FABB /* Kinesia.xcdatamodeld */; };
+		8B91BC56301D2D880033FABB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4E301D2D880033FABB /* ContentView.swift */; };
+		8B91BC57301D2D880033FABB /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4D301D2D880033FABB /* Persistence.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		8B91BBB52FF244AD0033FABB /* Kinesia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kinesia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B91BBF52FF24D6E0033FABB /* Kinesia.wakatime-project */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Kinesia.wakatime-project"; sourceTree = "<group>"; };
+		8B91BC47301D2D880033FABB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8B91BC49301D2D880033FABB /* Kinesia.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Kinesia.xcodeproj; sourceTree = "<group>"; };
+		8B91BC4A301D2D880033FABB /* KinesiaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KinesiaApp.swift; sourceTree = "<group>"; };
+		8B91BC4D301D2D880033FABB /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
+		8B91BC4E301D2D880033FABB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8B91BC52301D2D880033FABB /* Kinesia.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Kinesia.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		8B91BBB72FF244AD0033FABB /* Kinesia */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Kinesia;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8B91BBB22FF244AD0033FABB /* Frameworks */ = {
@@ -37,9 +40,15 @@
 		8B91BBAC2FF244AD0033FABB = {
 			isa = PBXGroup;
 			children = (
-				8B91BBB72FF244AD0033FABB /* Kinesia */,
-				8B91BBB62FF244AD0033FABB /* Products */,
 				8B91BBF52FF24D6E0033FABB /* Kinesia.wakatime-project */,
+				8B91BC47301D2D880033FABB /* Assets.xcassets */,
+				8B91BC4F301D2D880033FABB /* views */,
+				8B91BC4C301D2D880033FABB /* models */,
+				8B91BC48301D2D880033FABB /* calculations */,
+				8B91BC49301D2D880033FABB /* Kinesia.xcodeproj */,
+				8B91BC4A301D2D880033FABB /* KinesiaApp.swift */,
+				8B91BC4D301D2D880033FABB /* Persistence.swift */,
+				8B91BBB62FF244AD0033FABB /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -48,6 +57,34 @@
 			children = (
 				8B91BBB52FF244AD0033FABB /* Kinesia.app */,
 			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8B91BC48301D2D880033FABB /* calculations */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = calculations;
+			sourceTree = "<group>";
+		};
+		8B91BC4C301D2D880033FABB /* models */ = {
+			isa = PBXGroup;
+			children = (
+				8B91BC4B301D2D880033FABB /* Kinesia.xcdatamodeld */,
+			);
+			path = models;
+			sourceTree = "<group>";
+		};
+		8B91BC4F301D2D880033FABB /* views */ = {
+			isa = PBXGroup;
+			children = (
+				8B91BC4E301D2D880033FABB /* ContentView.swift */,
+			);
+			path = views;
+			sourceTree = "<group>";
+		};
+		8B91BC50301D2D880033FABB /* Products */ = {
+			isa = PBXGroup;
 			name = Products;
 			sourceTree = "<group>";
 		};
@@ -65,9 +102,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				8B91BBB72FF244AD0033FABB /* Kinesia */,
 			);
 			name = Kinesia;
 			packageProductDependencies = (
@@ -103,6 +137,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8B91BBB62FF244AD0033FABB /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 8B91BC50301D2D880033FABB /* Products */;
+					ProjectRef = 8B91BC49301D2D880033FABB /* Kinesia.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				8B91BBB42FF244AD0033FABB /* Kinesia */,
@@ -115,6 +155,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B91BC53301D2D880033FABB /* Assets.xcassets in Resources */,
 				8B91BBF72FF24D770033FABB /* Kinesia.wakatime-project in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -126,6 +167,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B91BC54301D2D880033FABB /* KinesiaApp.swift in Sources */,
+				8B91BC55301D2D880033FABB /* Kinesia.xcdatamodeld in Sources */,
+				8B91BC56301D2D880033FABB /* ContentView.swift in Sources */,
+				8B91BC57301D2D880033FABB /* Persistence.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -335,6 +380,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		8B91BC4B301D2D880033FABB /* Kinesia.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				8B91BC52301D2D880033FABB /* Kinesia.xcdatamodel */,
+			);
+			currentVersion = 8B91BC52301D2D880033FABB /* Kinesia.xcdatamodel */;
+			path = Kinesia.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 8B91BBAD2FF244AD0033FABB /* Project object */;
 }

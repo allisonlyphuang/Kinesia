@@ -22,6 +22,9 @@
 		8B91BC4D301D2D880033FABB /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		8B91BC4E301D2D880033FABB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8B91BC52301D2D880033FABB /* Kinesia.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Kinesia.xcdatamodel; sourceTree = "<group>"; };
+		8B91BC6B3029014A0033FABB /* colorTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = colorTokens.swift; sourceTree = "<group>"; };
+		8B91BC6C302907880033FABB /* typographyTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = typographyTokens.swift; sourceTree = "<group>"; };
+		8B91BC6D302908830033FABB /* spacingTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = spacingTokens.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,7 +41,9 @@
 		8B91BBAC2FF244AD0033FABB = {
 			isa = PBXGroup;
 			children = (
+				8B91BC6A302901310033FABB /* designSystem */,
 				8B91BC47301D2D880033FABB /* Assets.xcassets */,
+				8B91BC69302901200033FABB /* New Group */,
 				8B91BC4F301D2D880033FABB /* views */,
 				8B91BC4C301D2D880033FABB /* models */,
 				8B91BC48301D2D880033FABB /* calculations */,
@@ -83,6 +88,23 @@
 		8B91BC50301D2D880033FABB /* Products */ = {
 			isa = PBXGroup;
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8B91BC69302901200033FABB /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
+			sourceTree = "<group>";
+		};
+		8B91BC6A302901310033FABB /* designSystem */ = {
+			isa = PBXGroup;
+			children = (
+				8B91BC6D302908830033FABB /* spacingTokens.swift */,
+				8B91BC6C302907880033FABB /* typographyTokens.swift */,
+				8B91BC6B3029014A0033FABB /* colorTokens.swift */,
+			);
+			path = designSystem;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

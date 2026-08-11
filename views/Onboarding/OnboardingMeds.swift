@@ -22,10 +22,12 @@ struct OnboardingMeds: View {
                     Text("When do you take your medication?")
                         .font(.largeTitle)
                         .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 12)
                     Text("You can change this later.")
                         .font(.title2)
                         .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 0)
                 }
                 .padding()

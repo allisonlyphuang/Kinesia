@@ -63,6 +63,7 @@ struct OnboardingPDQ8: View {
                     Text("Have you had difficulty getting around in public?")
                         .font(.largeTitle)
                         .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 0)
                 }
                 .padding()

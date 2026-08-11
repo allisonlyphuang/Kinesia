@@ -10,8 +10,12 @@
 		8B91BC53301D2D880033FABB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B91BC47301D2D880033FABB /* Assets.xcassets */; };
 		8B91BC54301D2D880033FABB /* KinesiaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4A301D2D880033FABB /* KinesiaApp.swift */; };
 		8B91BC55301D2D880033FABB /* Kinesia.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4B301D2D880033FABB /* Kinesia.xcdatamodeld */; };
-		8B91BC56301D2D880033FABB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4E301D2D880033FABB /* ContentView.swift */; };
+		8B91BC56301D2D880033FABB /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4E301D2D880033FABB /* HomeView.swift */; };
 		8B91BC57301D2D880033FABB /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4D301D2D880033FABB /* Persistence.swift */; };
+		8B91BC71302AE62C0033FABB /* MedicationLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC70302AE6250033FABB /* MedicationLogView.swift */; };
+		8B91BC74302AE64A0033FABB /* OnboardingStart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC73302AE6430033FABB /* OnboardingStart.swift */; };
+		8B91BC76302AE6590033FABB /* OnboardingMeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC75302AE6520033FABB /* OnboardingMeds.swift */; };
+		8B91BC78302AE66A0033FABB /* OnboardingPDQ8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC77302AE65D0033FABB /* OnboardingPDQ8.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,8 +24,15 @@
 		8B91BC49301D2D880033FABB /* Kinesia.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Kinesia.xcodeproj; sourceTree = "<group>"; };
 		8B91BC4A301D2D880033FABB /* KinesiaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KinesiaApp.swift; sourceTree = "<group>"; };
 		8B91BC4D301D2D880033FABB /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
-		8B91BC4E301D2D880033FABB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8B91BC4E301D2D880033FABB /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		8B91BC52301D2D880033FABB /* Kinesia.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Kinesia.xcdatamodel; sourceTree = "<group>"; };
+		8B91BC6B3029014A0033FABB /* colorTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = colorTokens.swift; sourceTree = "<group>"; };
+		8B91BC6C302907880033FABB /* typographyTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = typographyTokens.swift; sourceTree = "<group>"; };
+		8B91BC6D302908830033FABB /* spacingTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = spacingTokens.swift; sourceTree = "<group>"; };
+		8B91BC70302AE6250033FABB /* MedicationLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationLogView.swift; sourceTree = "<group>"; };
+		8B91BC73302AE6430033FABB /* OnboardingStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStart.swift; sourceTree = "<group>"; };
+		8B91BC75302AE6520033FABB /* OnboardingMeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingMeds.swift; sourceTree = "<group>"; };
+		8B91BC77302AE65D0033FABB /* OnboardingPDQ8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPDQ8.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,7 +49,9 @@
 		8B91BBAC2FF244AD0033FABB = {
 			isa = PBXGroup;
 			children = (
+				8B91BC6A302901310033FABB /* designSystem */,
 				8B91BC47301D2D880033FABB /* Assets.xcassets */,
+				8B91BC69302901200033FABB /* New Group */,
 				8B91BC4F301D2D880033FABB /* views */,
 				8B91BC4C301D2D880033FABB /* models */,
 				8B91BC48301D2D880033FABB /* calculations */,
@@ -75,7 +88,9 @@
 		8B91BC4F301D2D880033FABB /* views */ = {
 			isa = PBXGroup;
 			children = (
-				8B91BC4E301D2D880033FABB /* ContentView.swift */,
+				8B91BC72302AE6390033FABB /* Onboarding */,
+				8B91BC70302AE6250033FABB /* MedicationLogView.swift */,
+				8B91BC4E301D2D880033FABB /* HomeView.swift */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -83,6 +98,33 @@
 		8B91BC50301D2D880033FABB /* Products */ = {
 			isa = PBXGroup;
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8B91BC69302901200033FABB /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
+			sourceTree = "<group>";
+		};
+		8B91BC6A302901310033FABB /* designSystem */ = {
+			isa = PBXGroup;
+			children = (
+				8B91BC6D302908830033FABB /* spacingTokens.swift */,
+				8B91BC6C302907880033FABB /* typographyTokens.swift */,
+				8B91BC6B3029014A0033FABB /* colorTokens.swift */,
+			);
+			path = designSystem;
+			sourceTree = "<group>";
+		};
+		8B91BC72302AE6390033FABB /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				8B91BC73302AE6430033FABB /* OnboardingStart.swift */,
+				8B91BC75302AE6520033FABB /* OnboardingMeds.swift */,
+				8B91BC77302AE65D0033FABB /* OnboardingPDQ8.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -166,9 +208,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B91BC54301D2D880033FABB /* KinesiaApp.swift in Sources */,
+				8B91BC74302AE64A0033FABB /* OnboardingStart.swift in Sources */,
 				8B91BC55301D2D880033FABB /* Kinesia.xcdatamodeld in Sources */,
-				8B91BC56301D2D880033FABB /* ContentView.swift in Sources */,
+				8B91BC71302AE62C0033FABB /* MedicationLogView.swift in Sources */,
+				8B91BC76302AE6590033FABB /* OnboardingMeds.swift in Sources */,
+				8B91BC56301D2D880033FABB /* HomeView.swift in Sources */,
 				8B91BC57301D2D880033FABB /* Persistence.swift in Sources */,
+				8B91BC78302AE66A0033FABB /* OnboardingPDQ8.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

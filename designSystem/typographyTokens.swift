@@ -9,13 +9,13 @@ import SwiftUI
 
 extension Font {
     // Headings
-    static let displayLarge  = Font.system(size: 34, weight: .bold)
-    static let displayMedium = Font.system(size: 28, weight: .bold)
-    static let heading       = Font.system(size: 22, weight: .semibold)
-    static let subheading    = Font.system(size: 17, weight: .semibold)
+    static let displayLarge  = Font.system(.largeTitle, weight: .bold)    // 34pt
+    static let displayMedium = Font.system(.title, weight: .bold)         // 28pt
+    static let heading       = Font.system(.title2, weight: .semibold)    // 22pt
+    static let subheading    = Font.system(.headline)                     // 17pt semibold
 
     // Body
-    static let body  = Font.system(size: 17, weight: .regular)
-    static let button = Font.system(size: 20, weight: .regular)
-    static let label      = Font.system(size: 13, weight: .medium)
+    static let body   = Font.system(.body)                                // 17pt
+    static let button = Font.system(.title3)                              // 20pt
+    static let label  = Font.system(.footnote, weight: .medium)           // 13pt
 }

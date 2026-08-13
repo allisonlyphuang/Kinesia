@@ -1,63 +1,249 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24901" systemVersion="25F80" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
-    <entity name="AkinesiaResults" representedClassName="AkinesiaResults" syncable="YES" codeGenerationType="class">
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="initiationTime" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="movementTime" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="timestamp" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <relationship name="medicationContext" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicationLog" inverseName="akinesia" inverseEntity="MedicationLog"/>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24901" systemVersion="25F80" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="AkinesiaResult" representedClassName="AkinesiaResult" syncable="YES" codeGenerationType="class">
+        <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="hand" attributeType="String" defaultValueString="right"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="invalidReason" optional="YES" attributeType="String"/>
+        <attribute name="isValid" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="movementTimeMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="movementTimeMean" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="movementTimeMedian" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="movementTimeMin" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="movementTimeP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="movementTimeP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="movementTimeStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="numMisses" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numTrials" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="startTimeMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="startTimeMean" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="startTimeMedian" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="startTimeMin" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="startTimeP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="startTimeP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="startTimeStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestSession" inverseName="akinesia" inverseEntity="TestSession"/>
+        <fetchIndex name="byTimestamp">
+            <fetchIndexElement property="timestamp" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <fetchIndex name="byDayStart">
+            <fetchIndexElement property="dayStart" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
-    <entity name="BradykinesiaResults" representedClassName="BradykinesiaResults" syncable="YES" codeGenerationType="class">
-        <attribute name="corXY" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="driftLeft" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="driftRight" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="meanTapInter" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="numTaps" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="stdevTapInter" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="medicationContext" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicationLog" inverseName="bradykinesia" inverseEntity="MedicationLog"/>
+    <entity name="BradykinesiaResult" representedClassName="BradykinesiaResult" syncable="YES" codeGenerationType="class">
+        <attribute name="accelMaxG" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="accelMeanG" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="corXY" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="deviceMoved" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="driftLeftMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftLeftMean" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftLeftMedian" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftLeftMin" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftLeftP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftLeftP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftLeftSkew" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftLeftStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftRightMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftRightMean" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftRightMedian" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftRightMin" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftRightP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftRightP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftRightSkew" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="driftRightStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="durationSec" attributeType="Double" defaultValueString="20.0" usesScalarValueType="YES"/>
+        <attribute name="hand" attributeType="String" defaultValueString="right"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="invalidReason" optional="YES" attributeType="String"/>
+        <attribute name="isValid" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="numCorrectTaps" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numTaps" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="tapInterMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="tapInterMean" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="tapInterMedian" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="tapInterMin" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="tapInterP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="tapInterP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="tapInterSkew" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="tapInterStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestSession" inverseName="bradykinesia" inverseEntity="TestSession"/>
+        <fetchIndex name="byTimestamp">
+            <fetchIndexElement property="timestamp" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <fetchIndex name="byDayStart">
+            <fetchIndexElement property="dayStart" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
-    <entity name="DexterityResults" representedClassName="DexterityResults" syncable="YES" codeGenerationType="class">
-        <attribute name="avgSwipeSpeed" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="cvSwipeSpeed" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="doneSequences" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="numSequences" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="rmsError" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="swipeDist" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="medicationContext" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicationLog" inverseName="dexterity" inverseEntity="MedicationLog"/>
+    <entity name="DexterityResult" representedClassName="DexterityResult" syncable="YES" codeGenerationType="class">
+        <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="doneSequences" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="hand" attributeType="String" defaultValueString="right"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="invalidReason" optional="YES" attributeType="String"/>
+        <attribute name="isValid" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="numSequences" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="rmsError" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="rmsErrorMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="swipeDist" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="swipeSpeedMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="swipeSpeedMean" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="swipeSpeedMedian" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="swipeSpeedMin" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="swipeSpeedP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="swipeSpeedP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="swipeSpeedStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="thumbLifts" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestSession" inverseName="dexterity" inverseEntity="TestSession"/>
+        <fetchIndex name="byTimestamp">
+            <fetchIndexElement property="timestamp" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <fetchIndex name="byDayStart">
+            <fetchIndexElement property="dayStart" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="HealthKitLog" representedClassName="HealthKitLog" syncable="YES" codeGenerationType="class">
-        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="dyskinesiaPercent" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="remSleepMins" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="totalSleepMins" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="tremorPercent" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="walkingAsymmetry" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="walkingSpeed" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="awakeMins" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="deepSleepMins" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="dyskinesiaPercent" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="hasWatchData" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="remSleepMins" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="stepCount" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="totalSleepMins" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="tremorPercent" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="walkingAsymmetry" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="walkingSpeed" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <fetchedProperty name="associatedAkinesia" optional="YES">
-            <fetchRequest name="fetchedPropertyFetchRequest" entity="HealthKitLog" predicateString="(timestamp &gt;= $FETCH_SOURCE.date) AND (timestamp &lt; $FETCH_SOURCE.date + 86400)"/>
+            <fetchRequest name="fetchedPropertyFetchRequest" entity="AkinesiaResult" predicateString="(timestamp &gt;= $FETCH_SOURCE.dayStart) AND (timestamp &lt; $FETCH_SOURCE.dayStart + 86400)"/>
         </fetchedProperty>
         <fetchedProperty name="associatedBradykinesia" optional="YES">
-            <fetchRequest name="fetchedPropertyFetchRequest" entity="BradykinesiaResults" predicateString="(timestamp &gt;= $FETCH_SOURCE.date) AND (timestamp &lt; $FETCH_SOURCE.date + 86400)"/>
+            <fetchRequest name="fetchedPropertyFetchRequest" entity="BradykinesiaResult" predicateString="(timestamp &gt;= $FETCH_SOURCE.dayStart) AND (timestamp &lt; $FETCH_SOURCE.dayStart + 86400)"/>
         </fetchedProperty>
         <fetchedProperty name="associatedDexterity" optional="YES">
-            <fetchRequest name="fetchedPropertyFetchRequest" entity="HealthKitLog" predicateString="(timestamp &gt;= $FETCH_SOURCE.date) AND (timestamp &lt; $FETCH_SOURCE.date + 86400)"/>
+            <fetchRequest name="fetchedPropertyFetchRequest" entity="DexterityResult" predicateString="(timestamp &gt;= $FETCH_SOURCE.dayStart) AND (timestamp &lt; $FETCH_SOURCE.dayStart + 86400)"/>
         </fetchedProperty>
+        <fetchedProperty name="associatedMedication" optional="YES">
+            <fetchRequest name="fetchedPropertyFetchRequest" entity="MedicationLog" predicateString="(timestamp &gt;= $FETCH_SOURCE.dayStart) AND (timestamp &lt; $FETCH_SOURCE.dayStart + 86400)"/>
+        </fetchedProperty>
+        <fetchedProperty name="associatedSessions" optional="YES">
+            <fetchRequest name="fetchedPropertyFetchRequest" entity="TestSession" predicateString="(startedAt &gt;= $FETCH_SOURCE.dayStart) AND (startedAt &lt; $FETCH_SOURCE.dayStart + 86400)"/>
+        </fetchedProperty>
+        <fetchIndex name="byDayStart">
+            <fetchIndexElement property="dayStart" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="dayStart"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="MedicationLog" representedClassName="MedicationLog" syncable="YES" codeGenerationType="class">
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="akinesia" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AkinesiaResults" inverseName="medicationContext" inverseEntity="AkinesiaResults"/>
-        <relationship name="bradykinesia" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BradykinesiaResults" inverseName="medicationContext" inverseEntity="BradykinesiaResults"/>
-        <relationship name="dexterity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DexterityResults" inverseName="medicationContext" inverseEntity="DexterityResults"/>
+        <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="scheduledTime" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="source" attributeType="String" defaultValueString="manual"/>
+        <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="wasSkipped" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <relationship name="schedule" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicationSchedule" inverseName="logs" inverseEntity="MedicationSchedule"/>
+        <relationship name="sessions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TestSession" inverseName="medicationContext" inverseEntity="TestSession"/>
+        <fetchIndex name="byTimestamp">
+            <fetchIndexElement property="timestamp" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <fetchIndex name="byDayStart">
+            <fetchIndexElement property="dayStart" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="MedicationSchedule" representedClassName="MedicationSchedule" syncable="YES" codeGenerationType="class">
+        <attribute name="dosageMg" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="hour" attributeType="Integer 16" defaultValueString="8" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isActive" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="label" optional="YES" attributeType="String"/>
+        <attribute name="minute" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="sortIndex" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="logs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MedicationLog" inverseName="schedule" inverseEntity="MedicationLog"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="PDQ8Log" representedClassName="PDQ8Log" syncable="YES" codeGenerationType="class">
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="score" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="itemScores" optional="YES" attributeType="Binary"/>
+        <attribute name="rawSum" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="scoreIndex" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <fetchIndex name="byTimestamp">
+            <fetchIndexElement property="timestamp" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="RawCapture" representedClassName="RawCapture" syncable="YES" codeGenerationType="class">
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="kind" attributeType="String" defaultValueString="bradykinesia"/>
+        <attribute name="payload" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="schemaVersion" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestSession" inverseName="rawCaptures" inverseEntity="TestSession"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="TestSession" representedClassName="TestSession" syncable="YES" codeGenerationType="class">
+        <attribute name="completedAt" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="minutesSinceDose" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="startedAt" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="status" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="akinesia" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="AkinesiaResult" inverseName="session" inverseEntity="AkinesiaResult"/>
+        <relationship name="bradykinesia" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="BradykinesiaResult" inverseName="session" inverseEntity="BradykinesiaResult"/>
+        <relationship name="dexterity" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DexterityResult" inverseName="session" inverseEntity="DexterityResult"/>
+        <relationship name="medicationContext" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicationLog" inverseName="sessions" inverseEntity="MedicationLog"/>
+        <relationship name="rawCaptures" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="RawCapture" inverseName="session" inverseEntity="RawCapture"/>
+        <fetchIndex name="byStartedAt">
+            <fetchIndexElement property="startedAt" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <fetchIndex name="byDayStart">
+            <fetchIndexElement property="dayStart" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
 </model>

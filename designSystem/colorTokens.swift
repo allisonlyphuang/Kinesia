@@ -9,12 +9,12 @@ import SwiftUI
 
 extension Color {
     // Brand
-    static let Primary   = Color("moss")
-    static let Secondary = Color("sage")
+    static let primaryColor   = Color("moss")
+    static let secondaryColor = Color("sage")
 
     // Backgrounds
-    static let bgPrimary   = Color("cream")
-    static let bgSecondary = Color("mist")
+    static let bgPrimaryColor   = Color("cream")
+    static let bgSecondaryColor = Color("mist")
 
     // Text
     static let textLight   = Color("cream")
@@ -22,6 +22,6 @@ extension Color {
     static let textDark = Color("pine")
 
     // Status
-    static let accent = Color("pond")
+    static let accentBlue = Color("pond")
 }
 

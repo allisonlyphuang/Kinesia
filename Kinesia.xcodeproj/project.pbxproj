@@ -19,6 +19,7 @@
 		8B91BC7C302D7ECB0033FABB /* typographyTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC6C302907880033FABB /* typographyTokens.swift */; };
 		8B91BC7D302D7ED10033FABB /* spacingTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC6D302908830033FABB /* spacingTokens.swift */; };
 		8B91BC80302D9BC00033FABB /* Kinesia.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC7E302D9BC00033FABB /* Kinesia.xcdatamodeld */; };
+		8B91BC97302DAF8E0033FABB /* BradykinesiaTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC96302DAF840033FABB /* BradykinesiaTestView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,7 +36,15 @@
 		8B91BC75302AE6520033FABB /* OnboardingMeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingMeds.swift; sourceTree = "<group>"; };
 		8B91BC77302AE65D0033FABB /* OnboardingPDQ8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPDQ8.swift; sourceTree = "<group>"; };
 		8B91BC7F302D9BC00033FABB /* Kinesia.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Kinesia.xcdatamodel; sourceTree = "<group>"; };
-		8B91BC81302D9EA20033FABB /* Bradykinesia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bradykinesia.swift; sourceTree = "<group>"; };
+		8B91BC81302D9EA20033FABB /* TapSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapSample.swift; sourceTree = "<group>"; };
+		8B91BC8E302DAE3D0033FABB /* SummaryStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryStats.swift; sourceTree = "<group>"; };
+		8B91BC90302DAEAC0033FABB /* BradykinesiaMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaMetrics.swift; sourceTree = "<group>"; };
+		8B91BC91302DAEB70033FABB /* BradykinesiaAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaAnalyzer.swift; sourceTree = "<group>"; };
+		8B91BC93302DAF370033FABB /* TapCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapCaptureView.swift; sourceTree = "<group>"; };
+		8B91BC94302DAF3C0033FABB /* MotionQC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionQC.swift; sourceTree = "<group>"; };
+		8B91BC96302DAF840033FABB /* BradykinesiaTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaTestView.swift; sourceTree = "<group>"; };
+		8B91BC99302DAFC00033FABB /* BradykinesiaTestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaTestModel.swift; sourceTree = "<group>"; };
+		8B91BC9B302DAFF20033FABB /* BradykinesiaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,11 +63,14 @@
 			children = (
 				8B91BC6A302901310033FABB /* designSystem */,
 				8B91BC47301D2D880033FABB /* Assets.xcassets */,
-				8B91BC4F301D2D880033FABB /* views */,
 				8B91BC4C301D2D880033FABB /* models */,
 				8B91BC48301D2D880033FABB /* calculations */,
-				8B91BC4A301D2D880033FABB /* KinesiaApp.swift */,
+				8B91BC92302DAEEC0033FABB /* capture */,
+				8B91BC95302DAF6E0033FABB /* viewModels */,
+				8B91BC9A302DAFE90033FABB /* persistence */,
+				8B91BC4F301D2D880033FABB /* views */,
 				8B91BC4D301D2D880033FABB /* Persistence.swift */,
+				8B91BC4A301D2D880033FABB /* KinesiaApp.swift */,
 				8B91BBB62FF244AD0033FABB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -74,7 +86,10 @@
 		8B91BC48301D2D880033FABB /* calculations */ = {
 			isa = PBXGroup;
 			children = (
-				8B91BC81302D9EA20033FABB /* Bradykinesia.swift */,
+				8B91BC91302DAEB70033FABB /* BradykinesiaAnalyzer.swift */,
+				8B91BC90302DAEAC0033FABB /* BradykinesiaMetrics.swift */,
+				8B91BC8E302DAE3D0033FABB /* SummaryStats.swift */,
+				8B91BC81302D9EA20033FABB /* TapSample.swift */,
 			);
 			path = calculations;
 			sourceTree = "<group>";
@@ -90,6 +105,7 @@
 		8B91BC4F301D2D880033FABB /* views */ = {
 			isa = PBXGroup;
 			children = (
+				8B91BC98302DAF980033FABB /* Tests */,
 				8B91BC72302AE6390033FABB /* Onboarding */,
 				8B91BC70302AE6250033FABB /* MedicationLogView.swift */,
 				8B91BC4E301D2D880033FABB /* HomeView.swift */,
@@ -115,6 +131,39 @@
 				8B91BC77302AE65D0033FABB /* OnboardingPDQ8.swift */,
 			);
 			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		8B91BC92302DAEEC0033FABB /* capture */ = {
+			isa = PBXGroup;
+			children = (
+				8B91BC94302DAF3C0033FABB /* MotionQC.swift */,
+				8B91BC93302DAF370033FABB /* TapCaptureView.swift */,
+			);
+			path = capture;
+			sourceTree = "<group>";
+		};
+		8B91BC95302DAF6E0033FABB /* viewModels */ = {
+			isa = PBXGroup;
+			children = (
+				8B91BC99302DAFC00033FABB /* BradykinesiaTestModel.swift */,
+			);
+			path = viewModels;
+			sourceTree = "<group>";
+		};
+		8B91BC98302DAF980033FABB /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				8B91BC96302DAF840033FABB /* BradykinesiaTestView.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		8B91BC9A302DAFE90033FABB /* persistence */ = {
+			isa = PBXGroup;
+			children = (
+				8B91BC9B302DAFF20033FABB /* BradykinesiaStore.swift */,
+			);
+			path = persistence;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -201,6 +250,7 @@
 				8B91BC7B302D7EB10033FABB /* colorTokens.swift in Sources */,
 				8B91BC7C302D7ECB0033FABB /* typographyTokens.swift in Sources */,
 				8B91BC78302AE66A0033FABB /* OnboardingPDQ8.swift in Sources */,
+				8B91BC97302DAF8E0033FABB /* BradykinesiaTestView.swift in Sources */,
 				8B91BC7D302D7ED10033FABB /* spacingTokens.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

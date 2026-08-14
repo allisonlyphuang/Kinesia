@@ -7,49 +7,45 @@
 
 import Foundation
 
-struct SummaryStats {
+struct SummaryStats: Codable {
     var min: Double
     var max: Double
     var mean: Double
     var median: Double
     var p25: Double
     var p75: Double
+    /// Sample standard deviation, using a denominator of N - 1.
     var stdev: Double
     var range: Double
     var iqr: Double
 
-    static func compute(_ values: [Double]) -> SummaryStats? {
-        // ? allows for returning nil if samples < 2
-        guard values.count >= 2 else { return nil }
-
-        // make a sorted copy of the input
-        let sorted = values.sorted()
-        let n = values.count
-
-        // Min and max
-        let min = sorted.first!
-        let max = sorted.last!
-
-        // Mean: sum all values, divide by count
-        let mean = values.reduce(0, +) / Double(n)
-
-        // Median: middle value, or average of two middle values if even count
-        let median: Double
-        if n % 2 == 1 {
-            median = sorted[n / 2]
-        } else {
-            median = (sorted[n / 2 - 1] + sorted[n / 2]) / 2
+    nonisolated static func compute(_ values: [Double]) -> SummaryStats? {
+        guard values.count >= 2, values.allSatisfy(\.isFinite) else {
+            return nil
         }
 
-        // Quartiles using linear interpolation
+        let sorted = values.sorted()
+        let count = values.count
+        let min = sorted[0]
+        let max = sorted[count - 1]
+        let mean = values.reduce(0, +) / Double(count)
+
+        let median: Double
+        if count.isMultiple(of: 2) {
+            median = (sorted[count / 2 - 1] + sorted[count / 2]) / 2
+        } else {
+            median = sorted[count / 2]
+        }
+
+        // Linear interpolation at fraction * (N - 1).
         let p25 = percentile(sorted: sorted, fraction: 0.25)
         let p75 = percentile(sorted: sorted, fraction: 0.75)
+        let variance = values.reduce(0) { partial, value in
+            partial + pow(value - mean, 2)
+        } / Double(count - 1)
+        let stdev = sqrt(variance)
 
-        // Sample standard deviation: sqrt of average squared deviation (divide by n-1)
-        let variance = values.reduce(0) { $0 + pow($1 - mean, 2) } / Double(n - 1)
-        let stdev = Foundation.sqrt(variance)
-
-        return SummaryStats(
+        let result = SummaryStats(
             min: min,
             max: max,
             mean: mean,
@@ -60,14 +56,73 @@ struct SummaryStats {
             range: max - min,
             iqr: p75 - p25
         )
+
+        let allValuesAreFinite = [
+            result.min,
+            result.max,
+            result.mean,
+            result.median,
+            result.p25,
+            result.p75,
+            result.stdev,
+            result.range,
+            result.iqr
+        ].allSatisfy(\.isFinite)
+        return allValuesAreFinite ? result : nil
     }
 
-    // Returns the value at a given fraction (0.0–1.0) through a sorted array,
-    // interpolating between neighbours when the index falls between two values.
-    private static func percentile(sorted: [Double], fraction: Double) -> Double {
+    /// Population standard deviation, using a denominator of N.
+    nonisolated static func populationStandardDeviation(_ values: [Double]) -> Double? {
+        guard !values.isEmpty, values.allSatisfy(\.isFinite) else {
+            return nil
+        }
+
+        let mean = values.reduce(0, +) / Double(values.count)
+        let variance = values.reduce(0) { partial, value in
+            partial + pow(value - mean, 2)
+        } / Double(values.count)
+        let result = sqrt(variance)
+
+        return result.isFinite ? result : nil
+    }
+
+    /// Paper-defined coefficient of variation: (population SD / mean) * 100.
+    nonisolated static func paperCoefficientOfVariation(_ values: [Double]) -> Double? {
+        guard values.count >= 2, values.allSatisfy(\.isFinite) else {
+            return nil
+        }
+
+        let mean = values.reduce(0, +) / Double(values.count)
+        guard mean != 0, let populationStdev = populationStandardDeviation(values) else {
+            return nil
+        }
+
+        let result = (populationStdev / mean) * 100
+        return result.isFinite ? result : nil
+    }
+
+    /// Paper-defined population-moment skewness.
+    nonisolated static func paperPopulationSkewness(_ values: [Double]) -> Double? {
+        guard values.count >= 2,
+              values.allSatisfy(\.isFinite),
+              let populationStdev = populationStandardDeviation(values),
+              populationStdev > 0 else {
+            return nil
+        }
+
+        let mean = values.reduce(0, +) / Double(values.count)
+        let thirdCentralMoment = values.reduce(0) { partial, value in
+            partial + pow(value - mean, 3)
+        } / Double(values.count)
+        let result = thirdCentralMoment / pow(populationStdev, 3)
+
+        return result.isFinite ? result : nil
+    }
+
+    nonisolated private static func percentile(sorted: [Double], fraction: Double) -> Double {
         let index = fraction * Double(sorted.count - 1)
         let lower = Int(index)
-        let upper = min(lower + 1, sorted.count - 1)
+        let upper = Swift.min(lower + 1, sorted.count - 1)
         let weight = index - Double(lower)
         return sorted[lower] * (1 - weight) + sorted[upper] * weight
     }

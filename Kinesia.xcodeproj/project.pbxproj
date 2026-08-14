@@ -19,6 +19,10 @@
 		8B91BC7C302D7ECB0033FABB /* typographyTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC6C302907880033FABB /* typographyTokens.swift */; };
 		8B91BC7D302D7ED10033FABB /* spacingTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC6D302908830033FABB /* spacingTokens.swift */; };
 		8B91BC80302D9BC00033FABB /* Kinesia.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC7E302D9BC00033FABB /* Kinesia.xcdatamodeld */; };
+		8C000001302DA0000033FABB /* TapSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC81302D9EA20033FABB /* TapSample.swift */; };
+		8C000002302DA0000033FABB /* SummaryStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC8E302DAE3D0033FABB /* SummaryStats.swift */; };
+		8C000003302DA0000033FABB /* BradykinesiaMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC90302DAEAC0033FABB /* BradykinesiaMetrics.swift */; };
+		8C000004302DA0000033FABB /* BradykinesiaAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC91302DAEB70033FABB /* BradykinesiaAnalyzer.swift */; };
 		8B91BC97302DAF8E0033FABB /* BradykinesiaTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC96302DAF840033FABB /* BradykinesiaTestView.swift */; };
 /* End PBXBuildFile section */
 
@@ -250,6 +254,10 @@
 				8B91BC7B302D7EB10033FABB /* colorTokens.swift in Sources */,
 				8B91BC7C302D7ECB0033FABB /* typographyTokens.swift in Sources */,
 				8B91BC78302AE66A0033FABB /* OnboardingPDQ8.swift in Sources */,
+				8C000004302DA0000033FABB /* BradykinesiaAnalyzer.swift in Sources */,
+				8C000003302DA0000033FABB /* BradykinesiaMetrics.swift in Sources */,
+				8C000002302DA0000033FABB /* SummaryStats.swift in Sources */,
+				8C000001302DA0000033FABB /* TapSample.swift in Sources */,
 				8B91BC97302DAF8E0033FABB /* BradykinesiaTestView.swift in Sources */,
 				8B91BC7D302D7ED10033FABB /* spacingTokens.swift in Sources */,
 			);

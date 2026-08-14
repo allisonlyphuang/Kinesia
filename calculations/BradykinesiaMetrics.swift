@@ -18,6 +18,25 @@ struct BradykinesiaMetrics: Codable {
     /// Paper-defined population-moment skewness for tap intervals.
     var skewTapInter: Double?
 
+    /// `nil` when any raw coordinate is invalid; otherwise preserves the paper-derived left drift sequence.
+    var leftDrift: [Double]?
+    /// `nil` when any raw coordinate is invalid; otherwise preserves the paper-derived right drift sequence.
+    var rightDrift: [Double]?
+    /// Descriptive statistics for paper-derived left drift, when at least two drift values exist.
+    var driftLeftStats: SummaryStats?
+    /// Descriptive statistics for paper-derived right drift, when at least two drift values exist.
+    var driftRightStats: SummaryStats?
+    /// Paper-defined population CV for paper-derived left drift, expressed as a percentage.
+    var cvDriftLeft: Double?
+    /// Paper-defined population CV for paper-derived right drift, expressed as a percentage.
+    var cvDriftRight: Double?
+    /// Paper-defined population-moment skewness for paper-derived left drift.
+    var skewDriftLeft: Double?
+    /// Paper-defined population-moment skewness for paper-derived right drift.
+    var skewDriftRight: Double?
+    /// Pearson correlation across all raw finite x/y coordinate pairs.
+    var corXY: Double?
+
     /// TODO: Define whether this counts target hits or correctly alternating target hits.
     var numCorrectTaps: Int?
 }

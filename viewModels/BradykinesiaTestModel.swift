@@ -58,7 +58,7 @@ final class BradykinesiaTestModel: ObservableObject {
     @Published private(set) var metrics: BradykinesiaMetrics?
     @Published private(set) var persistedResult: BradykinesiaResult?
 
-    let configuration: BradykinesiaTestConfiguration
+    private(set) var configuration: BradykinesiaTestConfiguration
     private(set) var capturedSamples: [TapSample] = []
     private(set) var completedTrial: TapTrial?
     private(set) var monotonicStartedAt: TimeInterval?
@@ -103,6 +103,16 @@ final class BradykinesiaTestModel: ObservableObject {
 
     var isCaptureActive: Bool {
         phase == .running
+    }
+
+    /// Updates the target geometry immediately before a new attempt begins.
+    /// Geometry is intentionally locked once countdown/capture has started so the raw trial
+    /// always describes the same targets that the participant saw.
+    func configure(_ configuration: BradykinesiaTestConfiguration) {
+        guard phase == .ready else {
+            return
+        }
+        self.configuration = configuration
     }
 
     func start() {
@@ -229,15 +239,22 @@ final class BradykinesiaTestModel: ObservableObject {
             guard self.phase == .running else {
                 return
             }
-            let durationNanoseconds = UInt64(configuration.captureDuration * 1_000_000_000)
-            do {
-                try await Task.sleep(nanoseconds: durationNanoseconds)
-            } catch {
-                return
+            var remainingDuration = configuration.captureDuration
+            while remainingDuration > 0 {
+                let nextTickDuration = min(1, remainingDuration)
+                do {
+                    try await Task.sleep(nanoseconds: UInt64(nextTickDuration * 1_000_000_000))
+                } catch {
+                    return
+                }
+                guard !Task.isCancelled, self.phase == .running else {
+                    return
+                }
+
+                remainingDuration -= nextTickDuration
+                self.secondsRemaining = Int(ceil(max(0, remainingDuration)))
             }
-            guard !Task.isCancelled else {
-                return
-            }
+
             self.completeRunningWindow()
         }
     }

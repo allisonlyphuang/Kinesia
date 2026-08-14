@@ -10,6 +10,7 @@ import SwiftUI
 
 struct HomeView: View {
     var body: some View {
+        NavigationStack {
         ZStack(alignment: .bottom) {
             VStack(alignment: .leading) {
                 // Top bar
@@ -121,6 +122,20 @@ struct HomeView: View {
                             Text("Constellation")
                                 .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
                         }
+                        NavigationLink {
+                            BradykinesiaTestView()
+                        } label: {
+                            HStack {
+                                Image(systemName: "hand.tap")
+                                    .imageScale(.small)
+                                Text("Bradykinesia Test")
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .imageScale(.small)
+                            }
+                            .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
+                        }
+                        .buttonStyle(.plain)
                     }
                     .padding(.leading, 8)
                     // Check-in button
@@ -182,6 +197,7 @@ struct HomeView: View {
         .background {
             RoundedRectangle(cornerRadius: 4, style: .continuous)
                 .fill(Color(.sRGB, red: 255/255, green: 253/255, blue: 248/255))
+        }
         }
     }
 }

@@ -161,6 +161,46 @@ final class BradykinesiaTestModelTests: XCTestCase {
         XCTAssertEqual(try? context.count(for: TestSession.fetchRequest()), 0)
     }
 
+    func testConfigurationCanUpdateBeforeStartAndResetReturnsToReady() {
+        let model = makeModel(countdownSeconds: 1)
+        let configuredGeometry = BradykinesiaTestConfiguration(
+            leftCenter: TapPoint(x: 24, y: 150),
+            rightCenter: TapPoint(x: 276, y: 150),
+            targetRadius: 48,
+            hand: "right",
+            screenScale: 3,
+            countdownSeconds: 1,
+            captureDuration: 20
+        )
+
+        model.configure(configuredGeometry)
+        XCTAssertEqual(model.configuration.leftCenter.x, 24, accuracy: 0.000_001)
+        XCTAssertEqual(model.configuration.rightCenter.x, 276, accuracy: 0.000_001)
+        XCTAssertEqual(model.configuration.targetRadius, 48, accuracy: 0.000_001)
+
+        model.start()
+        let attemptedActiveConfiguration = BradykinesiaTestConfiguration(
+            leftCenter: TapPoint(x: 1, y: 1),
+            rightCenter: TapPoint(x: 2, y: 2),
+            targetRadius: 10,
+            hand: "left",
+            screenScale: 2,
+            countdownSeconds: 1,
+            captureDuration: 20
+        )
+        model.configure(attemptedActiveConfiguration)
+        XCTAssertEqual(model.configuration.leftCenter.x, 24, accuracy: 0.000_001)
+
+        model.countdownTick()
+        model.completeRunningWindow()
+        XCTAssertEqual(model.phase, .finished)
+
+        model.reset()
+        XCTAssertEqual(model.phase, .ready)
+        XCTAssertTrue(model.capturedSamples.isEmpty)
+        XCTAssertNil(model.metrics)
+    }
+
     private func makeModel(
         countdownSeconds: Int,
         monotonicNow: @escaping () -> TimeInterval = { 100 },

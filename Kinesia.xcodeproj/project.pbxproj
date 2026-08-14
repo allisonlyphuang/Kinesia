@@ -24,10 +24,14 @@
 		8C000003302DA0000033FABB /* BradykinesiaMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC90302DAEAC0033FABB /* BradykinesiaMetrics.swift */; };
 		8C000004302DA0000033FABB /* BradykinesiaAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC91302DAEB70033FABB /* BradykinesiaAnalyzer.swift */; };
 		8C000005302DA0000033FABB /* BradykinesiaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC9B302DAFF20033FABB /* BradykinesiaStore.swift */; };
+		8C000006302DA0000033FABB /* TapCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC93302DAF370033FABB /* TapCaptureView.swift */; };
+		8C000007302DA0000033FABB /* BradykinesiaTestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC99302DAFC00033FABB /* BradykinesiaTestModel.swift */; };
 		8C000011302DA0000033FABB /* SummaryStatsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000021302DA0000033FABB /* SummaryStatsTests.swift */; };
 		8C000012302DA0000033FABB /* BradykinesiaAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000022302DA0000033FABB /* BradykinesiaAnalyzerTests.swift */; };
 		8C000013302DA0000033FABB /* TapModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000023302DA0000033FABB /* TapModelTests.swift */; };
 		8C000014302DA0000033FABB /* BradykinesiaStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000025302DA0000033FABB /* BradykinesiaStoreTests.swift */; };
+		8C000015302DA0000033FABB /* TapCaptureViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000026302DA0000033FABB /* TapCaptureViewTests.swift */; };
+		8C000016302DA0000033FABB /* BradykinesiaTestModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000027302DA0000033FABB /* BradykinesiaTestModelTests.swift */; };
 		8B91BC97302DAF8E0033FABB /* BradykinesiaTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC96302DAF840033FABB /* BradykinesiaTestView.swift */; };
 /* End PBXBuildFile section */
 
@@ -38,6 +42,8 @@
 		8C000022302DA0000033FABB /* BradykinesiaAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaAnalyzerTests.swift; sourceTree = "<group>"; };
 		8C000023302DA0000033FABB /* TapModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapModelTests.swift; sourceTree = "<group>"; };
 		8C000025302DA0000033FABB /* BradykinesiaStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaStoreTests.swift; sourceTree = "<group>"; };
+		8C000026302DA0000033FABB /* TapCaptureViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapCaptureViewTests.swift; sourceTree = "<group>"; };
+		8C000027302DA0000033FABB /* BradykinesiaTestModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaTestModelTests.swift; sourceTree = "<group>"; };
 		8B91BC47301D2D880033FABB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8B91BC4A301D2D880033FABB /* KinesiaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KinesiaApp.swift; sourceTree = "<group>"; };
 		8B91BC4D301D2D880033FABB /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
@@ -113,6 +119,8 @@
 				8C000022302DA0000033FABB /* BradykinesiaAnalyzerTests.swift */,
 				8C000023302DA0000033FABB /* TapModelTests.swift */,
 				8C000025302DA0000033FABB /* BradykinesiaStoreTests.swift */,
+				8C000026302DA0000033FABB /* TapCaptureViewTests.swift */,
+				8C000027302DA0000033FABB /* BradykinesiaTestModelTests.swift */,
 			);
 			path = KinesiaTests;
 			sourceTree = "<group>";
@@ -323,6 +331,8 @@
 				8C000002302DA0000033FABB /* SummaryStats.swift in Sources */,
 				8C000001302DA0000033FABB /* TapSample.swift in Sources */,
 				8C000005302DA0000033FABB /* BradykinesiaStore.swift in Sources */,
+				8C000006302DA0000033FABB /* TapCaptureView.swift in Sources */,
+				8C000007302DA0000033FABB /* BradykinesiaTestModel.swift in Sources */,
 				8B91BC97302DAF8E0033FABB /* BradykinesiaTestView.swift in Sources */,
 				8B91BC7D302D7ED10033FABB /* spacingTokens.swift in Sources */,
 			);
@@ -338,6 +348,8 @@
 				8C000012302DA0000033FABB /* BradykinesiaAnalyzerTests.swift in Sources */,
 				8C000013302DA0000033FABB /* TapModelTests.swift in Sources */,
 				8C000014302DA0000033FABB /* BradykinesiaStoreTests.swift in Sources */,
+				8C000015302DA0000033FABB /* TapCaptureViewTests.swift in Sources */,
+				8C000016302DA0000033FABB /* BradykinesiaTestModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

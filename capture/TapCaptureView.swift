@@ -5,6 +5,8 @@
 //  Created by Amanda Hon on 8/13/26.
 //
 
+// Turns touches into TapSample
+
 import SwiftUI
 import UIKit
 

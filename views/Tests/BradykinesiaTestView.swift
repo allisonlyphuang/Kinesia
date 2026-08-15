@@ -29,6 +29,7 @@ private struct BradykinesiaTestScreen: View {
     @State private var captureSurfaceSize: CGSize = .zero
     @State private var latestSavedResult: BradykinesiaResult?
     @State private var latestResultFetchFailed = false
+    @State private var latestSavedSession: TestSession?
 
     init(context: NSManagedObjectContext) {
         self.context = context
@@ -38,7 +39,7 @@ private struct BradykinesiaTestScreen: View {
                     leftCenter: TapPoint(x: 0, y: 0),
                     rightCenter: TapPoint(x: 0, y: 0),
                     targetRadius: 1,
-                    hand: "right",
+                    handOrder: [.right, .left],
                     screenScale: 1
                 ),
                 context: context
@@ -68,8 +69,11 @@ private struct BradykinesiaTestScreen: View {
             }
         }
         .onDisappear {
-            if model.phase == .countdown || model.phase == .running {
+            switch model.phase {
+            case .countdown, .running, .rest:
                 model.reset()
+            case .ready, .finished, .failed:
+                break
             }
         }
     }
@@ -79,7 +83,7 @@ private struct BradykinesiaTestScreen: View {
             Text("Bradykinesia tapping test")
                 .font(.displayMedium)
                 .foregroundStyle(Color.textDark)
-            Text("Alternate between the two targets as quickly and accurately as you can for 20 seconds.")
+            Text("Alternate between the two targets as quickly and accurately as you can for 20 seconds, starting on the right.")
                 .font(.body)
                 .foregroundStyle(Color.textDark)
         }
@@ -93,10 +97,15 @@ private struct BradykinesiaTestScreen: View {
                 RoundedRectangle(cornerRadius: Radius.primary, style: .continuous)
                     .fill(Color.bgSecondaryColor)
 
-                targetCircle(label: "Left tapping target", diameter: CGFloat(geometry.radius * 2))
+                targetCircle(
+                    label: model.activeHand.map { "\(handName($0)) hand, left tapping target" } ?? "Left tapping target",
+                    diameter: CGFloat(geometry.radius * 2)
+                )
                     .position(x: CGFloat(geometry.leftCenter.x), y: CGFloat(geometry.leftCenter.y))
-                targetCircle(label: "Right tapping target", diameter: CGFloat(geometry.radius * 2))
-                    .position(x: CGFloat(geometry.rightCenter.x), y: CGFloat(geometry.rightCenter.y))
+                targetCircle(
+                    label: model.activeHand.map { "\(handName($0)) hand, right tapping target" } ?? "Right tapping target",
+                    diameter: CGFloat(geometry.radius * 2)
+                )
 
                 TapCaptureView(
                     leftCenter: geometry.leftCenter,
@@ -108,7 +117,7 @@ private struct BradykinesiaTestScreen: View {
                 .background(Color.clear)
                 .accessibilityHidden(true)
 
-                if model.phase == .countdown {
+                if case .countdown = model.phase {
                     VStack(spacing: Spacing.xs) {
                         Text("Get ready")
                             .font(.heading)
@@ -131,6 +140,13 @@ private struct BradykinesiaTestScreen: View {
         .accessibilityElement(children: .contain)
     }
 
+    private func handName(_ hand: CurrentHand) -> String {
+        switch hand {
+        case .left: return "left"
+        case .right: return "right"
+        }
+    }
+    
     private func targetCircle(label: String, diameter: CGFloat) -> some View {
         Circle()
             .fill(Color.primaryColor)
@@ -155,16 +171,16 @@ private struct BradykinesiaTestScreen: View {
             .buttonStyle(PrimaryTestButtonStyle())
             .disabled(captureSurfaceSize == .zero)
 
-        case .countdown:
-            Text("Place your fingers over the targets.")
+        case .countdown(let hand):
+            Text("\(handName(hand)) hand — place your index finger over the targets.")
                 .font(.subheading)
                 .foregroundStyle(Color.textDark)
 
-        case .running:
-            Text("\(model.secondsRemaining) seconds remaining")
+        case .running(let hand):
+            Text("\(handName(hand)) hand — \(model.secondsRemaining) seconds remaining")
                 .font(.heading)
                 .foregroundStyle(Color.textDark)
-                .accessibilityLabel("\(model.secondsRemaining) seconds remaining")
+                .accessibilityLabel("\(handName(hand)) hand, \(model.secondsRemaining) seconds remaining")
 
         case .finished:
             finishedContent
@@ -182,6 +198,25 @@ private struct BradykinesiaTestScreen: View {
                 }
                 .buttonStyle(PrimaryTestButtonStyle())
             }
+        case .rest(let nextHand):
+            restContent(nextHand: nextHand)
+        }
+    }
+    
+    private func restContent(nextHand: CurrentHand) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text("\(model.completedAttempts.count) of \(model.configuration.handOrder.count) hands complete.")
+                .font(.heading)
+                .foregroundStyle(Color.textDark)
+            Text("Switch to your \(handName(nextHand).lowercased()) hand, then continue when you're ready.")
+                .font(.body)
+                .foregroundStyle(Color.textDark)
+            Button("Start \(handName(nextHand).lowercased()) hand") {
+                let geometry = targetGeometry(in: captureSurfaceSize)
+                model.configure(configuration(for: geometry))
+                model.beginCountdown(for: nextHand)
+            }
+            .buttonStyle(PrimaryTestButtonStyle())
         }
     }
 
@@ -190,18 +225,20 @@ private struct BradykinesiaTestScreen: View {
             Text("Test saved")
                 .font(.heading)
                 .foregroundStyle(Color.textDark)
-            Text("Captured taps: \(model.metrics?.numTaps ?? 0)")
+
+            // maps on screen items to data items across redraws
+            ForEach(model.completedAttempts, id: \.hand) { attempt in
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text("\(handName(attempt.hand)) hand")
+                        .font(.subheading)
+                    Text("Captured taps: \(attempt.metrics.numTaps)")
+                    Text("Mean interval: \(formatted(attempt.metrics.tapInterStats?.mean))")
+                    Text("Median interval: \(formatted(attempt.metrics.tapInterStats?.median))")
+                }
                 .font(.body)
                 .foregroundStyle(Color.textDark)
-            Text("Mean interval: \(formatted(model.metrics?.tapInterStats?.mean))")
-                .font(.body)
-                .foregroundStyle(Color.textDark)
-            Text("Median interval: \(formatted(model.metrics?.tapInterStats?.median))")
-                .font(.body)
-                .foregroundStyle(Color.textDark)
-            Text("Result validity: \(model.persistedResult?.isValid == true ? "Available" : "Unavailable")")
-                .font(.body)
-                .foregroundStyle(Color.textDark)
+            }
+
             Button("Run again") {
                 model.reset()
             }
@@ -216,10 +253,10 @@ private struct BradykinesiaTestScreen: View {
                 .font(.heading)
                 .foregroundStyle(Color.textDark)
 
-            if let latestSavedResult {
-                Text("Tap count: \(latestSavedResult.numTaps)")
-                Text("Mean interval: \(latestSavedResult.isValid ? formatted(latestSavedResult.tapInterMean) : "Unavailable")")
-                Text("Valid: \(latestSavedResult.isValid ? "Yes" : "No")")
+            if let latestSavedSession {
+                ForEach(sortedResults(in: latestSavedSession), id: \.objectID) { result in
+                    Text("\(displayHand(result.hand)): \(result.numTaps) taps — mean \(result.isValid ? formatted(result.tapInterMean) : "unavailable")")
+                }
             } else if latestResultFetchFailed {
                 Text("Latest saved test is unavailable right now.")
             } else {
@@ -231,6 +268,16 @@ private struct BradykinesiaTestScreen: View {
         .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.bgSecondaryColor, in: RoundedRectangle(cornerRadius: Radius.primary, style: .continuous))
+    }
+
+    private func sortedResults(in session: TestSession) -> [BradykinesiaResult] {
+        let results = session.bradykinesiaResults as? Set<BradykinesiaResult> ?? [] // try to treat it as a set of results, if fail, use an empty set
+        return results.sorted { $0.timestamp < $1.timestamp }
+    }
+
+    private func displayHand(_ raw: String?) -> String {
+        guard let raw, let hand = CurrentHand(rawValue: raw) else { return "Unknown" }
+        return handName(hand)
     }
 
     private func targetGeometry(in size: CGSize) -> TargetGeometry {
@@ -254,7 +301,7 @@ private struct BradykinesiaTestScreen: View {
             leftCenter: geometry.leftCenter,
             rightCenter: geometry.rightCenter,
             targetRadius: geometry.radius,
-            hand: "right",
+            handOrder: [.right, .left],
             screenScale: displayScale
         )
     }
@@ -265,16 +312,18 @@ private struct BradykinesiaTestScreen: View {
         }
         return String(format: "%.2f s", value)
     }
+    
 
     private func refreshLatestResult() {
         do {
-            latestSavedResult = try BradykinesiaStore.fetchLatestResult(in: context)
+            latestSavedSession = try BradykinesiaStore.fetchLatestSession(in: context)
             latestResultFetchFailed = false
         } catch {
-            latestSavedResult = nil
+            latestSavedSession = nil
             latestResultFetchFailed = true
         }
     }
+    
 }
 
 private struct PrimaryTestButtonStyle: ButtonStyle {

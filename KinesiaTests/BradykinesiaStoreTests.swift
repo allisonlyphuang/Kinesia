@@ -40,14 +40,14 @@ final class BradykinesiaStoreTests: XCTestCase {
         let metrics = BradykinesiaAnalyzer.analyze(trial)
         let startedAt = Date(timeIntervalSince1970: 1_800_000_000)
         let completedAt = Date(timeIntervalSince1970: 1_800_000_020)
-
-        let saved = try BradykinesiaStore.save(
+        let attempt = makeAttempt(
             trial: trial,
             metrics: metrics,
             startedAt: startedAt,
-            completedAt: completedAt,
-            in: context
+            completedAt: completedAt
         )
+
+        let savedSession = try BradykinesiaStore.save(attempts: [attempt], in: context)
         let fetched = try XCTUnwrap(BradykinesiaStore.fetchLatestResult(in: context))
         let session = try XCTUnwrap(fetched.session)
         let rawCapture = try XCTUnwrap(session.rawCaptures?.allObjects.first as? RawCapture)
@@ -55,7 +55,7 @@ final class BradykinesiaStoreTests: XCTestCase {
         let leftStats = try XCTUnwrap(metrics.driftLeftStats)
         let rightStats = try XCTUnwrap(metrics.driftRightStats)
 
-        XCTAssertEqual(fetched.id, saved.id)
+        XCTAssertEqual(session.id, savedSession.id)
         XCTAssertEqual(try context.count(for: TestSession.fetchRequest()), 1)
         XCTAssertEqual(try context.count(for: BradykinesiaResult.fetchRequest()), 1)
         XCTAssertEqual(try context.count(for: RawCapture.fetchRequest()), 1)
@@ -109,13 +109,13 @@ final class BradykinesiaStoreTests: XCTestCase {
     func testRawCaptureRoundTripPreservesEveryTapAndTrialField() throws {
         let trial = validTrial()
         let completedAt = Date(timeIntervalSince1970: 1_800_100_020)
-        _ = try BradykinesiaStore.save(
+        let attempt = makeAttempt(
             trial: trial,
             metrics: BradykinesiaAnalyzer.analyze(trial),
             startedAt: Date(timeIntervalSince1970: 1_800_100_000),
-            completedAt: completedAt,
-            in: context
+            completedAt: completedAt
         )
+        _ = try BradykinesiaStore.save(attempts: [attempt], in: context)
 
         let request = RawCapture.fetchRequest()
         let rawCapture = try XCTUnwrap(context.fetch(request).first)
@@ -146,22 +146,27 @@ final class BradykinesiaStoreTests: XCTestCase {
             rightCenter: TapPoint(x: 100, y: 40),
             targetRadius: 24,
             startedAt: 12,
-            hand: "left",
+            hand: .left,
             screenScale: 3
         )
         let metrics = BradykinesiaAnalyzer.analyze(trial)
-        let result = try BradykinesiaStore.save(
+        let attempt = makeAttempt(
+            hand: .left,
             trial: trial,
             metrics: metrics,
             startedAt: Date(timeIntervalSince1970: 1_800_200_000),
-            completedAt: Date(timeIntervalSince1970: 1_800_200_020),
-            in: context
+            completedAt: Date(timeIntervalSince1970: 1_800_200_020)
         )
-        let rawCapture = try XCTUnwrap(result.session?.rawCaptures?.allObjects.first as? RawCapture)
+        let session = try BradykinesiaStore.save(attempts: [attempt], in: context)
+        let result = try XCTUnwrap(session.bradykinesiaResults?.anyObject() as? BradykinesiaResult)
+        let rawCapture = try XCTUnwrap(session.rawCaptures?.allObjects.first as? RawCapture)
         let decoded = try JSONDecoder().decode(TapTrial.self, from: try XCTUnwrap(rawCapture.payload))
+        let reason = try XCTUnwrap(result.invalidReason)
 
+        XCTAssertTrue(reason.contains("tap interval coefficient of variation unavailable"))
+        XCTAssertEqual(result.cvTapInter, 0, accuracy: 0.000_001)
         XCTAssertFalse(result.isValid)
-        XCTAssertTrue(try XCTUnwrap(result.invalidReason).contains("tap interval statistics unavailable"))
+        XCTAssertTrue(reason.contains("tap interval statistics unavailable"))
         XCTAssertEqual(result.tapInterMean, 0, accuracy: 0.000_001)
         XCTAssertEqual(result.driftLeftMean, 0, accuracy: 0.000_001)
         XCTAssertEqual(result.driftRightMean, 0, accuracy: 0.000_001)
@@ -180,13 +185,14 @@ final class BradykinesiaStoreTests: XCTestCase {
         var metrics = BradykinesiaAnalyzer.analyze(trial)
         metrics.corXY = .nan
 
-        let result = try BradykinesiaStore.save(
+        let attempt = makeAttempt(
             trial: trial,
             metrics: metrics,
             startedAt: Date(timeIntervalSince1970: 1_800_250_000),
-            completedAt: Date(timeIntervalSince1970: 1_800_250_020),
-            in: context
+            completedAt: Date(timeIntervalSince1970: 1_800_250_020)
         )
+        let session = try BradykinesiaStore.save(attempts: [attempt], in: context)
+        let result = try XCTUnwrap(session.bradykinesiaResults?.anyObject() as? BradykinesiaResult)
 
         XCTAssertFalse(result.isValid)
         XCTAssertTrue(try XCTUnwrap(result.invalidReason).contains("x/y correlation unavailable"))
@@ -197,30 +203,78 @@ final class BradykinesiaStoreTests: XCTestCase {
     func testFetchResultsOrdersByExplicitWallClockTimeAndSurvivesContextReset() throws {
         let trial = validTrial()
         let metrics = BradykinesiaAnalyzer.analyze(trial)
-        let older = try BradykinesiaStore.save(
-            trial: trial,
-            metrics: metrics,
-            startedAt: Date(timeIntervalSince1970: 1_800_300_000),
-            completedAt: Date(timeIntervalSince1970: 1_800_300_020),
+        let olderSession = try BradykinesiaStore.save(
+            attempts: [
+                makeAttempt(
+                    trial: trial,
+                    metrics: metrics,
+                    startedAt: Date(timeIntervalSince1970: 1_800_300_000),
+                    completedAt: Date(timeIntervalSince1970: 1_800_300_020)
+                )
+            ],
             in: context
         )
-        let newer = try BradykinesiaStore.save(
-            trial: trial,
-            metrics: metrics,
-            startedAt: Date(timeIntervalSince1970: 1_800_400_000),
-            completedAt: Date(timeIntervalSince1970: 1_800_400_020),
+        let newerSession = try BradykinesiaStore.save(
+            attempts: [
+                makeAttempt(
+                    trial: trial,
+                    metrics: metrics,
+                    startedAt: Date(timeIntervalSince1970: 1_800_400_000),
+                    completedAt: Date(timeIntervalSince1970: 1_800_400_020)
+                )
+            ],
             in: context
         )
-        let olderID = older.id
-        let newerID = newer.id
+        let olderSessionID = olderSession.id
+        let newerSessionID = newerSession.id
 
-        XCTAssertEqual(try BradykinesiaStore.fetchResults(in: context).map(\.id), [newerID, olderID])
+        XCTAssertEqual(
+            try BradykinesiaStore.fetchResults(in: context).map { $0.session?.id },
+            [newerSessionID, olderSessionID]
+        )
 
         context.reset()
         let refetched = try BradykinesiaStore.fetchResults(in: context)
-        XCTAssertEqual(refetched.map(\.id), [newerID, olderID])
+        XCTAssertEqual(refetched.map { $0.session?.id }, [newerSessionID, olderSessionID])
         XCTAssertEqual(try XCTUnwrap(refetched.first?.session?.rawCaptures?.count), 1)
         XCTAssertEqual(try XCTUnwrap(refetched.first?.numTaps), Int32(trial.samples.count))
+    }
+
+    func testCoefficientsOfVariationArePersisted() throws {
+        let trial = validTrial()
+        let metrics = BradykinesiaAnalyzer.analyze(trial)
+        let attempt = makeAttempt(
+            trial: trial,
+            metrics: metrics,
+            startedAt: Date(timeIntervalSince1970: 1_800_500_000),
+            completedAt: Date(timeIntervalSince1970: 1_800_500_020)
+        )
+
+        let session = try BradykinesiaStore.save(attempts: [attempt], in: context)
+        let result = try XCTUnwrap(session.bradykinesiaResults?.anyObject() as? BradykinesiaResult)
+
+        XCTAssertTrue(result.isValid)
+        XCTAssertEqual(result.cvTapInter, try XCTUnwrap(attempt.metrics.cvTapInter), accuracy: 0.000_001)
+        XCTAssertEqual(result.cvDriftLeft, try XCTUnwrap(attempt.metrics.cvDriftLeft), accuracy: 0.000_001)
+        XCTAssertEqual(result.cvDriftRight, try XCTUnwrap(attempt.metrics.cvDriftRight), accuracy: 0.000_001)
+    }
+
+    private func makeAttempt(
+        hand: CurrentHand = .right,
+        trial: TapTrial,
+        metrics: BradykinesiaMetrics,
+        startedAt: Date,
+        completedAt: Date,
+        monotonicCompletedAt: TimeInterval? = nil
+    ) -> HandAttempt {
+        HandAttempt(
+            hand: hand,
+            trial: trial,
+            metrics: metrics,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            monotonicCompletedAt: monotonicCompletedAt ?? (trial.startedAt + 20)
+        )
     }
 
     private func validTrial() -> TapTrial {
@@ -237,7 +291,7 @@ final class BradykinesiaStoreTests: XCTestCase {
             rightCenter: TapPoint(x: 100, y: 40),
             targetRadius: 24,
             startedAt: 10,
-            hand: "right",
+            hand: .right,
             screenScale: 3
         )
     }
@@ -268,5 +322,196 @@ final class BradykinesiaStoreTests: XCTestCase {
         XCTAssertEqual(p25, expected.p25, accuracy: 0.000_001, file: file, line: line)
         XCTAssertEqual(p75, expected.p75, accuracy: 0.000_001, file: file, line: line)
         XCTAssertEqual(stdev, expected.stdev, accuracy: 0.000_001, file: file, line: line)
+    }
+    
+    func testMedicationContextLinksTheMostRecentDoseTakenBeforeTheTest() throws {
+        let dayStart = referenceDayStart
+        makeMedicationLog(at: dayStart + 8 * 3600)                      // 08:00
+        let expected = makeMedicationLog(at: dayStart + 8 * 3600 + 1800) // 08:30
+        try context.save()
+
+        let session = try saveSingleAttempt(startedAtEpoch: dayStart + 9 * 3600)
+
+        XCTAssertEqual(session.medicationContext?.id, expected.id)
+        XCTAssertEqual(session.minutesSinceDose, 30, accuracy: 0.000_001)
+    }
+
+    func testMedicationContextIgnoresDosesTakenAfterTheTestStarted() throws {
+        let dayStart = referenceDayStart
+        makeMedicationLog(at: dayStart + 10 * 3600)
+        try context.save()
+
+        let session = try saveSingleAttempt(startedAtEpoch: dayStart + 9 * 3600)
+
+        XCTAssertNil(session.medicationContext)
+        XCTAssertEqual(session.minutesSinceDose, 0, accuracy: 0.000_001)
+    }
+
+    func testMedicationContextIgnoresDosesFromThePreviousDay() throws {
+        let dayStart = referenceDayStart
+        makeMedicationLog(at: dayStart - 2 * 3600)   // 22:00 the night before
+        try context.save()
+
+        let session = try saveSingleAttempt(startedAtEpoch: dayStart + 9 * 3600)
+        XCTAssertNil(session.medicationContext)
+    }
+
+    func testMedicationContextIgnoresSkippedDoses() throws {
+        let dayStart = referenceDayStart
+        makeMedicationLog(at: dayStart + 8 * 3600, wasSkipped: true)
+        try context.save()
+
+        let session = try saveSingleAttempt(startedAtEpoch: dayStart + 9 * 3600)
+        XCTAssertNil(session.medicationContext)
+    }
+
+    func testNoMedicationLogsLeavesTheContextUnsetAndMinutesAtPlaceholderZero() throws {
+        let session = try saveSingleAttempt(startedAtEpoch: referenceDayStart + 9 * 3600)
+
+        XCTAssertNil(session.medicationContext)
+        // 0 here is the schema placeholder, not "took a dose zero minutes ago".
+        // `medicationContext == nil` is the signal that the number is meaningless.
+        XCTAssertEqual(session.minutesSinceDose, 0, accuracy: 0.000_001)
+    }
+    
+    func testCorrectTapCountIsPersisted() throws {
+        // validTrial() targets are [.left, .right, .miss, .right, .left, .miss].
+        // Expected sequence opens on .right: the second tap scores, then .left at index 4 scores.
+        let trial = validTrial()
+        let attempt = makeAttempt(
+            trial: trial,
+            metrics: BradykinesiaAnalyzer.analyze(trial),
+            startedAt: Date(timeIntervalSince1970: 1_800_600_000),
+            completedAt: Date(timeIntervalSince1970: 1_800_600_020)
+        )
+
+        let session = try BradykinesiaStore.save(attempts: [attempt], in: context)
+        let result = try XCTUnwrap(session.bradykinesiaResults?.anyObject() as? BradykinesiaResult)
+
+        XCTAssertEqual(result.numTaps, 6)
+        XCTAssertEqual(result.numCorrectTaps, 2)
+    }
+
+    func testDurationSecReflectsTheMeasuredMonotonicWindowNotTheNominalTwentySeconds() throws {
+        let trial = validTrial()   // trial.startedAt == 10
+        let attempt = makeAttempt(
+            trial: trial,
+            metrics: BradykinesiaAnalyzer.analyze(trial),
+            startedAt: Date(timeIntervalSince1970: 1_800_700_000),
+            completedAt: Date(timeIntervalSince1970: 1_800_700_020),
+            monotonicCompletedAt: 30.35
+        )
+
+        let session = try BradykinesiaStore.save(attempts: [attempt], in: context)
+        let result = try XCTUnwrap(session.bradykinesiaResults?.anyObject() as? BradykinesiaResult)
+
+        XCTAssertEqual(result.durationSec, 20.35, accuracy: 0.000_001)
+    }
+    
+    func testBilateralSaveCreatesOneSessionWithTwoResultsAndTwoRawCaptures() throws {
+        let rightTrial = validTrial()
+        var leftTrial = validTrial()
+        leftTrial.hand = .left
+
+        let session = try BradykinesiaStore.save(
+            attempts: [
+                makeAttempt(
+                    hand: .right,
+                    trial: rightTrial,
+                    metrics: BradykinesiaAnalyzer.analyze(rightTrial),
+                    startedAt: Date(timeIntervalSince1970: 1_800_000_000),
+                    completedAt: Date(timeIntervalSince1970: 1_800_000_020)
+                ),
+                makeAttempt(
+                    hand: .left,
+                    trial: leftTrial,
+                    metrics: BradykinesiaAnalyzer.analyze(leftTrial),
+                    startedAt: Date(timeIntervalSince1970: 1_800_000_040),
+                    completedAt: Date(timeIntervalSince1970: 1_800_000_060)
+                )
+            ],
+            in: context
+        )
+
+        XCTAssertEqual(try context.count(for: TestSession.fetchRequest()), 1)
+        XCTAssertEqual(try context.count(for: BradykinesiaResult.fetchRequest()), 2)
+        XCTAssertEqual(try context.count(for: RawCapture.fetchRequest()), 2)
+
+        let results = try XCTUnwrap(session.bradykinesiaResults as? Set<BradykinesiaResult>)
+        XCTAssertEqual(Set(results.compactMap(\.hand)), ["right", "left"])
+
+        // The session spans the earliest start to the latest completion across both hands.
+        XCTAssertEqual(session.startedAt, 1_800_000_000, accuracy: 0.000_001)
+        XCTAssertEqual(session.completedAt, 1_800_000_060, accuracy: 0.000_001)
+    }
+
+    func testDuplicateHandIsRejectedBeforeAnythingIsCreated() throws {
+        let trial = validTrial()
+        let metrics = BradykinesiaAnalyzer.analyze(trial)
+        let attempt = makeAttempt(
+            hand: .right,
+            trial: trial,
+            metrics: metrics,
+            startedAt: Date(timeIntervalSince1970: 1_800_000_000),
+            completedAt: Date(timeIntervalSince1970: 1_800_000_020)
+        )
+
+        XCTAssertThrowsError(try BradykinesiaStore.save(attempts: [attempt, attempt], in: context)) { error in
+            guard case BradykinesiaStoreError.duplicateHand = error else {
+                return XCTFail("Expected duplicateHand, got \(error)")
+            }
+        }
+        XCTAssertEqual(try context.count(for: TestSession.fetchRequest()), 0)
+        XCTAssertFalse(context.hasChanges)
+    }
+
+    func testEmptyAttemptsAreRejected() {
+        XCTAssertThrowsError(try BradykinesiaStore.save(attempts: [], in: context)) { error in
+            guard case BradykinesiaStoreError.noAttempts = error else {
+                return XCTFail("Expected noAttempts, got \(error)")
+            }
+        }
+    }
+    
+    
+    
+    // Helpers
+    
+    @discardableResult
+    private func makeMedicationLog(
+        at timestamp: TimeInterval,
+        wasSkipped: Bool = false
+    ) -> MedicationLog {
+        let log = MedicationLog(context: context)
+        log.id = UUID()
+        log.timestamp = timestamp
+        log.dayStart = Calendar.current
+            .startOfDay(for: Date(timeIntervalSince1970: timestamp))
+            .timeIntervalSince1970
+        log.wasSkipped = wasSkipped
+        return log
+    }
+
+    /// Local midnight of a fixed reference day, so dose and test times can be expressed as offsets.
+    private var referenceDayStart: TimeInterval {
+        Calendar.current
+            .startOfDay(for: Date(timeIntervalSince1970: 1_800_000_000))
+            .timeIntervalSince1970
+    }
+
+    @discardableResult
+    private func saveSingleAttempt(startedAtEpoch: TimeInterval) throws -> TestSession {
+        let trial = validTrial()
+        return try BradykinesiaStore.save(
+            attempts: [
+                makeAttempt(
+                    trial: trial,
+                    metrics: BradykinesiaAnalyzer.analyze(trial),
+                    startedAt: Date(timeIntervalSince1970: startedAtEpoch),
+                    completedAt: Date(timeIntervalSince1970: startedAtEpoch + 20)
+                )
+            ],
+            in: context
+        )
     }
 }

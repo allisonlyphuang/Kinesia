@@ -19,6 +19,7 @@
 		8B91BC7C302D7ECB0033FABB /* typographyTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC6C302907880033FABB /* typographyTokens.swift */; };
 		8B91BC7D302D7ED10033FABB /* spacingTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC6D302908830033FABB /* spacingTokens.swift */; };
 		8B91BC80302D9BC00033FABB /* Kinesia.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC7E302D9BC00033FABB /* Kinesia.xcdatamodeld */; };
+		8B91BC97302DAF8E0033FABB /* BradykinesiaTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC96302DAF840033FABB /* BradykinesiaTestView.swift */; };
 		8C000001302DA0000033FABB /* TapSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC81302D9EA20033FABB /* TapSample.swift */; };
 		8C000002302DA0000033FABB /* SummaryStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC8E302DAE3D0033FABB /* SummaryStats.swift */; };
 		8C000003302DA0000033FABB /* BradykinesiaMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC90302DAEAC0033FABB /* BradykinesiaMetrics.swift */; };
@@ -32,18 +33,20 @@
 		8C000014302DA0000033FABB /* BradykinesiaStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000025302DA0000033FABB /* BradykinesiaStoreTests.swift */; };
 		8C000015302DA0000033FABB /* TapCaptureViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000026302DA0000033FABB /* TapCaptureViewTests.swift */; };
 		8C000016302DA0000033FABB /* BradykinesiaTestModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000027302DA0000033FABB /* BradykinesiaTestModelTests.swift */; };
-		8B91BC97302DAF8E0033FABB /* BradykinesiaTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC96302DAF840033FABB /* BradykinesiaTestView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8C000060302DA0000033FABB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B91BBAD2FF244AD0033FABB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8B91BBB42FF244AD0033FABB;
+			remoteInfo = Kinesia;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		8B91BBB52FF244AD0033FABB /* Kinesia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kinesia.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8C000020302DA0000033FABB /* KinesiaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KinesiaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		8C000021302DA0000033FABB /* SummaryStatsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryStatsTests.swift; sourceTree = "<group>"; };
-		8C000022302DA0000033FABB /* BradykinesiaAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaAnalyzerTests.swift; sourceTree = "<group>"; };
-		8C000023302DA0000033FABB /* TapModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapModelTests.swift; sourceTree = "<group>"; };
-		8C000025302DA0000033FABB /* BradykinesiaStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaStoreTests.swift; sourceTree = "<group>"; };
-		8C000026302DA0000033FABB /* TapCaptureViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapCaptureViewTests.swift; sourceTree = "<group>"; };
-		8C000027302DA0000033FABB /* BradykinesiaTestModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaTestModelTests.swift; sourceTree = "<group>"; };
 		8B91BC47301D2D880033FABB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8B91BC4A301D2D880033FABB /* KinesiaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KinesiaApp.swift; sourceTree = "<group>"; };
 		8B91BC4D301D2D880033FABB /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
@@ -65,6 +68,13 @@
 		8B91BC96302DAF840033FABB /* BradykinesiaTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaTestView.swift; sourceTree = "<group>"; };
 		8B91BC99302DAFC00033FABB /* BradykinesiaTestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaTestModel.swift; sourceTree = "<group>"; };
 		8B91BC9B302DAFF20033FABB /* BradykinesiaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaStore.swift; sourceTree = "<group>"; };
+		8C000020302DA0000033FABB /* KinesiaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KinesiaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C000021302DA0000033FABB /* SummaryStatsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryStatsTests.swift; sourceTree = "<group>"; };
+		8C000022302DA0000033FABB /* BradykinesiaAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaAnalyzerTests.swift; sourceTree = "<group>"; };
+		8C000023302DA0000033FABB /* TapModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapModelTests.swift; sourceTree = "<group>"; };
+		8C000025302DA0000033FABB /* BradykinesiaStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaStoreTests.swift; sourceTree = "<group>"; };
+		8C000026302DA0000033FABB /* TapCaptureViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapCaptureViewTests.swift; sourceTree = "<group>"; };
+		8C000027302DA0000033FABB /* BradykinesiaTestModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BradykinesiaTestModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,26 +122,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8C000024302DA0000033FABB /* KinesiaTests */ = {
-			isa = PBXGroup;
-			children = (
-				8C000021302DA0000033FABB /* SummaryStatsTests.swift */,
-				8C000022302DA0000033FABB /* BradykinesiaAnalyzerTests.swift */,
-				8C000023302DA0000033FABB /* TapModelTests.swift */,
-				8C000025302DA0000033FABB /* BradykinesiaStoreTests.swift */,
-				8C000026302DA0000033FABB /* TapCaptureViewTests.swift */,
-				8C000027302DA0000033FABB /* BradykinesiaTestModelTests.swift */,
-			);
-			path = KinesiaTests;
-			sourceTree = "<group>";
-		};
 		8B91BC48301D2D880033FABB /* calculations */ = {
 			isa = PBXGroup;
 			children = (
+				8B91BC81302D9EA20033FABB /* TapSample.swift */,
 				8B91BC91302DAEB70033FABB /* BradykinesiaAnalyzer.swift */,
 				8B91BC90302DAEAC0033FABB /* BradykinesiaMetrics.swift */,
 				8B91BC8E302DAE3D0033FABB /* SummaryStats.swift */,
-				8B91BC81302D9EA20033FABB /* TapSample.swift */,
 			);
 			path = calculations;
 			sourceTree = "<group>";
@@ -206,6 +203,19 @@
 				8B91BC9B302DAFF20033FABB /* BradykinesiaStore.swift */,
 			);
 			path = persistence;
+			sourceTree = "<group>";
+		};
+		8C000024302DA0000033FABB /* KinesiaTests */ = {
+			isa = PBXGroup;
+			children = (
+				8C000021302DA0000033FABB /* SummaryStatsTests.swift */,
+				8C000022302DA0000033FABB /* BradykinesiaAnalyzerTests.swift */,
+				8C000023302DA0000033FABB /* TapModelTests.swift */,
+				8C000025302DA0000033FABB /* BradykinesiaStoreTests.swift */,
+				8C000026302DA0000033FABB /* TapCaptureViewTests.swift */,
+				8C000027302DA0000033FABB /* BradykinesiaTestModelTests.swift */,
+			);
+			path = KinesiaTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -290,16 +300,6 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXContainerItemProxy section */
-		8C000060302DA0000033FABB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B91BBAD2FF244AD0033FABB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8B91BBB42FF244AD0033FABB;
-			remoteInfo = Kinesia;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXResourcesBuildPhase section */
 		8B91BBB32FF244AD0033FABB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
@@ -338,8 +338,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-/* End PBXSourcesBuildPhase section */
-
 		8C000031302DA0000033FABB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -353,6 +351,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+/* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
 		8C000061302DA0000033FABB /* PBXTargetDependency */ = {

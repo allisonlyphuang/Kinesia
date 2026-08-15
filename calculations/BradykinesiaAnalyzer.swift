@@ -9,6 +9,7 @@ import Foundation
 
 enum BradykinesiaAnalyzer {
     /// Computes paper-derived temporal and spatial metrics without reordering or filtering taps.
+    
     nonisolated static func analyze(_ trial: TapTrial) -> BradykinesiaMetrics {
         let intervals = tapIntervals(from: trial.samples)
         let spatial = spatialOutputs(from: trial.samples)
@@ -30,7 +31,7 @@ enum BradykinesiaAnalyzer {
             skewDriftLeft: leftDrift.flatMap(SummaryStats.paperPopulationSkewness),
             skewDriftRight: rightDrift.flatMap(SummaryStats.paperPopulationSkewness),
             corXY: spatial?.correlationXY,
-            numCorrectTaps: nil
+            numCorrectTaps: correctTapCount(from: trial.samples)
         )
     }
 
@@ -173,6 +174,25 @@ enum BradykinesiaAnalyzer {
 
     nonisolated private static func hasFiniteCoordinates(_ sample: TapSample) -> Bool {
         sample.x.isFinite && sample.y.isFinite
+    }
+    
+    
+    // a correct sequence starts on the right and alternates right left right etc.
+    // anything that is not the expected target is a miss and does not advance the expected target.
+    // this is the only metric that reads `TapTarget`
+    nonisolated static func correctTapCount(from samples: [TapSample]) -> Int {
+        var count = 0
+        var expected: TapTarget = .right
+
+        for sample in samples {
+            guard sample.target == expected else {
+                continue
+            }
+            count += 1
+            expected = (expected == .right) ? .left : .right
+        }
+
+        return count
     }
 
     private struct SpatialOutputs {

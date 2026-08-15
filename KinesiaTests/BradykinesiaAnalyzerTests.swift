@@ -37,6 +37,49 @@ final class BradykinesiaAnalyzerTests: XCTestCase {
     func testTapIntervalsRejectNonFiniteTimestamp() {
         XCTAssertNil(BradykinesiaAnalyzer.tapIntervals(from: samples([0, .nan, 1])))
     }
+        
+    func testCorrectTapsCountPerfectAlternationFromTheRight() {
+        XCTAssertEqual(
+            BradykinesiaAnalyzer.correctTapCount(from: targetSamples([.right, .left, .right, .left])),
+            4
+        )
+    }
+
+    func testCorrectTapsRequireTheSequenceToOpenOnTheRight() {
+        // The opening tap is on the wrong side and is lost; the rest fall into rhythm.
+        XCTAssertEqual(
+            BradykinesiaAnalyzer.correctTapCount(from: targetSamples([.left, .right, .left, .right])),
+            3
+        )
+    }
+
+    func testMissesAreNotCountedAndDoNotAdvanceTheExpectedTarget() {
+        // After the miss, `.left` is still the target that was owed.
+        XCTAssertEqual(
+            BradykinesiaAnalyzer.correctTapCount(from: targetSamples([.right, .miss, .left])),
+            2
+        )
+    }
+
+    func testWrongTargetHitsAreNotCountedAndDoNotAdvanceTheExpectedTarget() {
+        XCTAssertEqual(
+            BradykinesiaAnalyzer.correctTapCount(from: targetSamples([.right, .right, .left])),
+            2
+        )
+    }
+
+    func testCorrectTapsForSingleAndEmptySequences() {
+        XCTAssertEqual(BradykinesiaAnalyzer.correctTapCount(from: targetSamples([.right])), 1)
+        XCTAssertEqual(BradykinesiaAnalyzer.correctTapCount(from: targetSamples([.left])), 0)
+        XCTAssertEqual(BradykinesiaAnalyzer.correctTapCount(from: targetSamples([.miss, .miss])), 0)
+        XCTAssertEqual(BradykinesiaAnalyzer.correctTapCount(from: []), 0)
+    }
+
+    func testCorrectTapsNeverExceedTotalTaps() {
+        let trial = trial(timestamps: [0, 0.5, 1, 1.5, 2])
+        let metrics = BradykinesiaAnalyzer.analyze(trial)
+        XCTAssertLessThanOrEqual(metrics.numCorrectTaps, metrics.numTaps)
+    }
 
     func testAnalyzeRegularTrial() throws {
         let metrics = BradykinesiaAnalyzer.analyze(trial(timestamps: [0, 0.5, 1, 1.5, 2]))
@@ -52,7 +95,7 @@ final class BradykinesiaAnalyzerTests: XCTestCase {
         let coefficientOfVariation = try XCTUnwrap(metrics.cvTapInter)
         XCTAssertEqual(coefficientOfVariation, 0, accuracy: 0.000_001)
         XCTAssertNil(metrics.skewTapInter)
-        XCTAssertNil(metrics.numCorrectTaps)
+        XCTAssertEqual(metrics.numCorrectTaps, 0)
     }
 
     func testAnalyzeIrregularTrial() throws {
@@ -285,6 +328,13 @@ final class BradykinesiaAnalyzerTests: XCTestCase {
         XCTAssertNil(temporallyValid.corXY)
     }
 
+    /// Only `target` matters for correct-tap scoring, so timing and coordinates are filler.
+    private func targetSamples(_ targets: [TapTarget]) -> [TapSample] {
+        targets.enumerated().map { index, target in
+            TapSample(t: Double(index), x: 0, y: 0, target: target)
+        }
+    }
+    
     private func samples(_ timestamps: [TimeInterval]) -> [TapSample] {
         timestamps.enumerated().map { index, timestamp in
             TapSample(t: timestamp, x: Double(index), y: 0, target: .left)
@@ -324,7 +374,7 @@ final class BradykinesiaAnalyzerTests: XCTestCase {
             rightCenter: TapPoint(x: 30, y: 20),
             targetRadius: 15,
             startedAt: 0,
-            hand: "right",
+            hand: .right,
             screenScale: 3
         )
     }

@@ -13,7 +13,7 @@ struct BradykinesiaTestConfiguration {
     let leftCenter: TapPoint
     let rightCenter: TapPoint
     let targetRadius: Double
-    let hand: String
+    let handOrder: [CurrentHand]
     let screenScale: Double
     let countdownSeconds: Int
     let captureDuration: TimeInterval
@@ -22,48 +22,58 @@ struct BradykinesiaTestConfiguration {
         leftCenter: TapPoint,
         rightCenter: TapPoint,
         targetRadius: Double,
-        hand: String,
+        handOrder: [CurrentHand],
         screenScale: Double,
         countdownSeconds: Int = 3,
         captureDuration: TimeInterval = 20
     ) {
         precondition(countdownSeconds >= 0)
         precondition(captureDuration.isFinite && captureDuration > 0)
+        precondition(!handOrder.isEmpty)
+        precondition(Set(handOrder).count == handOrder.count)
 
         self.leftCenter = leftCenter
         self.rightCenter = rightCenter
         self.targetRadius = targetRadius
-        self.hand = hand
+        self.handOrder = handOrder
         self.screenScale = screenScale
         self.countdownSeconds = countdownSeconds
         self.captureDuration = captureDuration
     }
 }
 
+
+struct HandAttempt {
+    let hand: CurrentHand
+    let trial: TapTrial
+    let metrics: BradykinesiaMetrics
+    let startedAt: Date // wall clock
+    let completedAt: Date // wall clock
+    let monotonicCompletedAt: TimeInterval
+}
+
 @MainActor
 final class BradykinesiaTestModel: ObservableObject {
     enum Phase: Equatable {
         case ready
-        case countdown
-        case running
+        case countdown(CurrentHand)
+        case running(CurrentHand)
+        case rest(nextHand: CurrentHand)
         case finished
         case failed
     }
 
-    typealias PersistenceAction = (TapTrial, BradykinesiaMetrics, Date, Date, NSManagedObjectContext) throws -> BradykinesiaResult
+    typealias PersistenceAction = ([HandAttempt], NSManagedObjectContext) throws -> TestSession
 
     @Published private(set) var phase: Phase = .ready
     @Published private(set) var secondsRemaining = 0
     @Published private(set) var persistenceError: Error?
-    @Published private(set) var metrics: BradykinesiaMetrics?
-    @Published private(set) var persistedResult: BradykinesiaResult?
 
     private(set) var configuration: BradykinesiaTestConfiguration
     private(set) var capturedSamples: [TapSample] = []
-    private(set) var completedTrial: TapTrial?
     private(set) var monotonicStartedAt: TimeInterval?
     private(set) var wallClockStartedAt: Date?
-    private(set) var wallClockCompletedAt: Date?
+    @Published private(set) var completedAttempts: [HandAttempt] = []
 
     private let context: NSManagedObjectContext
     private let monotonicNow: () -> TimeInterval
@@ -86,14 +96,8 @@ final class BradykinesiaTestModel: ObservableObject {
         self.monotonicNow = monotonicNow
         self.wallClockNow = wallClockNow
         self.automaticallyScheduleTimers = automaticallyScheduleTimers
-        self.persistenceAction = persistenceAction ?? { trial, metrics, startedAt, completedAt, context in
-            try BradykinesiaStore.save(
-                trial: trial,
-                metrics: metrics,
-                startedAt: startedAt,
-                completedAt: completedAt,
-                in: context
-            )
+        self.persistenceAction = persistenceAction ?? { attempts, context in
+            try BradykinesiaStore.save(attempts: attempts, in: context)
         }
     }
 
@@ -102,97 +106,39 @@ final class BradykinesiaTestModel: ObservableObject {
     }
 
     var isCaptureActive: Bool {
-        phase == .running
+        if case .running = phase { return true }
+        return false
+    }
+    
+    var activeHand: CurrentHand? {
+        switch phase {
+        case.countdown(let hand), . running(let hand), .rest(let hand): return hand
+        case .ready, .finished, .failed: return nil
+        }
+    }
+    
+    private func nextHand() -> CurrentHand? {
+        let done = Set(completedAttempts.map(\.hand))
+        return configuration.handOrder.first {
+            !done.contains($0)
+        }
     }
 
     /// Updates the target geometry immediately before a new attempt begins.
     /// Geometry is intentionally locked once countdown/capture has started so the raw trial
     /// always describes the same targets that the participant saw.
     func configure(_ configuration: BradykinesiaTestConfiguration) {
-        guard phase == .ready else {
+        switch phase {
+        case .ready, .rest:
+            self.configuration = configuration
+        default:
             return
         }
-        self.configuration = configuration
     }
-
-    func start() {
-        beginCountdown()
-    }
-
-    func beginCountdown() {
-        guard phase == .ready else {
-            return
-        }
-
-        clearTrialState()
-        if configuration.countdownSeconds > 0 {
-            phase = .countdown
-            secondsRemaining = configuration.countdownSeconds
-        } else {
-            beginRunning()
-        }
-
-        if automaticallyScheduleTimers {
-            scheduleLifecycle()
-        }
-    }
-
-    /// Advances one production countdown second. Tests invoke this directly instead of waiting.
-    func countdownTick() {
-        guard phase == .countdown else {
-            return
-        }
-
-        if secondsRemaining > 1 {
-            secondsRemaining -= 1
-        } else {
-            beginRunning()
-        }
-    }
-
-    func recordTap(_ sample: TapSample) {
-        guard phase == .running else {
-            return
-        }
-        capturedSamples.append(sample)
-    }
-
-    /// Completes the live capture window exactly once. Tests call this directly instead of waiting 20 seconds.
-    func completeRunningWindow() {
-        guard phase == .running, !isFinishing,
-              let monotonicStartedAt,
-              let wallClockStartedAt else {
-            return
-        }
-
-        isFinishing = true
-        lifecycleTask?.cancel()
-        lifecycleTask = nil
-
-        let completedAt = wallClockNow()
-        let trial = TapTrial(
-            samples: capturedSamples,
-            leftCenter: configuration.leftCenter,
-            rightCenter: configuration.rightCenter,
-            targetRadius: configuration.targetRadius,
-            startedAt: monotonicStartedAt,
-            hand: configuration.hand,
-            screenScale: configuration.screenScale
-        )
-        let analyzedMetrics = BradykinesiaAnalyzer.analyze(trial)
-
-        completedTrial = trial
-        metrics = analyzedMetrics
-        wallClockCompletedAt = completedAt
-
+    
+    private func persistAllAttempts() {
         do {
-            persistedResult = try persistenceAction(
-                trial,
-                analyzedMetrics,
-                wallClockStartedAt,
-                completedAt,
-                context
-            )
+            _ = try persistenceAction(completedAttempts, context)
             persistenceError = nil
             secondsRemaining = 0
             phase = .finished
@@ -202,19 +148,111 @@ final class BradykinesiaTestModel: ObservableObject {
         }
     }
 
+    func start() {
+        guard let first = configuration.handOrder.first else { return }
+        beginCountdown(for: first)
+    }
+
+    func beginCountdown(for hand: CurrentHand) {
+        switch phase {
+        case .ready, .rest:
+            break
+        default:
+            return
+        }
+        guard nextHand() == hand else {
+            return
+        }
+        
+
+        clearTrialState()
+        if configuration.countdownSeconds > 0 {
+            phase = .countdown(hand)
+            secondsRemaining = configuration.countdownSeconds
+        } else {
+            beginRunning(hand)
+        }
+
+        if automaticallyScheduleTimers {
+            scheduleLifecycle()
+        }
+    }
+
+    /// Advances one production countdown second. Tests invoke this directly instead of waiting.
+    func countdownTick() {
+        guard case .countdown(let hand) = phase else {
+            return
+        }
+
+        if secondsRemaining > 1 {
+            secondsRemaining -= 1
+        } else {
+            beginRunning(hand)
+        }
+    }
+    
+    private func beginRunning(_ hand: CurrentHand) {
+        capturedSamples = []
+        monotonicStartedAt = monotonicNow()
+        wallClockStartedAt = wallClockNow()
+        phase = .running(hand)
+        secondsRemaining = Int(ceil(configuration.captureDuration))
+    }
+
+    func recordTap(_ sample: TapSample) {
+        guard case .running = phase else {
+            return
+        }
+        capturedSamples.append(sample)
+    }
+
+    /// Completes the live capture window exactly once. Tests call this directly instead of waiting 20 seconds.
+    func completeRunningWindow() {
+        guard case .running(let hand) = phase, !isFinishing,
+              let monotonicStartedAt,
+              let wallClockStartedAt else {
+            return
+        }
+        
+        isFinishing = true
+        lifecycleTask?.cancel()
+        lifecycleTask = nil
+        
+        let completedAt = wallClockNow()
+        let monotonicCompletedAt = monotonicNow()
+        let trial = TapTrial(
+            samples: capturedSamples,
+            leftCenter: configuration.leftCenter,
+            rightCenter: configuration.rightCenter,
+            targetRadius: configuration.targetRadius,
+            startedAt: monotonicStartedAt,
+            hand: hand,
+            screenScale: configuration.screenScale
+        )
+        completedAttempts.append(HandAttempt(
+            hand: hand,
+            trial: trial,
+            metrics: BradykinesiaAnalyzer.analyze(trial),
+            startedAt: wallClockStartedAt,
+            completedAt: completedAt,
+            monotonicCompletedAt: monotonicCompletedAt
+        ))
+        
+        isFinishing = false
+        if let next = nextHand() {
+            phase = .rest(nextHand: next)
+        } else {
+            persistAllAttempts()
+        }
+    }
+        
     func reset() {
         lifecycleTask?.cancel()
         lifecycleTask = nil
         phase = .ready
+        completedAttempts = []
+        persistenceError = nil
         clearTrialState()
-    }
-
-    private func beginRunning() {
-        capturedSamples = []
-        monotonicStartedAt = monotonicNow()
-        wallClockStartedAt = wallClockNow()
-        phase = .running
-        secondsRemaining = Int(ceil(configuration.captureDuration))
     }
 
     private func scheduleLifecycle() {
@@ -224,7 +262,7 @@ final class BradykinesiaTestModel: ObservableObject {
                 return
             }
 
-            while self.phase == .countdown {
+            while case .countdown = self.phase {
                 do {
                     try await Task.sleep(nanoseconds: 1_000_000_000)
                 } catch {
@@ -236,7 +274,7 @@ final class BradykinesiaTestModel: ObservableObject {
                 self.countdownTick()
             }
 
-            guard self.phase == .running else {
+            guard case .running = self.phase else {
                 return
             }
             var remainingDuration = configuration.captureDuration
@@ -247,7 +285,7 @@ final class BradykinesiaTestModel: ObservableObject {
                 } catch {
                     return
                 }
-                guard !Task.isCancelled, self.phase == .running else {
+                guard !Task.isCancelled, case .running = self.phase else {
                     return
                 }
 
@@ -261,13 +299,8 @@ final class BradykinesiaTestModel: ObservableObject {
 
     private func clearTrialState() {
         capturedSamples = []
-        completedTrial = nil
         monotonicStartedAt = nil
         wallClockStartedAt = nil
-        wallClockCompletedAt = nil
-        metrics = nil
-        persistedResult = nil
-        persistenceError = nil
         secondsRemaining = 0
         isFinishing = false
     }

@@ -1,6 +1,8 @@
 import XCTest
 @testable import Kinesia
 
+// encode a tap trial to JSON, decode it, check if something changed 
+
 @MainActor
 final class TapModelTests: XCTestCase {
     func testTapTrialCodableRoundTripPreservesRawCaptureData() throws {
@@ -14,7 +16,7 @@ final class TapModelTests: XCTestCase {
             rightCenter: TapPoint(x: 100, y: 40),
             targetRadius: 24,
             startedAt: 10,
-            hand: "left",
+            hand: .left,
             screenScale: 3
         )
 
@@ -31,7 +33,7 @@ final class TapModelTests: XCTestCase {
         XCTAssertEqual(decoded.rightCenter.y, 40, accuracy: 0.000_001)
         XCTAssertEqual(decoded.targetRadius, 24, accuracy: 0.000_001)
         XCTAssertEqual(decoded.startedAt, 10, accuracy: 0.000_001)
-        XCTAssertEqual(decoded.hand, "left")
+        XCTAssertEqual(decoded.hand, .left)
         XCTAssertEqual(decoded.screenScale, 3, accuracy: 0.000_001)
     }
 

@@ -12,6 +12,9 @@ enum BradykinesiaStoreError: Error {
     case metricTapCountMismatch(metrics: Int, samples: Int)
     case tapCountOutOfRange(Int)
     case invalidWallClockTimestamp
+    case noAttempts
+    case duplicateHand
+    case invalidCaptureDuration(Double)
 }
 
 struct BradykinesiaStore {
@@ -19,69 +22,133 @@ struct BradykinesiaStore {
     static let rawCaptureSchemaVersion: Int16 = 1
 
     /// Persists an analyzer-produced metric bundle and the original raw trial without recalculating either.
-    /// `startedAt` and `completedAt` are wall-clock dates; raw touch timestamps remain inside `trial` only.
     @discardableResult
     static func save(
-        trial: TapTrial,
-        metrics: BradykinesiaMetrics,
-        startedAt: Date,
-        completedAt: Date,
+        attempts: [HandAttempt],
         in context: NSManagedObjectContext
-    ) throws -> BradykinesiaResult {
-        guard metrics.numTaps == trial.samples.count else {
-            throw BradykinesiaStoreError.metricTapCountMismatch(
-                metrics: metrics.numTaps,
-                samples: trial.samples.count
-            )
+    ) throws -> TestSession {
+        
+        // validation before anything is created
+        
+        guard !attempts.isEmpty else {
+            throw BradykinesiaStoreError.noAttempts
         }
-        guard Int32(exactly: metrics.numTaps) != nil else {
-            throw BradykinesiaStoreError.tapCountOutOfRange(metrics.numTaps)
+        
+        let hands = attempts.map(\.hand)
+        guard Set(hands).count == hands.count else {
+            throw BradykinesiaStoreError.duplicateHand
         }
-
+        
+        // do validation checks without creating anything
+        
+        for attempt in attempts {
+            guard attempt.metrics.numTaps == attempt.trial.samples.count else {
+                throw BradykinesiaStoreError.metricTapCountMismatch(
+                    metrics: attempt.metrics.numTaps,
+                    samples: attempt.trial.samples.count
+                )
+            }
+            guard Int32(exactly: attempt.metrics.numTaps) != nil else {
+                throw BradykinesiaStoreError.tapCountOutOfRange(attempt.metrics.numTaps)
+            }
+            guard Int32(exactly: attempt.metrics.numCorrectTaps) != nil else {
+                throw BradykinesiaStoreError.tapCountOutOfRange(attempt.metrics.numCorrectTaps)
+            }
+            
+            let duration = attempt.monotonicCompletedAt - attempt.trial.startedAt
+            guard duration.isFinite, duration > 0 else {
+                throw BradykinesiaStoreError.invalidCaptureDuration(duration)
+            }
+        }
+        
+        guard let startedAt = attempts.map(\.startedAt).min(), let completedAt = attempts.map(\.completedAt).max() else {
+            throw BradykinesiaStoreError.noAttempts
+        }
+        
         let startedAtEpoch = startedAt.timeIntervalSince1970
         let completedAtEpoch = completedAt.timeIntervalSince1970
-        guard startedAtEpoch.isFinite, completedAtEpoch.isFinite else {
+        let dayStart = Calendar.current.startOfDay(for: startedAt).timeIntervalSince1970
+        guard startedAtEpoch.isFinite, completedAtEpoch.isFinite, dayStart.isFinite else {
             throw BradykinesiaStoreError.invalidWallClockTimestamp
         }
-
-        let rawPayload = try JSONEncoder().encode(trial)
-        let dayStart = Calendar.current.startOfDay(for: completedAt).timeIntervalSince1970
-        guard dayStart.isFinite else {
-            throw BradykinesiaStoreError.invalidWallClockTimestamp
-        }
+        
+        
+        
+        let payloads = try attempts.map { try JSONEncoder().encode($0.trial) }
+        
+        // create one session
+        let dose = try mostRecentDose(
+            onOrAfter: dayStart,
+            atOrBefore: startedAtEpoch,
+            in: context
+        )
 
         let session = TestSession(context: context)
         session.id = UUID()
         session.startedAt = startedAtEpoch
         session.completedAt = completedAtEpoch
         session.dayStart = dayStart
-        // TODO: Associate medicationContext once the selection rule is defined.
+        if let dose {
+            session.medicationContext = dose
+            session.minutesSinceDose = (startedAtEpoch - dose.timestamp) / 60
+        }
+        
+        
+        // create two rows per attempt
+        
+        for (attempt, payload) in zip(attempts, payloads) {
+            let result = BradykinesiaResult(context: context)
+            result.id = UUID()
+            result.timestamp = attempt.completedAt.timeIntervalSince1970
+            result.dayStart = dayStart
+            result.hand = attempt.hand.rawValue
+            result.numTaps = Int32(attempt.metrics.numTaps)
+            result.numCorrectTaps = Int32(attempt.metrics.numCorrectTaps)
+            result.session = session
+            result.durationSec = attempt.monotonicCompletedAt - attempt.trial.startedAt
+            MetricMapping(metrics: attempt.metrics).apply(to: result)
 
-        let result = BradykinesiaResult(context: context)
-        result.id = UUID()
-        result.timestamp = completedAtEpoch
-        result.dayStart = dayStart
-        result.hand = trial.hand
-        result.numTaps = Int32(metrics.numTaps)
-        result.session = session
-        // TODO: Map numCorrectTaps only after its correctness rule is defined. The required schema
-        // default remains an unresolved placeholder and is never derived from TapTarget here.
-        // TODO: Map MotionQC only when motion data exists; schema defaults are preserved for now.
+            // TODO: Map MotionQC only when motion data exists; schema defaults are preserved for now.
 
-        let mappedMetrics = MetricMapping(metrics: metrics)
-        mappedMetrics.apply(to: result)
-
-        let rawCapture = RawCapture(context: context)
-        rawCapture.id = UUID()
-        rawCapture.kind = rawCaptureKind
-        rawCapture.payload = rawPayload
-        rawCapture.schemaVersion = rawCaptureSchemaVersion
-        rawCapture.timestamp = completedAtEpoch
-        rawCapture.session = session
-
-        try context.save()
-        return result
+            let rawCapture = RawCapture(context: context)
+            rawCapture.id = UUID()
+            rawCapture.kind = rawCaptureKind
+            rawCapture.payload = payload
+            rawCapture.schemaVersion = rawCaptureSchemaVersion
+            rawCapture.timestamp = attempt.completedAt.timeIntervalSince1970
+            rawCapture.session = session
+        }
+        
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
+        return session
     }
+    
+    
+    // most recent dose taken on the test's actual day (at or after local midnight), at or before the test began
+    // returns nil when no such dose exists, callers must leave medicationContext unset in that case
+    static func mostRecentDose(
+        onOrAfter dayStart: TimeInterval,
+        atOrBefore instant: TimeInterval,
+        in context: NSManagedObjectContext
+    ) throws -> MedicationLog? {
+        let request = MedicationLog.fetchRequest()
+        request.predicate = NSPredicate(
+            format: "timestamp >= %f AND timestamp <= %f AND wasSkipped == NO",
+            dayStart,
+            instant
+        )
+        request.sortDescriptors = [
+            NSSortDescriptor(key: #keyPath(MedicationLog.timestamp), ascending: false)
+        ]
+        request.fetchLimit = 1
+        return try context.fetch(request).first
+    }
+
 
     /// Fetches persisted Bradykinesia results newest first by their explicit wall-clock timestamp.
     static func fetchResults(in context: NSManagedObjectContext) throws -> [BradykinesiaResult] {
@@ -89,12 +156,21 @@ struct BradykinesiaStore {
         request.sortDescriptors = [NSSortDescriptor(key: #keyPath(BradykinesiaResult.timestamp), ascending: false)]
         return try context.fetch(request)
     }
+    
+    static func fetchLatestSession(in context: NSManagedObjectContext) throws -> TestSession? {
+        let request = TestSession.fetchRequest()
+        request.predicate = NSPredicate(format: "bradykinesiaResults.@count > 0")
+        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(TestSession.completedAt), ascending: false)]
+        request.fetchLimit = 1
+        return try context.fetch(request).first
+    }
 
     static func fetchLatestResult(in context: NSManagedObjectContext) throws -> BradykinesiaResult? {
         let request = BradykinesiaResult.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: #keyPath(BradykinesiaResult.timestamp), ascending: false)]
         request.fetchLimit = 1
         return try context.fetch(request).first
+    
     }
 
     /// Required Core Data numeric attributes use zero only as a storage placeholder when `isValid` is false.
@@ -108,6 +184,9 @@ struct BradykinesiaStore {
         private let driftRightSkew: Double?
         private let correlationXY: Double?
         private let invalidReasons: [String]
+        private let cvTapInter: Double?
+        private let cvDriftLeft: Double?
+        private let cvDriftRight: Double?
 
         init(metrics: BradykinesiaMetrics) {
             tapInterStats = Self.finiteStats(metrics.tapInterStats)
@@ -117,6 +196,12 @@ struct BradykinesiaStore {
             driftRightStats = Self.finiteStats(metrics.driftRightStats)
             driftRightSkew = Self.finiteValue(metrics.skewDriftRight)
             correlationXY = Self.finiteValue(metrics.corXY)
+            cvTapInter = Self.finiteValue(metrics.cvTapInter)
+            cvDriftLeft = Self.finiteValue(metrics.cvDriftLeft)
+            cvDriftRight = Self.finiteValue(metrics.cvDriftRight)
+
+
+
 
             var reasons: [String] = []
             if tapInterStats == nil {
@@ -140,18 +225,31 @@ struct BradykinesiaStore {
             if correlationXY == nil {
                 reasons.append("x/y correlation unavailable")
             }
+            if cvTapInter == nil {
+                reasons.append("tap interval coefficient of variation unavailable")
+            }
+            if cvDriftLeft == nil {
+                reasons.append("left drift coefficient of variation unavailable")
+            }
+            if cvDriftRight == nil {
+                reasons.append("right drift coefficient of variation unavailable")
+            }
             invalidReasons = reasons
         }
 
         func apply(to result: BradykinesiaResult) {
             apply(tapInterStats, to: (\BradykinesiaResult.tapInterMin, \BradykinesiaResult.tapInterMax, \BradykinesiaResult.tapInterMean, \BradykinesiaResult.tapInterMedian, \BradykinesiaResult.tapInterP25, \BradykinesiaResult.tapInterP75, \BradykinesiaResult.tapInterStdev), result: result)
             result.tapInterSkew = value(tapInterSkew)
+            result.cvTapInter = value(cvTapInter)
 
             apply(driftLeftStats, to: (\BradykinesiaResult.driftLeftMin, \BradykinesiaResult.driftLeftMax, \BradykinesiaResult.driftLeftMean, \BradykinesiaResult.driftLeftMedian, \BradykinesiaResult.driftLeftP25, \BradykinesiaResult.driftLeftP75, \BradykinesiaResult.driftLeftStdev), result: result)
             result.driftLeftSkew = value(driftLeftSkew)
+            result.cvDriftLeft = value(cvDriftLeft)
 
             apply(driftRightStats, to: (\BradykinesiaResult.driftRightMin, \BradykinesiaResult.driftRightMax, \BradykinesiaResult.driftRightMean, \BradykinesiaResult.driftRightMedian, \BradykinesiaResult.driftRightP25, \BradykinesiaResult.driftRightP75, \BradykinesiaResult.driftRightStdev), result: result)
             result.driftRightSkew = value(driftRightSkew)
+            result.cvDriftRight = value(cvDriftRight)
+            
             result.corXY = value(correlationXY)
 
             result.isValid = invalidReasons.isEmpty
@@ -203,5 +301,6 @@ struct BradykinesiaStore {
             }
             return stats
         }
+        
     }
 }

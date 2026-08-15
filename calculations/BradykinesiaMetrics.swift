@@ -5,7 +5,7 @@
 //  Created by Allison Huang on 8/13/26.
 //
 
-struct BradykinesiaMetrics: Codable {
+nonisolated struct BradykinesiaMetrics: Codable {
     /// Number of raw taps captured, including left, right, and miss classifications.
     var numTaps: Int
 
@@ -36,7 +36,8 @@ struct BradykinesiaMetrics: Codable {
     var skewDriftRight: Double?
     /// Pearson correlation across all raw finite x/y coordinate pairs.
     var corXY: Double?
-
-    /// TODO: Define whether this counts target hits or correctly alternating target hits.
-    var numCorrectTaps: Int?
+    /// Taps that land inside the target the protocol expects next. The sequence opens on the
+    /// right and alternates. Misses and wrong-target hits are not counted and do not advance
+    /// the expected target. Always computable, so never `nil`.
+    var numCorrectTaps: Int
 }

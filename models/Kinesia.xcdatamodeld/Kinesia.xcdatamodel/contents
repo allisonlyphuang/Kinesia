@@ -40,6 +40,9 @@
         <attribute name="accelMaxG" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="accelMeanG" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="corXY" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="cvDriftLeft" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="cvDriftRight" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="cvTapInter" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="deviceMoved" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="driftLeftMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -74,7 +77,7 @@
         <attribute name="tapInterSkew" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="tapInterStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestSession" inverseName="bradykinesia" inverseEntity="TestSession"/>
+        <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestSession" inverseName="bradykinesiaResults" inverseEntity="TestSession"/>
         <fetchIndex name="byTimestamp">
             <fetchIndexElement property="timestamp" type="Binary" order="ascending"/>
         </fetchIndex>
@@ -223,6 +226,7 @@
         </uniquenessConstraints>
     </entity>
     <entity name="TestSession" representedClassName="TestSession" syncable="YES" codeGenerationType="class">
+        <attribute name="bilateralGroup" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="completedAt" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
@@ -230,7 +234,7 @@
         <attribute name="startedAt" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="status" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="akinesia" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="AkinesiaResult" inverseName="session" inverseEntity="AkinesiaResult"/>
-        <relationship name="bradykinesia" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="BradykinesiaResult" inverseName="session" inverseEntity="BradykinesiaResult"/>
+        <relationship name="bradykinesiaResults" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BradykinesiaResult" inverseName="session" inverseEntity="BradykinesiaResult" elementID="bradykinesia"/>
         <relationship name="dexterity" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DexterityResult" inverseName="session" inverseEntity="DexterityResult"/>
         <relationship name="medicationContext" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicationLog" inverseName="sessions" inverseEntity="MedicationLog"/>
         <relationship name="rawCaptures" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="RawCapture" inverseName="session" inverseEntity="RawCapture"/>

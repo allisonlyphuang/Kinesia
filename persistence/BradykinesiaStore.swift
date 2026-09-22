@@ -295,7 +295,9 @@ struct BradykinesiaStore {
                     stats.p75,
                     stats.stdev,
                     stats.range,
-                    stats.iqr
+                    stats.iqr,
+                    stats.p90,
+                    stats.mad
                   ].allSatisfy(\.isFinite) else {
                 return nil
             }

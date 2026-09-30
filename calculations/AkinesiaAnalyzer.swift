@@ -138,13 +138,14 @@ nonisolated enum AkinesiaAnalyzer {
 
 // holds the adjustable numbers so they are all in one place and can be implemented into the tests:
 nonisolated struct AkinesiaThresholds {
-    /// A reaction time below this cannot be a response to the cue. Exclusive: a round exactly at
-    /// the ceiling is valid.
+
+    // reaction time >= anticipationCeiling   = valid
     var anticipationCeiling: TimeInterval = 0.120
-    /// A reaction time above this is read as an attention lapse rather than a motor initiation
-    /// delay. Exclusive: a round exactly at the floor is valid.
+     
+    // reaction time > lapseFloor   = inattention/distracted
     var lapseFloor: TimeInterval = 2.0
-    /// Below this many valid rounds a session reports counts but no summary statistics.
+    
+    // rounds < minimumValidRounds  = records counts/raw times  but no summary stats
     var minimumValidRounds: Int = 8
     static let `default` = AkinesiaThresholds()
 }

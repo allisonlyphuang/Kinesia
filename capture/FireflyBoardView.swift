@@ -20,7 +20,7 @@ struct FireflyBoardGeometry: Equatable {
     var fireflyRadius: Double
 }
 
-// where a touch landed, based on position
+// where a touch landed based on position
 enum BoardTouchKind: Equatable {
     case home
     case firefly
@@ -33,6 +33,8 @@ enum HomeLiftReason: Equatable {
     case draggedOut // finger slid out of the home radius
     case cancelled // ios took away the touch
 }
+
+
 
 final class FireflyBoard: UIView {
     var onTouchDown: ((BoardTouchKind, TimeInterval, CGPoint) -> Void)?
@@ -102,6 +104,7 @@ final class FireflyBoard: UIView {
         
         if fireflyAt != requestedSpawn {
             requestedSpawn = fireflyAt
+            // if fireflyAt exists,
             if let point = fireflyAt {
                 pendingSpawn = point
             } else {

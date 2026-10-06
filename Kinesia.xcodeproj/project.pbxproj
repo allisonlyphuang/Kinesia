@@ -55,6 +55,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8D000001302DA0000033FABB /* ACCESSIBILITY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ACCESSIBILITY.md; sourceTree = "<group>"; };
+		8D000002302DA0000033FABB /* ADR.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ADR.md; sourceTree = "<group>"; };
+		8D000003302DA0000033FABB /* ARCHITECTURE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITECTURE.md; sourceTree = "<group>"; };
+		8D000004302DA0000033FABB /* CLINICAL_BASIS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLINICAL_BASIS.md; sourceTree = "<group>"; };
+		8D000005302DA0000033FABB /* DATA_DICTIONARY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DATA_DICTIONARY.md; sourceTree = "<group>"; };
+		8D000006302DA0000033FABB /* PRD.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRD.md; sourceTree = "<group>"; };
+		8D000007302DA0000033FABB /* TESTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TESTING.md; sourceTree = "<group>"; };
 		2CCF045B305F7AF30065D8B3 /* AkinesiaRoundRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaRoundRecord.swift; sourceTree = "<group>"; };
 		2CCF045D306074E60065D8B3 /* AkinesiaMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaMetrics.swift; sourceTree = "<group>"; };
 		2CCF045F30607CB00065D8B3 /* AkinesiaAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaAnalyzer.swift; sourceTree = "<group>"; };
@@ -113,6 +120,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8D000010302DA0000033FABB /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				8D000001302DA0000033FABB /* ACCESSIBILITY.md */,
+				8D000002302DA0000033FABB /* ADR.md */,
+				8D000003302DA0000033FABB /* ARCHITECTURE.md */,
+				8D000004302DA0000033FABB /* CLINICAL_BASIS.md */,
+				8D000005302DA0000033FABB /* DATA_DICTIONARY.md */,
+				8D000006302DA0000033FABB /* PRD.md */,
+				8D000007302DA0000033FABB /* TESTING.md */,
+			);
+			path = docs;
+			sourceTree = "<group>";
+		};
 		8B91BBAC2FF244AD0033FABB = {
 			isa = PBXGroup;
 			children = (
@@ -126,6 +147,7 @@
 				8B91BC4F301D2D880033FABB /* views */,
 				8B91BC4D301D2D880033FABB /* Persistence.swift */,
 				8B91BC4A301D2D880033FABB /* KinesiaApp.swift */,
+				8D000010302DA0000033FABB /* docs */,
 				8C000024302DA0000033FABB /* KinesiaTests */,
 				8B91BBB62FF244AD0033FABB /* Products */,
 			);

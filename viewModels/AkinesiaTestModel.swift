@@ -176,6 +176,14 @@ final class AkinesiaTestModel: ObservableObject {
         min(completedScoredRounds + 1, configuration.scoredRounds)
     }
 
+    // practice rounds banked so far. like the scored count, a retried round does not advance it
+    var completedPracticeRounds: Int { practiceRoundsTowardTarget }
+
+    // 1 based, eg "Practice firefly 1 of 2"
+    var currentPracticeRoundNumber: Int {
+        min(completedPracticeRounds + 1, max(configuration.practiceRounds, 1))
+    }
+
     private(set) var configuration: AkinesiaTestConfiguration
     private(set) var rounds: [RoundRecord] = []
     private(set) var refreshRateHz: Double = 0

@@ -354,4 +354,93 @@ final class FireflyBoardTests: XCTestCase {
 
         board.removeFromSuperview()
     }
+
+    // The board originally used bare UIImageViews with no image and no fill, so the jar and the
+    // firefly rendered as invisible rectangles. Nothing caught it because every test above checks
+    // isHidden and center rather than whether anything is actually drawn. These do.
+
+    func testTheJarAndTheFireflyAreActuallyDrawn() throws {
+        let board = makeBoard()
+        let recorder = EventRecorder()
+        configure(board, fireflyAt: nil, recorder: recorder)
+
+        let jar = try characterView(of: board)
+        let firefly = try fireflyView(of: board)
+
+        XCTAssertNotNil(jar.backgroundColor, "an unfilled jar is invisible")
+        XCTAssertNotNil(firefly.backgroundColor, "an unfilled firefly is invisible")
+        XCTAssertNotEqual(jar.backgroundColor, .clear)
+        XCTAssertNotEqual(firefly.backgroundColor, .clear)
+        XCTAssertNotNil(board.backgroundColor)
+    }
+
+    func testBothViewsAreRoundedIntoCircles() throws {
+        let board = makeBoard()
+        let recorder = EventRecorder()
+        configure(board, fireflyAt: nil, recorder: recorder)
+
+        // A circle is a square view whose corner radius is half its width.
+        let jar = try characterView(of: board)
+        XCTAssertEqual(jar.layer.cornerRadius, 40, accuracy: 0.001)
+        XCTAssertEqual(jar.bounds.width, 80, accuracy: 0.001)
+
+        let firefly = try fireflyView(of: board)
+        XCTAssertEqual(firefly.layer.cornerRadius, 30, accuracy: 0.001)
+        XCTAssertEqual(firefly.bounds.width, 60, accuracy: 0.001)
+    }
+
+    func testCornerRadiusFollowsAGeometryChange() throws {
+        let board = makeBoard()
+        let recorder = EventRecorder()
+        configure(board, fireflyAt: nil, recorder: recorder)
+
+        let smaller = FireflyBoardGeometry(
+            center: TapPoint(x: 100, y: 120),
+            homeBaseRadius: 28,
+            fireflyRadius: 26
+        )
+        configure(board, geometry: smaller, fireflyAt: nil, recorder: recorder)
+
+        // Stale radii would leave both views as rounded rectangles rather than circles.
+        XCTAssertEqual(try characterView(of: board).layer.cornerRadius, 28, accuracy: 0.001)
+        XCTAssertEqual(try fireflyView(of: board).layer.cornerRadius, 26, accuracy: 0.001)
+    }
+
+    func testTheFireflyIsLighterThanTheJarAndTheBoard() throws {
+        // Not a style preference: a low-contrast cue takes longer to notice, which lengthens the
+        // measurement and makes it depend on ambient light. The firefly must be the brightest
+        // thing on the board.
+        func brightness(_ color: UIColor?) throws -> CGFloat {
+            var white: CGFloat = 0
+            var alpha: CGFloat = 0
+            let converted = try XCTUnwrap(color).getWhite(&white, alpha: &alpha)
+            XCTAssertTrue(converted, "colour could not be read as greyscale")
+            return white
+        }
+
+        let appearance = FireflyBoardAppearance.default
+        let firefly = try brightness(appearance.fireflyFill)
+        let jar = try brightness(appearance.jarFill)
+        let boardFill = try brightness(appearance.boardFill)
+
+        XCTAssertGreaterThan(firefly, jar)
+        XCTAssertGreaterThan(jar, boardFill)
+    }
+
+    func testAnOverriddenAppearanceIsAppliedImmediately() throws {
+        // The SwiftUI screen passes `.clear` for the board once it draws its own backdrop.
+        let board = makeBoard()
+        let recorder = EventRecorder()
+        configure(board, fireflyAt: nil, recorder: recorder)
+
+        board.appearance = FireflyBoardAppearance(
+            boardFill: .clear,
+            jarFill: .systemRed,
+            fireflyFill: .systemYellow
+        )
+
+        XCTAssertEqual(board.backgroundColor, .clear)
+        XCTAssertEqual(try characterView(of: board).backgroundColor, .systemRed)
+        XCTAssertEqual(try fireflyView(of: board).backgroundColor, .systemYellow)
+    }
 }

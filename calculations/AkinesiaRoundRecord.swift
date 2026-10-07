@@ -50,7 +50,7 @@ nonisolated struct AkinesiaTrial: Codable { // one trial per session, mirror tap
 
 }
 
-nonisolated struct SpawnRing: Codable {
+nonisolated struct SpawnRing: Codable, Equatable {
     var center: TapPoint // home base
     var radius: Double // nominal distance D, in points
     var tolerance: Double

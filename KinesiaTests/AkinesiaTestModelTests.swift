@@ -133,6 +133,20 @@ final class AkinesiaTestModelTests: XCTestCase {
         XCTAssertEqual(model.roundPhase, .awaitingHome)
     }
 
+    func testPracticeProgressAdvancesSeparatelyFromScoredProgress() {
+        let model = makeModel(practiceRounds: 2, scoredRounds: 2)
+        model.startRounds()
+
+        XCTAssertEqual(model.currentPracticeRoundNumber, 1)
+        XCTAssertEqual(model.completedPracticeRounds, 0)
+
+        playCleanRound(model, homeAt: 10, cueAt: 12, liftAt: 12.3, catchAt: 12.55, returnAt: 12.9)
+
+        XCTAssertEqual(model.completedPracticeRounds, 1)
+        XCTAssertEqual(model.currentPracticeRoundNumber, 2)
+        XCTAssertEqual(model.completedScoredRounds, 0, "practice never advances the scored count")
+    }
+
     func testStartingWithPracticeEntersPracticingFirstAndSwitchesAfterThem() {
         let model = makeModel(practiceRounds: 2, scoredRounds: 2)
         model.startRounds()

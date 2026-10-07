@@ -34,6 +34,29 @@ enum HomeLiftReason: Equatable {
     case cancelled // ios took away the touch
 }
 
+struct FireflyBoardAppearance: Equatable {
+    var boardFill: UIColor
+    var jarFill: UIColor
+    var fireflyFill: UIColor // should be the brightest/lightest color
+
+    static let `default` = FireflyBoardAppearance(
+        boardFill: .kinesiaAsset("pine", fallback: (0x3A, 0x42, 0x3A)),
+        jarFill: .kinesiaAsset("sage", fallback: (0xA8, 0xB3, 0xA0)),
+        fireflyFill: .kinesiaAsset("cream", fallback: (0xFF, 0xFD, 0xF8))
+    )
+}
+
+private extension UIColor {
+    static func kinesiaAsset(_ name: String, fallback: (CGFloat, CGFloat, CGFloat)) -> UIColor {
+        UIColor(named: name) ?? UIColor(
+            red: fallback.0 / 255,
+            green: fallback.1 / 255,
+            blue: fallback.2 / 255,
+            alpha: 1
+        )
+    }
+}
+
 
 
 final class FireflyBoard: UIView {
@@ -59,6 +82,10 @@ final class FireflyBoard: UIView {
     
     private let characterView = UIImageView() // CALayer has implicit animations that cause delay, UIImageView does not
     private let fireflyView = UIImageView()
+
+    var appearance: FireflyBoardAppearance = .default {
+        didSet { applyAppearance() }
+    }
     
     
     
@@ -73,10 +100,16 @@ final class FireflyBoard: UIView {
     private func commonInit() {
         isMultipleTouchEnabled = true      //  catching finger may not be the resting thumb
         isAccessibilityElement = false     // the SwiftUI container carries the label
-        backgroundColor = .clear           // the garden is drawn behind us in SwiftUI
         addSubview(characterView)
         addSubview(fireflyView)
         fireflyView.isHidden = true
+        applyAppearance()
+    }
+
+    private func applyAppearance() {
+        backgroundColor = appearance.boardFill
+        characterView.backgroundColor = appearance.jarFill
+        fireflyView.backgroundColor = appearance.fireflyFill
     }
     deinit {
         displayLink?.invalidate()
@@ -230,12 +263,21 @@ final class FireflyBoard: UIView {
         return .elsewhere
     }
 
+    
+    // sizes & corner rounding to turn it into a circle
+    // masksToBounds for if art is replacing the plain fill
+  
     private func layoutCharacter() {
         let d = CGFloat(geometry.homeBaseRadius * 2)
         characterView.bounds = CGRect(x: 0, y: 0, width: d, height: d)
         characterView.center = CGPoint(x: geometry.center.x, y: geometry.center.y)
+        characterView.layer.cornerRadius = d / 2
+        characterView.layer.masksToBounds = true
+
         let f = CGFloat(geometry.fireflyRadius * 2)
         fireflyView.bounds = CGRect(x: 0, y: 0, width: f, height: f)
+        fireflyView.layer.cornerRadius = f / 2
+        fireflyView.layer.masksToBounds = true
     }
 }
 

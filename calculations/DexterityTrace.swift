@@ -18,6 +18,20 @@ nonisolated struct DexteritySequence: Codable, Equatable {
     var samples: [DexterityTracePoint]
     var completed: Bool
     var endedByLift: Bool
+    /// Raw system-interruption metadata, kept distinct from a normal finger lift.
+    var endedByCancellation: Bool
+
+    init(
+        samples: [DexterityTracePoint],
+        completed: Bool,
+        endedByLift: Bool,
+        endedByCancellation: Bool = false
+    ) {
+        self.samples = samples
+        self.completed = completed
+        self.endedByLift = endedByLift
+        self.endedByCancellation = endedByCancellation
+    }
 }
 
 /// Raw Dexterity data. Wall-clock context belongs to the later persistence layer.

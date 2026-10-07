@@ -89,10 +89,14 @@ final class DexterityAnalyzerTests: XCTestCase {
         let duplicate = DexterityAnalyzer.analyze(trial(samples: [sample(t: 0, x: 0, y: 0), sample(t: 1, x: 1, y: 0), sample(t: 1, x: 2, y: 0)]))
         let descending = DexterityAnalyzer.analyze(trial(samples: [sample(t: 0, x: 0, y: 0), sample(t: 2, x: 1, y: 0), sample(t: 1, x: 2, y: 0)]))
 
+        XCTAssertEqual(try XCTUnwrap(duplicate.rmsError), 0, accuracy: 0.000_001)
+        XCTAssertNil(duplicate.pathInvalidReason)
         XCTAssertNil(duplicate.swipeSpeedStats)
-        XCTAssertTrue(try XCTUnwrap(duplicate.calculationInvalidReason).contains("speed samples are invalid"))
+        XCTAssertEqual(duplicate.speedInvalidReason, "speed samples are invalid")
+        XCTAssertEqual(try XCTUnwrap(descending.rmsError), 0, accuracy: 0.000_001)
+        XCTAssertNil(descending.pathInvalidReason)
         XCTAssertNil(descending.swipeSpeedStats)
-        XCTAssertTrue(try XCTUnwrap(descending.calculationInvalidReason).contains("speed samples are invalid"))
+        XCTAssertEqual(descending.speedInvalidReason, "speed samples are invalid")
     }
 
     func testIdenticalCoordinatesProduceTrueZeroSpeedAndUnavailableCV() throws {
@@ -123,10 +127,12 @@ final class DexterityAnalyzerTests: XCTestCase {
 
         XCTAssertNil(nan.rmsError)
         XCTAssertNil(nan.swipeSpeedStats)
-        XCTAssertNotNil(nan.calculationInvalidReason)
+        XCTAssertEqual(nan.pathInvalidReason, "path samples are invalid")
+        XCTAssertEqual(nan.speedInvalidReason, "speed samples are invalid")
         XCTAssertNil(infinity.rmsError)
         XCTAssertNil(infinity.swipeSpeedStats)
-        XCTAssertNotNil(infinity.calculationInvalidReason)
+        XCTAssertEqual(infinity.pathInvalidReason, "path samples are invalid")
+        XCTAssertEqual(infinity.speedInvalidReason, "speed samples are invalid")
     }
 
     func testInvalidSegmentIndexInvalidatesPathWithoutDiscardingSpeed() throws {
@@ -136,7 +142,8 @@ final class DexterityAnalyzerTests: XCTestCase {
 
         XCTAssertNil(metrics.rmsError)
         XCTAssertNotNil(metrics.swipeSpeedStats)
-        XCTAssertTrue(try XCTUnwrap(metrics.calculationInvalidReason).contains("path samples are invalid"))
+        XCTAssertEqual(metrics.pathInvalidReason, "path samples are invalid")
+        XCTAssertNil(metrics.speedInvalidReason)
     }
 
     func testIncompleteSequenceCanStillProducePathMetrics() throws {
@@ -159,6 +166,54 @@ final class DexterityAnalyzerTests: XCTestCase {
         XCTAssertEqual(metrics.liftCount, 2)
     }
 
+    func testEquivalentRenderedScalesProduceEqualCanonicalSpeedMetrics() throws {
+        let canonicalTrial = trial(samples: [
+            sample(t: 0, x: 0, y: 0), sample(t: 1, x: 5, y: 0), sample(t: 2, x: 10, y: 0)
+        ])
+        let scaledSpace = DexterityCoordinateSpace(captureWidth: 200, captureHeight: 200, scale: 2, offsetX: 30, offsetY: 40)
+        let scaledTrial = trial(
+            samples: [
+                sample(t: 0, x: 30, y: 40), sample(t: 1, x: 40, y: 40), sample(t: 2, x: 50, y: 40)
+            ],
+            coordinateSpace: scaledSpace
+        )
+
+        let canonicalMetrics = DexterityAnalyzer.analyze(canonicalTrial)
+        let scaledMetrics = DexterityAnalyzer.analyze(scaledTrial)
+        let canonicalStats = try XCTUnwrap(canonicalMetrics.swipeSpeedStats)
+        let scaledStats = try XCTUnwrap(scaledMetrics.swipeSpeedStats)
+
+        XCTAssertEqual(try XCTUnwrap(DexterityAnalyzer.speedSamples(from: scaledTrial)), [5, 5])
+        XCTAssertEqual(try XCTUnwrap(canonicalMetrics.rmsError), try XCTUnwrap(scaledMetrics.rmsError), accuracy: 0.000_001)
+        XCTAssertEqual(canonicalStats.mean, scaledStats.mean, accuracy: 0.000_001)
+        XCTAssertEqual(canonicalStats.stdev, scaledStats.stdev, accuracy: 0.000_001)
+        XCTAssertEqual(canonicalMetrics.cvSwipeSpeed, scaledMetrics.cvSwipeSpeed)
+    }
+
+    func testDegenerateRoutePreservesCanonicalSpeedMetrics() throws {
+        let route = DexterityRoute(identifier: "degenerate", version: 1, points: [.init(x: 0, y: 0), .init(x: 0, y: 0)])
+        let metrics = DexterityAnalyzer.analyze(trial(route: route, samples: [
+            sample(t: 0, x: 0, y: 0), sample(t: 1, x: 3, y: 4), sample(t: 2, x: 6, y: 8)
+        ]))
+
+        XCTAssertNil(metrics.rmsError)
+        XCTAssertEqual(metrics.pathInvalidReason, "route is invalid")
+        XCTAssertEqual(try XCTUnwrap(metrics.swipeSpeedStats).mean, 5, accuracy: 0.000_001)
+        XCTAssertNil(metrics.speedInvalidReason)
+    }
+
+    func testInvalidCoordinateSpaceBlocksPathAndSpeedIndependently() {
+        let invalidSpace = DexterityCoordinateSpace(captureWidth: 100, captureHeight: 100, scale: 0, offsetX: 0, offsetY: 0)
+        let metrics = DexterityAnalyzer.analyze(trial(samples: [
+            sample(t: 0, x: 0, y: 0), sample(t: 1, x: 5, y: 0), sample(t: 2, x: 10, y: 0)
+        ], coordinateSpace: invalidSpace))
+
+        XCTAssertNil(metrics.rmsError)
+        XCTAssertNil(metrics.swipeSpeedStats)
+        XCTAssertEqual(metrics.pathInvalidReason, "coordinate space is invalid")
+        XCTAssertEqual(metrics.speedInvalidReason, "coordinate space is invalid")
+    }
+
     private func route() -> DexterityRoute {
         DexterityRoute(identifier: "line", version: 1, points: [.init(x: 0, y: 0), .init(x: 10, y: 0)])
     }
@@ -175,11 +230,12 @@ final class DexterityAnalyzerTests: XCTestCase {
         route: DexterityRoute? = nil,
         samples: [DexterityTracePoint] = [],
         completed: Bool = true,
-        sequences: [DexteritySequence]? = nil
+        sequences: [DexteritySequence]? = nil,
+        coordinateSpace: DexterityCoordinateSpace? = nil
     ) -> DexterityTrial {
         DexterityTrial(
             route: route ?? self.route(),
-            coordinateSpace: coordinateSpace(),
+            coordinateSpace: coordinateSpace ?? self.coordinateSpace(),
             sequences: sequences ?? [DexteritySequence(samples: samples, completed: completed, endedByLift: false)],
             startedAt: 0
         )

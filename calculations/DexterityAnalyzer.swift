@@ -2,25 +2,25 @@ import Foundation
 
 nonisolated enum DexterityAnalyzer {
     nonisolated static func analyze(_ trial: DexterityTrial) -> DexterityMetrics {
-        var invalidReasons: [String] = []
-
         let errors: [Double]?
+        let pathInvalidReason: String?
         if !isCalculationValid(route: trial.route) {
-            invalidReasons.append("route is invalid")
+            pathInvalidReason = "route is invalid"
             errors = nil
         } else if !trial.coordinateSpace.isCalculationValid {
-            invalidReasons.append("coordinate space is invalid")
+            pathInvalidReason = "coordinate space is invalid"
             errors = nil
         } else {
             errors = pathErrors(from: trial)
-            if errors == nil {
-                invalidReasons.append("path samples are invalid")
-            }
+            pathInvalidReason = errors == nil ? "path samples are invalid" : nil
         }
 
         let speeds = speedSamples(from: trial)
-        if speeds == nil {
-            invalidReasons.append("speed samples are invalid")
+        let speedInvalidReason: String?
+        if !trial.coordinateSpace.isCalculationValid {
+            speedInvalidReason = "coordinate space is invalid"
+        } else {
+            speedInvalidReason = speeds == nil ? "speed samples are invalid" : nil
         }
 
         let speedStats = speeds.flatMap(SummaryStats.compute)
@@ -34,7 +34,8 @@ nonisolated enum DexterityAnalyzer {
             maxPointError: errors.flatMap { $0.max() },
             swipeSpeedStats: speedStats,
             cvSwipeSpeed: cv,
-            calculationInvalidReason: invalidReasons.isEmpty ? nil : invalidReasons.joined(separator: "; ")
+            pathInvalidReason: pathInvalidReason,
+            speedInvalidReason: speedInvalidReason
         )
     }
 
@@ -115,9 +116,13 @@ nonisolated enum DexterityAnalyzer {
         return errors
     }
 
-    /// Returns one local-coordinate speed per valid consecutive pair within each sequence.
+    /// Returns one canonical-route-unit speed per valid consecutive pair within each sequence.
     /// A malformed pair invalidates the entire speed output; no pair is silently discarded.
     static func speedSamples(from trial: DexterityTrial) -> [Double]? {
+        guard trial.coordinateSpace.isCalculationValid else {
+            return nil
+        }
+
         var speeds: [Double] = []
 
         for sequence in trial.sequences {
@@ -137,8 +142,13 @@ nonisolated enum DexterityAnalyzer {
                     return nil
                 }
 
-                let deltaX = current.x - previous.x
-                let deltaY = current.y - previous.y
+                guard let canonicalPrevious = trial.coordinateSpace.canonicalPoint(localX: previous.x, localY: previous.y),
+                      let canonicalCurrent = trial.coordinateSpace.canonicalPoint(localX: current.x, localY: current.y) else {
+                    return nil
+                }
+
+                let deltaX = canonicalCurrent.x - canonicalPrevious.x
+                let deltaY = canonicalCurrent.y - canonicalPrevious.y
                 let distance = sqrt(deltaX * deltaX + deltaY * deltaY)
                 guard distance.isFinite else {
                     return nil

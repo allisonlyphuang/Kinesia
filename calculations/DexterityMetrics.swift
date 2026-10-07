@@ -10,11 +10,18 @@ nonisolated struct DexterityMetrics: Codable {
     /// Computed only. Its relationship to the schema's `rmsErrorMax` remains unresolved.
     var maxPointError: Double?
 
-    /// Summary statistics for local-coordinate screen-point-per-second samples.
+    /// Summary statistics for canonical-route-unit-per-second samples.
     var swipeSpeedStats: SummaryStats?
     /// Sample-SD coefficient of variation, computed in memory only.
     var cvSwipeSpeed: Double?
 
-    /// A deterministic description of malformed calculation input, distinct from insufficient data.
-    var calculationInvalidReason: String?
+    /// A deterministic description of malformed path-analysis input, distinct from insufficient data.
+    var pathInvalidReason: String?
+    /// A deterministic description of malformed temporal/speed-analysis input, distinct from insufficient data.
+    var speedInvalidReason: String?
+
+    var calculationInvalidReason: String? {
+        let reasons = [pathInvalidReason, speedInvalidReason].compactMap { $0 }
+        return reasons.isEmpty ? nil : reasons.joined(separator: "; ")
+    }
 }

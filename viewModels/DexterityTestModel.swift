@@ -82,6 +82,8 @@ final class DexterityTestModel: ObservableObject {
     @Published private(set) var nextTargetIndex: Int?
     @Published private(set) var currentTracePoints: [DexterityTracePoint] = []
     @Published private(set) var latestSequence: DexteritySequence?
+    /// Raw monotonic trace start time. This remains separate from future wall-clock persistence context.
+    @Published private(set) var monotonicStartedAt: TimeInterval?
 
     private(set) var configuration: DexterityTestConfiguration
     private var progress: DexterityRouteProgress?
@@ -126,6 +128,7 @@ final class DexterityTestModel: ObservableObject {
     func reset() {
         currentTracePoints = []
         latestSequence = nil
+        monotonicStartedAt = nil
         if let invalidReason = configuration.invalidReason {
             phase = .configurationInvalid(invalidReason)
             progress = nil
@@ -148,6 +151,7 @@ final class DexterityTestModel: ObservableObject {
 
         currentTracePoints = [tracePoint(from: sample, segmentIndex: progress.activeSegmentIndex)]
         latestSequence = nil
+        monotonicStartedAt = sample.t
         phase = .tracing
     }
 

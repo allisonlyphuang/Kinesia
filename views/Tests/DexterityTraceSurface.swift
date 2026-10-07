@@ -3,11 +3,16 @@ import SwiftUI
 /// A configuration-driven tracing surface. It intentionally selects no production route or protocol values.
 struct DexterityTraceSurface: View {
     let configuration: DexterityTestConfiguration
+    let onSequenceFinished: ((DexteritySequence, TimeInterval) -> Void)?
     private let layout: DexterityRouteLayout?
     @StateObject private var model: DexterityTestModel
 
-    init(configuration: DexterityTestConfiguration) {
+    init(
+        configuration: DexterityTestConfiguration,
+        onSequenceFinished: ((DexteritySequence, TimeInterval) -> Void)? = nil
+    ) {
         self.configuration = configuration
+        self.onSequenceFinished = onSequenceFinished
         layout = DexterityRouteLayout(configuration: configuration)
         _model = StateObject(wrappedValue: DexterityTestModel(configuration: configuration))
     }
@@ -33,6 +38,12 @@ struct DexterityTraceSurface: View {
         .padding(Spacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.bgPrimaryColor.ignoresSafeArea())
+        .onChange(of: model.latestSequence) { sequence in
+            guard let sequence, let monotonicStartedAt = model.monotonicStartedAt else {
+                return
+            }
+            onSequenceFinished?(sequence, monotonicStartedAt)
+        }
     }
 
     private func tracingSurface(layout: DexterityRouteLayout) -> some View {

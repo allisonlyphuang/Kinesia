@@ -15,6 +15,16 @@ final class DexterityTestModelTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(model.currentTracePoints.first).segmentIndex, 0)
     }
 
+    func testValidStartRetainsRawMonotonicStartTime() {
+        let model = makeModel()
+
+        model.handle(.began(sample(t: 42.5, x: 0, y: 0)))
+
+        XCTAssertEqual(model.monotonicStartedAt, 42.5)
+        model.reset()
+        XCTAssertNil(model.monotonicStartedAt)
+    }
+
     func testStartOutsideFirstTargetDoesNotBeginSequence() {
         let model = makeModel()
 

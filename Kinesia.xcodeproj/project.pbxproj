@@ -19,6 +19,9 @@
 		8E100101302DA0000033FABB /* DexterityRouteLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100111302DA0000033FABB /* DexterityRouteLayout.swift */; };
 		8E100102302DA0000033FABB /* DexterityTraceSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100112302DA0000033FABB /* DexterityTraceSurface.swift */; };
 		8E100103302DA0000033FABB /* DexterityRouteLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100113302DA0000033FABB /* DexterityRouteLayoutTests.swift */; };
+		8E100201302DA0000033FABB /* DexterityRouteFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100211302DA0000033FABB /* DexterityRouteFit.swift */; };
+		8E100202302DA0000033FABB /* DexterityDebugHarness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100212302DA0000033FABB /* DexterityDebugHarness.swift */; };
+		8E100203302DA0000033FABB /* DexterityRouteFitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100213302DA0000033FABB /* DexterityRouteFitTests.swift */; };
 		8B91BC53301D2D880033FABB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B91BC47301D2D880033FABB /* Assets.xcassets */; };
 		8B91BC54301D2D880033FABB /* KinesiaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4A301D2D880033FABB /* KinesiaApp.swift */; };
 		8B91BC56301D2D880033FABB /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4E301D2D880033FABB /* HomeView.swift */; };
@@ -70,6 +73,9 @@
 		8E100111302DA0000033FABB /* DexterityRouteLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteLayout.swift; sourceTree = "<group>"; };
 		8E100112302DA0000033FABB /* DexterityTraceSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTraceSurface.swift; sourceTree = "<group>"; };
 		8E100113302DA0000033FABB /* DexterityRouteLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteLayoutTests.swift; sourceTree = "<group>"; };
+		8E100211302DA0000033FABB /* DexterityRouteFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteFit.swift; sourceTree = "<group>"; };
+		8E100212302DA0000033FABB /* DexterityDebugHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityDebugHarness.swift; sourceTree = "<group>"; };
+		8E100213302DA0000033FABB /* DexterityRouteFitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteFitTests.swift; sourceTree = "<group>"; };
 		8B91BBB52FF244AD0033FABB /* Kinesia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kinesia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B91BC47301D2D880033FABB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8B91BC4A301D2D880033FABB /* KinesiaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KinesiaApp.swift; sourceTree = "<group>"; };
@@ -149,6 +155,7 @@
 		8B91BC48301D2D880033FABB /* calculations */ = {
 			isa = PBXGroup;
 			children = (
+				8E100211302DA0000033FABB /* DexterityRouteFit.swift */,
 				8E100111302DA0000033FABB /* DexterityRouteLayout.swift */,
 				8E100014302DA0000033FABB /* DexterityAnalyzer.swift */,
 				8E100013302DA0000033FABB /* DexterityMetrics.swift */,
@@ -223,6 +230,7 @@
 		8B91BC98302DAF980033FABB /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				8E100212302DA0000033FABB /* DexterityDebugHarness.swift */,
 				8E100112302DA0000033FABB /* DexterityTraceSurface.swift */,
 				8B91BC96302DAF840033FABB /* BradykinesiaTestView.swift */,
 			);
@@ -240,6 +248,7 @@
 		8C000024302DA0000033FABB /* KinesiaTests */ = {
 			isa = PBXGroup;
 			children = (
+				8E100213302DA0000033FABB /* DexterityRouteFitTests.swift */,
 				8E100113302DA0000033FABB /* DexterityRouteLayoutTests.swift */,
 				8E100019302DA0000033FABB /* DexterityTestModelTests.swift */,
 				8E100017302DA0000033FABB /* DexterityCaptureTests.swift */,
@@ -352,6 +361,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E100202302DA0000033FABB /* DexterityDebugHarness.swift in Sources */,
+				8E100201302DA0000033FABB /* DexterityRouteFit.swift in Sources */,
 				8E100102302DA0000033FABB /* DexterityTraceSurface.swift in Sources */,
 				8E100101302DA0000033FABB /* DexterityRouteLayout.swift in Sources */,
 				8E100008302DA0000033FABB /* DexterityTestModel.swift in Sources */,
@@ -386,6 +397,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E100203302DA0000033FABB /* DexterityRouteFitTests.swift in Sources */,
 				8E100103302DA0000033FABB /* DexterityRouteLayoutTests.swift in Sources */,
 				8E100009302DA0000033FABB /* DexterityTestModelTests.swift in Sources */,
 				8E100007302DA0000033FABB /* DexterityCaptureTests.swift in Sources */,

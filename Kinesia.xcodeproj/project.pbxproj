@@ -12,6 +12,8 @@
 		8E100003302DA0000033FABB /* DexterityMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100013302DA0000033FABB /* DexterityMetrics.swift */; };
 		8E100004302DA0000033FABB /* DexterityAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100014302DA0000033FABB /* DexterityAnalyzer.swift */; };
 		8E100005302DA0000033FABB /* DexterityAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100015302DA0000033FABB /* DexterityAnalyzerTests.swift */; };
+		8E100006302DA0000033FABB /* DexterityCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100016302DA0000033FABB /* DexterityCaptureView.swift */; };
+		8E100007302DA0000033FABB /* DexterityCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100017302DA0000033FABB /* DexterityCaptureTests.swift */; };
 		8B91BC53301D2D880033FABB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B91BC47301D2D880033FABB /* Assets.xcassets */; };
 		8B91BC54301D2D880033FABB /* KinesiaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4A301D2D880033FABB /* KinesiaApp.swift */; };
 		8B91BC56301D2D880033FABB /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4E301D2D880033FABB /* HomeView.swift */; };
@@ -56,6 +58,8 @@
 		8E100013302DA0000033FABB /* DexterityMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityMetrics.swift; sourceTree = "<group>"; };
 		8E100014302DA0000033FABB /* DexterityAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityAnalyzer.swift; sourceTree = "<group>"; };
 		8E100015302DA0000033FABB /* DexterityAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityAnalyzerTests.swift; sourceTree = "<group>"; };
+		8E100016302DA0000033FABB /* DexterityCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityCaptureView.swift; sourceTree = "<group>"; };
+		8E100017302DA0000033FABB /* DexterityCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityCaptureTests.swift; sourceTree = "<group>"; };
 		8B91BBB52FF244AD0033FABB /* Kinesia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kinesia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B91BC47301D2D880033FABB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8B91BC4A301D2D880033FABB /* KinesiaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KinesiaApp.swift; sourceTree = "<group>"; };
@@ -189,6 +193,7 @@
 		8B91BC92302DAEEC0033FABB /* capture */ = {
 			isa = PBXGroup;
 			children = (
+				8E100016302DA0000033FABB /* DexterityCaptureView.swift */,
 				8B91BC94302DAF3C0033FABB /* MotionQC.swift */,
 				8B91BC93302DAF370033FABB /* TapCaptureView.swift */,
 			);
@@ -222,6 +227,7 @@
 		8C000024302DA0000033FABB /* KinesiaTests */ = {
 			isa = PBXGroup;
 			children = (
+				8E100017302DA0000033FABB /* DexterityCaptureTests.swift */,
 				8E100015302DA0000033FABB /* DexterityAnalyzerTests.swift */,
 				8C000021302DA0000033FABB /* SummaryStatsTests.swift */,
 				8C000022302DA0000033FABB /* BradykinesiaAnalyzerTests.swift */,
@@ -331,6 +337,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E100006302DA0000033FABB /* DexterityCaptureView.swift in Sources */,
 				8E100004302DA0000033FABB /* DexterityAnalyzer.swift in Sources */,
 				8E100003302DA0000033FABB /* DexterityMetrics.swift in Sources */,
 				8E100002302DA0000033FABB /* DexterityRoute.swift in Sources */,
@@ -361,6 +368,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E100007302DA0000033FABB /* DexterityCaptureTests.swift in Sources */,
 				8E100005302DA0000033FABB /* DexterityAnalyzerTests.swift in Sources */,
 				8C000011302DA0000033FABB /* SummaryStatsTests.swift in Sources */,
 				8C000012302DA0000033FABB /* BradykinesiaAnalyzerTests.swift in Sources */,

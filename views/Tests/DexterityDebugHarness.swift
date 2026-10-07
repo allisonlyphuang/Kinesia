@@ -10,39 +10,37 @@ struct DexterityDebugHarness: View {
     private let configuration = DexterityDebugConfiguration.configuration
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.lg) {
-                Text("dexterity debug harness")
-                    .font(.displayMedium)
-                    .foregroundStyle(Color.textDark)
+        VStack(alignment: .leading, spacing: Spacing.lg) {
+            Text("dexterity debug harness")
+                .font(.displayMedium)
+                .foregroundStyle(Color.textDark)
 
-                Text("development validation only. this route and target radius are provisional and are not a clinical or production protocol.")
+            Text("development validation only. this route and target radius are provisional and are not a clinical or production protocol.")
+                .font(.body)
+                .foregroundStyle(Color.textDark)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let configuration {
+                DexterityTraceSurface(
+                    configuration: configuration,
+                    onSequenceFinished: analyze
+                )
+                .id(runID)
+
+                debugMetricsPanel
+
+                Button("reset debug run") {
+                    resetDebugRun()
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityHint("Starts a new development-only tracing run.")
+            } else {
+                Text("the development tracing configuration is unavailable.")
                     .font(.body)
                     .foregroundStyle(Color.textDark)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                if let configuration {
-                    DexterityTraceSurface(
-                        configuration: configuration,
-                        onSequenceFinished: analyze
-                    )
-                    .id(runID)
-
-                    debugMetricsPanel
-
-                    Button("reset debug run") {
-                        resetDebugRun()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .accessibilityHint("Starts a new development-only tracing run.")
-                } else {
-                    Text("the development tracing configuration is unavailable.")
-                        .font(.body)
-                        .foregroundStyle(Color.textDark)
-                }
             }
-            .padding(Spacing.lg)
         }
+        .padding(Spacing.lg)
         .background(Color.bgPrimaryColor.ignoresSafeArea())
     }
 
@@ -56,6 +54,8 @@ struct DexterityDebugHarness: View {
             if let completedSequence, let debugMetrics {
                 Text("sequence completed: \(completedSequence.completed ? "yes" : "no")")
                 Text("captured samples: \(completedSequence.samples.count)")
+                Text("ended by lift: \(completedSequence.endedByLift ? "yes" : "no")")
+                Text("ended by cancellation: \(completedSequence.endedByCancellation ? "yes" : "no")")
                 metricRow("rms error", value: debugMetrics.rmsError, unit: "canonical route units")
                 metricRow("max point error", value: debugMetrics.maxPointError, unit: "canonical route units")
                 metricRow("mean swipe speed", value: debugMetrics.swipeSpeedStats?.mean, unit: "canonical route units / second")

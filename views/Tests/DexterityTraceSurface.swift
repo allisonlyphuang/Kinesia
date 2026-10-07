@@ -4,15 +4,18 @@ import SwiftUI
 struct DexterityTraceSurface: View {
     let configuration: DexterityTestConfiguration
     let onSequenceFinished: ((DexteritySequence, TimeInterval) -> Void)?
+    let onPhaseChanged: ((DexterityTestModel.Phase) -> Void)?
     private let layout: DexterityRouteLayout?
     @StateObject private var model: DexterityTestModel
 
     init(
         configuration: DexterityTestConfiguration,
-        onSequenceFinished: ((DexteritySequence, TimeInterval) -> Void)? = nil
+        onSequenceFinished: ((DexteritySequence, TimeInterval) -> Void)? = nil,
+        onPhaseChanged: ((DexterityTestModel.Phase) -> Void)? = nil
     ) {
         self.configuration = configuration
         self.onSequenceFinished = onSequenceFinished
+        self.onPhaseChanged = onPhaseChanged
         layout = DexterityRouteLayout(configuration: configuration)
         _model = StateObject(wrappedValue: DexterityTestModel(configuration: configuration))
     }
@@ -38,6 +41,12 @@ struct DexterityTraceSurface: View {
         .padding(Spacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.bgPrimaryColor.ignoresSafeArea())
+        .onAppear {
+            onPhaseChanged?(model.phase)
+        }
+        .onChange(of: model.phase) { phase in
+            onPhaseChanged?(phase)
+        }
         .onChange(of: model.latestSequence) { sequence in
             guard let sequence, let monotonicStartedAt = model.monotonicStartedAt else {
                 return

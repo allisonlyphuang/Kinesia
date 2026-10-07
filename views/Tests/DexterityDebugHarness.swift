@@ -6,41 +6,46 @@ struct DexterityDebugHarness: View {
     @State private var runID = UUID()
     @State private var completedSequence: DexteritySequence?
     @State private var debugMetrics: DexterityMetrics?
+    @State private var isTraceInteractionActive = true
 
     private let configuration = DexterityDebugConfiguration.configuration
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.lg) {
-            Text("dexterity debug harness")
-                .font(.displayMedium)
-                .foregroundStyle(Color.textDark)
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.lg) {
+                Text("dexterity debug harness")
+                    .font(.displayMedium)
+                    .foregroundStyle(Color.textDark)
 
-            Text("development validation only. this route and target radius are provisional and are not a clinical or production protocol.")
-                .font(.body)
-                .foregroundStyle(Color.textDark)
-                .fixedSize(horizontal: false, vertical: true)
-
-            if let configuration {
-                DexterityTraceSurface(
-                    configuration: configuration,
-                    onSequenceFinished: analyze
-                )
-                .id(runID)
-
-                debugMetricsPanel
-
-                Button("reset debug run") {
-                    resetDebugRun()
-                }
-                .buttonStyle(.borderedProminent)
-                .accessibilityHint("Starts a new development-only tracing run.")
-            } else {
-                Text("the development tracing configuration is unavailable.")
+                Text("development validation only. this route and target radius are provisional and are not a clinical or production protocol.")
                     .font(.body)
                     .foregroundStyle(Color.textDark)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if let configuration {
+                    DexterityTraceSurface(
+                        configuration: configuration,
+                        onSequenceFinished: analyze,
+                        onPhaseChanged: updateScrollState
+                    )
+                    .id(runID)
+
+                    debugMetricsPanel
+
+                    Button("reset debug run") {
+                        resetDebugRun()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityHint("Starts a new development-only tracing run.")
+                } else {
+                    Text("the development tracing configuration is unavailable.")
+                        .font(.body)
+                        .foregroundStyle(Color.textDark)
+                }
             }
+            .padding(Spacing.lg)
         }
-        .padding(Spacing.lg)
+        .scrollDisabled(isTraceInteractionActive)
         .background(Color.bgPrimaryColor.ignoresSafeArea())
     }
 
@@ -109,7 +114,17 @@ struct DexterityDebugHarness: View {
     private func resetDebugRun() {
         completedSequence = nil
         debugMetrics = nil
+        isTraceInteractionActive = true
         runID = UUID()
+    }
+
+    private func updateScrollState(for phase: DexterityTestModel.Phase) {
+        switch phase {
+        case .ready, .tracing:
+            isTraceInteractionActive = true
+        case .completed, .ended, .configurationInvalid:
+            isTraceInteractionActive = false
+        }
     }
 }
 

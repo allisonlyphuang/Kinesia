@@ -2,7 +2,7 @@
 
 ## Automated coverage
 
-The `KinesiaTests` XCTest target has 68 passing tests as of 2026-08-15:
+The `KinesiaTests` XCTest target has 125 passing tests as of 2026-10-07:
 
 | Suite | Tests | Covers |
 | --- | --- | --- |
@@ -12,6 +12,7 @@ The `KinesiaTests` XCTest target has 68 passing tests as of 2026-08-15:
 | `BradykinesiaTestModelTests` | 11 | phase transitions, tap gating/order/miss preservation, bilateral sequencing and rest, duplicate-save protection, persistence failure, geometry locking, reset |
 | `TapModelTests` | 1 | `TapTrial` Codable round trip |
 | `TapCaptureViewTests` | 1 | UI target classification including the radius boundary |
+| Dexterity calculation, capture, route, layout, fit, protocol, store, and session suites | 57 | canonical geometry, continuous capture, ordered progression, protocol lifecycle, Core Data persistence, raw payloads, and retry/save-once behavior |
 
 Tests use an isolated in-memory Core Data store and drive the capture lifecycle synchronously
 via `countdownTick()` and `completeRunningWindow()` rather than sleeping, so a "20-second"
@@ -47,6 +48,14 @@ List installed simulators with `xcrun simctl list devices available` and substit
 Note that `xcodebuild ... build` compiles the **app target only** and will not surface test
 compile errors. Omitting `-destination` targets a real device, which fails with a code-signing
 error unrelated to the code; simulator builds need no development team.
+
+# Dexterity testing
+
+Dexterity coverage adds deterministic tests for canonical transforms, scale invariance, point-to-segment distance, ordered segment ownership, self-intersection protection, RMSE, per-sequence RMSE, path length, swipe distance, speed/CV, malformed data, UIKit-capture state handling, route progression, and route-layout fitting.
+
+Persistence tests use an in-memory Core Data store to verify a valid V1 save creates exactly one `TestSession`, one `DexterityResult`, and one `RawCapture`; raw practice/retry/cancelled attempts round-trip through JSON; `fingerLifts`, scored-only metric mapping, newest-first fetching, and incomplete-save rejection are covered. Session-model tests verify one completed practice trace, failed retry retention, three completed scored traces, and save-once protection.
+
+Manual interaction validation was performed in the Xcode development tracing harness for route/render alignment, continuous UIKit capture, ordered progress, completion, early lift, cancellation visibility, reset, and debug metric readout. Physical iPhone validation remains appropriate for real-device coalesced-touch behavior.
 
 ## Manual simulator validation
 

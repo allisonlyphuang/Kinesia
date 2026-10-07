@@ -163,3 +163,35 @@ are labels that let you find and interpret it without decoding it.
 
 Both hands of one test share a single `TestSession`, so a bilateral test has exactly one
 medication context, one `dayStart`, and one pair of session bounds.
+
+# Dexterity data dictionary
+
+Dexterity V1 is a fixed right-hand, right-index-finger constellation tracing interaction for longitudinal movement measurement. It is not represented here as a diagnostic or independently clinically validated test.
+
+## Raw capture
+
+| Type / field | Meaning |
+| --- | --- |
+| `DexterityTracePoint.t` | Monotonic `UITouch.timestamp`; never a wall-clock epoch. |
+| `x`, `y` | Raw local capture-view coordinates. |
+| `segmentIndex` | The active ordered canonical route segment at that exact sample. |
+| `DexteritySequence` | One continuous-contact attempt, including `completed`, `endedByLift`, and `endedByCancellation`. |
+| `DexteritySessionCapture` | Full V1 session history: route/transform, practice attempts, all scored attempts, and the indexes of the three completed scored attempts. |
+
+The V1 route is `constellation-v1`, version 1: `(15,80) → (20,20) → (50,45) → (80,20) → (85,80)`, with target radius 8 canonical units. It uses one successfully completed practice attempt and three successfully completed scored attempts. Lifts/cancellations are retained but do not count as completed scored sequences.
+
+## Dexterity metrics
+
+Raw local samples are transformed into canonical route coordinates using the saved uniform transform. Only the three completed scored attempts contribute to the following primary fields:
+
+| Field | Meaning |
+| --- | --- |
+| `rmsError` | Aggregate root-mean-square point-to-assigned-segment error across all three scored traces, in canonical route units. |
+| `rmsErrorMax` | Maximum *per-sequence* RMSE across the three scored traces. It is not the maximum individual point error. |
+| `swipeDist` | Mean actual canonical path length per completed scored sequence; each path length is the sum of consecutive in-sequence point distances. |
+| `swipeSpeed*` | Descriptive statistics of canonical-distance / monotonic-time speed samples, aggregated within—not across—the three scored sequences. |
+| `fingerLifts` | Count of incomplete normal-lift attempts during the scored portion only. Practice lifts and cancellations are excluded. |
+
+`maxPointError` and speed CV are computed-only values and are not written into unrelated Core Data fields. The former must not be substituted for `rmsErrorMax`.
+
+`DexterityResult` belongs to one `TestSession`; the session has a `RawCapture` whose `kind` is `dexterity`, schema version is 1, and JSON payload is `DexteritySessionCapture`. `fingerLifts` replaces the prior model attribute name `thumbLifts` with Core Data's renaming identifier retained for lightweight migration.

@@ -55,6 +55,14 @@ Each session is associated with the most recent medication dose actually taken o
 
 Both hands of a bilateral test share one session and therefore one medication context.
 
+# Dexterity tracing measurement basis
+
+Dexterity V1 is a Kinesia product protocol informed by touchscreen dexterity literature, including slide/swipe pattern work that records movement time, accuracy, and Euclidean distance. The exact Kinesia constellation geometry and repetition plan are not represented as a diagnostic or independently validated clinical test.
+
+The interaction uses the right index finger on a right-hand-only MVP route. A participant completes one unscored practice trace and three completed scored traces of the same visible ordered route without lifting contact. A lift or system cancellation ends the current attempt and permits the same round to be retried; it is retained as raw data but excluded from the primary metric aggregate.
+
+The implementation records continuous local points with monotonic timestamps, maps them to a versioned canonical route coordinate system, and derives assigned-segment RMSE, maximum per-sequence RMSE, actual route-space trace distance, and descriptive swipe-speed statistics. These metrics are transparent movement measurements intended for future longitudinal use; no severity, composite, diagnostic, or clinical threshold is assigned.
+
 ## Current boundaries
 
 The result is a raw/derived metric bundle. Kinesia currently does not calculate a normalized/composite Bradykinesia score, severity label, or diagnosis.

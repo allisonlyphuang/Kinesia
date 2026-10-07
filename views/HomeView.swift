@@ -115,13 +115,21 @@ struct HomeView: View {
                                 .font(.body)
                                 .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
                         }
-                        HStack {
-                            Image(systemName: "star")
-                                .imageScale(.small)
-                                .symbolRenderingMode(.monochrome)
-                            Text("Constellation")
-                                .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
+                        NavigationLink {
+                            DexterityTestView()
+                        } label: {
+                            HStack {
+                                Image(systemName: "star")
+                                    .imageScale(.small)
+                                    .symbolRenderingMode(.monochrome)
+                                Text("Constellation")
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .imageScale(.small)
+                            }
+                            .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
                         }
+                        .buttonStyle(.plain)
                         NavigationLink {
                             BradykinesiaTestView()
                         } label: {

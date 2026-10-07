@@ -39,6 +39,23 @@ nonisolated enum DexterityAnalyzer {
         )
     }
 
+    /// Calculates persistence-facing aggregate values for a trial that contains only completed scored sequences.
+    nonisolated static func analyzeScored(_ trial: DexterityTrial) -> DexterityScoredMetrics {
+        let aggregate = analyze(trial)
+        let perSequenceRMSE = trial.sequences.map {
+            rootMeanSquare(pathErrors(from: $0, route: trial.route, coordinateSpace: trial.coordinateSpace) ?? [])
+        }
+        let perSequencePathLengths = trial.sequences.map {
+            canonicalPathLength(of: $0, coordinateSpace: trial.coordinateSpace)
+        }
+
+        return DexterityScoredMetrics(
+            aggregate: aggregate,
+            perSequenceRMSE: perSequenceRMSE.allSatisfy { $0 != nil } ? perSequenceRMSE.compactMap { $0 } : nil,
+            perSequencePathLengths: perSequencePathLengths.allSatisfy { $0 != nil } ? perSequencePathLengths.compactMap { $0 } : nil
+        )
+    }
+
     static func isCalculationValid(route: DexterityRoute) -> Bool {
         guard route.points.count >= 2, route.points.allSatisfy(\.hasFiniteCoordinates) else {
             return false
@@ -98,22 +115,62 @@ nonisolated enum DexterityAnalyzer {
 
         var errors: [Double] = []
         for sequence in trial.sequences {
-            for sample in sequence.samples {
-                guard sample.hasFiniteCoordinates,
-                      sample.segmentIndex >= 0,
-                      sample.segmentIndex < trial.route.points.count - 1,
-                      let canonical = trial.coordinateSpace.canonicalPoint(localX: sample.x, localY: sample.y),
-                      let error = distance(
-                        from: canonical,
-                        toSegmentFrom: trial.route.points[sample.segmentIndex],
-                        to: trial.route.points[sample.segmentIndex + 1]
-                      ) else {
-                    return nil
-                }
-                errors.append(error)
+            guard let sequenceErrors = pathErrors(
+                from: sequence,
+                route: trial.route,
+                coordinateSpace: trial.coordinateSpace
+            ) else {
+                return nil
             }
+            errors.append(contentsOf: sequenceErrors)
         }
         return errors
+    }
+
+    /// Returns the RMSE of one ordered sequence in canonical route coordinates.
+    static func sequenceRMSE(
+        of sequence: DexteritySequence,
+        route: DexterityRoute,
+        coordinateSpace: DexterityCoordinateSpace
+    ) -> Double? {
+        rootMeanSquare(pathErrors(from: sequence, route: route, coordinateSpace: coordinateSpace) ?? [])
+    }
+
+    /// Returns the actual local trace distance after conversion into canonical route coordinates.
+    /// Points from different sequences are never connected.
+    static func canonicalPathLength(
+        of sequence: DexteritySequence,
+        coordinateSpace: DexterityCoordinateSpace
+    ) -> Double? {
+        guard coordinateSpace.isCalculationValid,
+              !sequence.samples.isEmpty,
+              sequence.samples.allSatisfy(\.hasFiniteCoordinates) else {
+            return nil
+        }
+
+        let canonicalPoints = sequence.samples.map {
+            coordinateSpace.canonicalPoint(localX: $0.x, localY: $0.y)
+        }
+        guard canonicalPoints.allSatisfy({ $0 != nil }) else {
+            return nil
+        }
+
+        let points = canonicalPoints.compactMap { $0 }
+        guard points.count == sequence.samples.count else {
+            return nil
+        }
+
+        var length = 0.0
+        for index in 1..<points.count {
+            let deltaX = points[index].x - points[index - 1].x
+            let deltaY = points[index].y - points[index - 1].y
+            let segmentLength = sqrt(deltaX * deltaX + deltaY * deltaY)
+            guard segmentLength.isFinite else {
+                return nil
+            }
+            length += segmentLength
+        }
+        return length.isFinite ? length : nil
     }
 
     /// Returns one canonical-route-unit speed per valid consecutive pair within each sequence.
@@ -187,5 +244,32 @@ nonisolated enum DexterityAnalyzer {
         } / Double(values.count)
         let result = sqrt(meanSquare)
         return result.isFinite ? result : nil
+    }
+
+    private static func pathErrors(
+        from sequence: DexteritySequence,
+        route: DexterityRoute,
+        coordinateSpace: DexterityCoordinateSpace
+    ) -> [Double]? {
+        guard isCalculationValid(route: route), coordinateSpace.isCalculationValid else {
+            return nil
+        }
+
+        var errors: [Double] = []
+        for sample in sequence.samples {
+            guard sample.hasFiniteCoordinates,
+                  sample.segmentIndex >= 0,
+                  sample.segmentIndex < route.points.count - 1,
+                  let canonical = coordinateSpace.canonicalPoint(localX: sample.x, localY: sample.y),
+                  let error = distance(
+                    from: canonical,
+                    toSegmentFrom: route.points[sample.segmentIndex],
+                    to: route.points[sample.segmentIndex + 1]
+                  ) else {
+                return nil
+            }
+            errors.append(error)
+        }
+        return errors
     }
 }

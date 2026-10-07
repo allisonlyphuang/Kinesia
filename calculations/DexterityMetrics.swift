@@ -7,7 +7,7 @@ nonisolated struct DexterityMetrics: Codable {
 
     /// Root mean square point-to-active-segment error in canonical route coordinates.
     var rmsError: Double?
-    /// Computed only. Its relationship to the schema's `rmsErrorMax` remains unresolved.
+    /// Computed only. This is distinct from persisted `rmsErrorMax`, which is maximum per-sequence RMSE.
     var maxPointError: Double?
 
     /// Summary statistics for canonical-route-unit-per-second samples.
@@ -23,5 +23,26 @@ nonisolated struct DexterityMetrics: Codable {
     var calculationInvalidReason: String? {
         let reasons = [pathInvalidReason, speedInvalidReason].compactMap { $0 }
         return reasons.isEmpty ? nil : reasons.joined(separator: "; ")
+    }
+}
+
+/// Derived values whose persisted meanings are defined by the completed scored sequences only.
+nonisolated struct DexterityScoredMetrics {
+    var aggregate: DexterityMetrics
+    var perSequenceRMSE: [Double]?
+    var perSequencePathLengths: [Double]?
+
+    var rmsErrorMax: Double? {
+        perSequenceRMSE?.max()
+    }
+
+    var swipeDist: Double? {
+        guard let perSequencePathLengths,
+              !perSequencePathLengths.isEmpty,
+              perSequencePathLengths.allSatisfy(\.isFinite) else {
+            return nil
+        }
+        let result = perSequencePathLengths.reduce(0, +) / Double(perSequencePathLengths.count)
+        return result.isFinite ? result : nil
     }
 }

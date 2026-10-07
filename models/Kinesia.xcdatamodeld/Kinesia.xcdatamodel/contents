@@ -108,7 +108,7 @@
         <attribute name="swipeSpeedP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="swipeSpeedP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="swipeSpeedStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="thumbLifts" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="fingerLifts" renamingIdentifier="thumbLifts" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestSession" inverseName="dexterity" inverseEntity="TestSession"/>
         <fetchIndex name="byTimestamp">

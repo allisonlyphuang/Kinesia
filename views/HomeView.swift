@@ -19,7 +19,7 @@ struct HomeView: View {
                         .renderingMode(.original)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: .infinity, height: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .clipped()
                         .padding(.horizontal, 0)
                     Spacer()

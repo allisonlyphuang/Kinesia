@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8E100001302DA0000033FABB /* DexterityTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100011302DA0000033FABB /* DexterityTrace.swift */; };
+		8E100002302DA0000033FABB /* DexterityRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100012302DA0000033FABB /* DexterityRoute.swift */; };
+		8E100003302DA0000033FABB /* DexterityMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100013302DA0000033FABB /* DexterityMetrics.swift */; };
+		8E100004302DA0000033FABB /* DexterityAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100014302DA0000033FABB /* DexterityAnalyzer.swift */; };
+		8E100005302DA0000033FABB /* DexterityAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100015302DA0000033FABB /* DexterityAnalyzerTests.swift */; };
 		8B91BC53301D2D880033FABB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B91BC47301D2D880033FABB /* Assets.xcassets */; };
 		8B91BC54301D2D880033FABB /* KinesiaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4A301D2D880033FABB /* KinesiaApp.swift */; };
 		8B91BC56301D2D880033FABB /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B91BC4E301D2D880033FABB /* HomeView.swift */; };
@@ -46,6 +51,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8E100011302DA0000033FABB /* DexterityTrace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTrace.swift; sourceTree = "<group>"; };
+		8E100012302DA0000033FABB /* DexterityRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRoute.swift; sourceTree = "<group>"; };
+		8E100013302DA0000033FABB /* DexterityMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityMetrics.swift; sourceTree = "<group>"; };
+		8E100014302DA0000033FABB /* DexterityAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityAnalyzer.swift; sourceTree = "<group>"; };
+		8E100015302DA0000033FABB /* DexterityAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityAnalyzerTests.swift; sourceTree = "<group>"; };
 		8B91BBB52FF244AD0033FABB /* Kinesia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kinesia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B91BC47301D2D880033FABB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8B91BC4A301D2D880033FABB /* KinesiaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KinesiaApp.swift; sourceTree = "<group>"; };
@@ -125,6 +135,10 @@
 		8B91BC48301D2D880033FABB /* calculations */ = {
 			isa = PBXGroup;
 			children = (
+				8E100014302DA0000033FABB /* DexterityAnalyzer.swift */,
+				8E100013302DA0000033FABB /* DexterityMetrics.swift */,
+				8E100012302DA0000033FABB /* DexterityRoute.swift */,
+				8E100011302DA0000033FABB /* DexterityTrace.swift */,
 				8B91BC81302D9EA20033FABB /* TapSample.swift */,
 				8B91BC91302DAEB70033FABB /* BradykinesiaAnalyzer.swift */,
 				8B91BC90302DAEAC0033FABB /* BradykinesiaMetrics.swift */,
@@ -208,6 +222,7 @@
 		8C000024302DA0000033FABB /* KinesiaTests */ = {
 			isa = PBXGroup;
 			children = (
+				8E100015302DA0000033FABB /* DexterityAnalyzerTests.swift */,
 				8C000021302DA0000033FABB /* SummaryStatsTests.swift */,
 				8C000022302DA0000033FABB /* BradykinesiaAnalyzerTests.swift */,
 				8C000023302DA0000033FABB /* TapModelTests.swift */,
@@ -316,6 +331,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E100004302DA0000033FABB /* DexterityAnalyzer.swift in Sources */,
+				8E100003302DA0000033FABB /* DexterityMetrics.swift in Sources */,
+				8E100002302DA0000033FABB /* DexterityRoute.swift in Sources */,
+				8E100001302DA0000033FABB /* DexterityTrace.swift in Sources */,
 				8B91BC54301D2D880033FABB /* KinesiaApp.swift in Sources */,
 				8B91BC74302AE64A0033FABB /* OnboardingStart.swift in Sources */,
 				8B91BC71302AE62C0033FABB /* MedicationLogView.swift in Sources */,
@@ -342,6 +361,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E100005302DA0000033FABB /* DexterityAnalyzerTests.swift in Sources */,
 				8C000011302DA0000033FABB /* SummaryStatsTests.swift in Sources */,
 				8C000012302DA0000033FABB /* BradykinesiaAnalyzerTests.swift in Sources */,
 				8C000013302DA0000033FABB /* TapModelTests.swift in Sources */,

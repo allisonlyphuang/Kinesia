@@ -11,19 +11,8 @@ final class AkinesiaTestModelTests: XCTestCase {
     private var context: NSManagedObjectContext!
 
     override func setUpWithError() throws {
-        let modelBundle = Bundle(for: AkinesiaResult.self)
-        let modelURL = try XCTUnwrap(modelBundle.url(forResource: "Kinesia", withExtension: "momd"))
-        let model = try XCTUnwrap(NSManagedObjectModel(contentsOf: modelURL))
-        container = NSPersistentContainer(name: "Kinesia", managedObjectModel: model)
-
-        let storeDescription = NSPersistentStoreDescription()
-        storeDescription.type = NSInMemoryStoreType
-        storeDescription.shouldAddStoreAsynchronously = false
-        container.persistentStoreDescriptions = [storeDescription]
-
-        var loadError: Error?
-        container.loadPersistentStores { _, error in loadError = error }
-        if let loadError { throw loadError }
+        // One shared model for the whole target; see TestCoreDataStack.
+        container = try TestCoreDataStack.makeInMemoryContainer()
         context = container.viewContext
     }
 
@@ -56,7 +45,6 @@ final class AkinesiaTestModelTests: XCTestCase {
             scoredRounds: scoredRounds,
             foreperiodRange: 1.0...4.0,
             hand: .right,
-            digit: "index",
             screenScale: 3
         )
     }
@@ -194,14 +182,15 @@ final class AkinesiaTestModelTests: XCTestCase {
     // MARK: - One clean round
 
     func testACleanRoundRecordsEveryTimestampFromTheBoard() throws {
-        let recorder = SaveRecorder()
-        let model = makeModel(scoredRounds: 1, recorder: recorder)
+        // Two scored rounds, so this one is not the last. The return timestamp marks the start of
+        // the next round's wait, so it only means anything when another round follows.
+        let model = makeModel(scoredRounds: 2)
         model.startRounds()
 
         playCleanRound(model, homeAt: 10, cueAt: 12, liftAt: 12.3, catchAt: 12.55, returnAt: 12.9)
 
-        XCTAssertEqual(model.sessionPhase, .finished)
-        let round = try XCTUnwrap(recorder.attempts.first?.trial.rounds.first)
+        XCTAssertEqual(model.sessionPhase, .scoring, "one round still owed")
+        let round = try XCTUnwrap(model.rounds.first)
         XCTAssertEqual(round.cueOnsetAt, 12)
         XCTAssertEqual(round.liftOffAt, 12.3)
         XCTAssertEqual(round.catchAt, 12.55)
@@ -440,6 +429,53 @@ final class AkinesiaTestModelTests: XCTestCase {
 
     // MARK: - Finishing
 
+    func testTheLastRoundDoesNotWaitForAReturnThatHasNoPurpose() throws {
+        // Reproduction: on the final round the patient catches the firefly and stops, because
+        // there is no next round to return for. The return timestamp only marks the start of the
+        // NEXT foreperiod, so on the last round it measures nothing.
+        let recorder = SaveRecorder()
+        let model = makeModel(scoredRounds: 1, recorder: recorder)
+        model.startRounds()
+
+        model.handleTouchDown(.home, at: 10, location: .zero)
+        model.settleElapsed()
+        model.foreperiodElapsed()
+        model.handleCueDisplayed(at: 12)
+        model.handleHomeTouchUp(.lifted, at: 12.3)
+        model.handleTouchDown(.firefly, at: 12.55, location: .zero)
+        // No return home: the session is over as far as the patient is concerned.
+
+        XCTAssertEqual(model.sessionPhase, .finished, "the session should end on the final catch")
+        XCTAssertEqual(model.rounds.count, 1, "the final round must still be recorded")
+        XCTAssertEqual(recorder.attempts.first?.trial.rounds.count, 1)
+
+        // Every other timestamp is present; only the return is absent, because nothing follows it.
+        let round = try XCTUnwrap(model.rounds.first)
+        XCTAssertEqual(round.catchAt, 12.55)
+        XCTAssertNil(round.returnedHomeAt)
+    }
+
+    func testAnInFlightRoundIsNotLostWhenTheSessionCapFires() throws {
+        // The cap can land while a round is held open waiting for its return leg. The catch
+        // already happened, so discarding it throws away a real measurement.
+        let recorder = SaveRecorder()
+        let model = makeModel(scoredRounds: 12, recorder: recorder)
+        model.startRounds()
+
+        model.handleTouchDown(.home, at: 10, location: .zero)
+        model.settleElapsed()
+        model.foreperiodElapsed()
+        model.handleCueDisplayed(at: 12)
+        model.handleHomeTouchUp(.lifted, at: 12.3)
+        model.handleTouchDown(.firefly, at: 12.55, location: .zero)
+        XCTAssertEqual(model.roundPhase, .returningHome)
+
+        model.sessionCapElapsed()
+
+        XCTAssertEqual(model.sessionPhase, .finished)
+        XCTAssertEqual(recorder.attempts.first?.trial.rounds.count, 1, "the caught round was dropped")
+    }
+
     func testTheSessionFinishesAfterTheConfiguredNumberOfScoredRounds() throws {
         let recorder = SaveRecorder()
         let model = makeModel(scoredRounds: 2, recorder: recorder)
@@ -466,14 +502,55 @@ final class AkinesiaTestModelTests: XCTestCase {
 
         let attempt = try XCTUnwrap(recorder.attempts.first)
         XCTAssertEqual(attempt.trial.hand, .right)
-        XCTAssertEqual(attempt.trial.digit, "index")
         XCTAssertEqual(attempt.trial.refreshRateHz, 120, "needed to bound how precisely onset is known")
         XCTAssertEqual(attempt.trial.screenScale, 3)
-        XCTAssertEqual(attempt.trial.cueModality, "visual")
         XCTAssertEqual(attempt.trial.homeBaseRadius, 40)
         XCTAssertEqual(attempt.trial.fireflyRadius, 30)
         XCTAssertEqual(attempt.trial.spawnRing.radius, 100)
         XCTAssertEqual(attempt.device.model, "iPhone")
+    }
+
+    func testAFullSlowSessionFitsInsideTheSessionCap() {
+        // A budget check. The cap is meant to catch a phone put down mid-session, not to cut off a
+        // patient who is simply slow — and the slowest sessions belong to the patients with the
+        // most severe symptoms, who are exactly who this test exists to measure.
+        let model = makeModel(practiceRounds: 2, scoredRounds: 12)
+        model.startRounds()
+
+        // Timings for a slower patient, off-dose, with no mistakes at all.
+        let settle = 0.3, foreperiod = 2.5, reaction = 0.8, movement = 0.8, returnLeg = 1.5
+        let startedAt = 10.0
+        var clock = startedAt
+
+        for _ in 0..<14 {
+            let home = clock
+            model.handleTouchDown(.home, at: home, location: .zero)
+            model.settleElapsed()
+            model.foreperiodElapsed()
+            let cue = home + settle + foreperiod
+            model.handleCueDisplayed(at: cue)
+            let lift = cue + reaction
+            model.handleHomeTouchUp(.lifted, at: lift)
+            let caught = lift + movement
+            model.handleTouchDown(.firefly, at: caught, location: .zero)
+            clock = caught + returnLeg
+            model.handleTouchDown(.home, at: clock, location: .zero)
+        }
+
+        XCTAssertEqual(model.sessionPhase, .finished)
+        XCTAssertEqual(model.completedScoredRounds, 12)
+
+        let elapsed = clock - startedAt
+        XCTAssertLessThan(
+            elapsed,
+            model.configuration.sessionCap,
+            "a slow but mistake-free session must not be cut off by the cap"
+        )
+        XCTAssertLessThan(
+            elapsed * 1.25,
+            model.configuration.sessionCap,
+            "and it needs room for retried false starts on top"
+        )
     }
 
     func testTheSessionCapFinishesWithWhateverWasCollected() {
@@ -501,8 +578,10 @@ final class AkinesiaTestModelTests: XCTestCase {
         XCTAssertTrue(recorder.attempts.isEmpty)
     }
 
-    func testTheDefaultPersistenceActionFailsLoudlyUntilTheStoreExists() {
-        // AkinesiaStore is not written yet. A finished session must not look saved.
+    func testTheDefaultPersistenceActionSavesThroughTheStore() throws {
+        // No injected persistenceAction, so this runs the real AkinesiaStore end to end. It
+        // replaces an earlier test that asserted the default action threw, which was correct only
+        // while the store did not exist.
         let model = AkinesiaTestModel(
             configuration: configuration(scoredRounds: 1),
             context: context,
@@ -514,8 +593,11 @@ final class AkinesiaTestModelTests: XCTestCase {
         model.startRounds()
         playCleanRound(model, homeAt: 10, cueAt: 12, liftAt: 12.3, catchAt: 12.55, returnAt: 12.9)
 
-        XCTAssertEqual(model.sessionPhase, .failed)
-        XCTAssertTrue(model.persistenceError is AkinesiaTestModelError)
+        XCTAssertEqual(model.sessionPhase, .finished)
+        XCTAssertNil(model.persistenceError)
+        XCTAssertEqual(try context.count(for: TestSession.fetchRequest()), 1)
+        XCTAssertEqual(try context.count(for: AkinesiaResult.fetchRequest()), 1)
+        XCTAssertEqual(try context.count(for: RawCapture.fetchRequest()), 1)
     }
 
     func testResetClearsEverythingSoASecondSessionDoesNotInherit() {

@@ -26,6 +26,11 @@ struct AkinesiaTestConfiguration {
     // reaction time still counts, just no movement time
     let movementCeiling: TimeInterval
      
+    // Backstop for a patient who puts the phone down. NOT a session-length limit:
+    // 2 practice + 12 scored rounds takes about 56s briskly and about 83s for a slower patient
+    // before any retried false start, so 90s cut slower patients off near the final round.
+    // The longest sessions belong to the patients with the most severe symptoms, which is the
+    // same bias the fixed round count exists to remove.
     let sessionCap: TimeInterval
     let hand: CurrentHand
     let digit: String
@@ -42,7 +47,7 @@ struct AkinesiaTestConfiguration {
         slipWindow: TimeInterval = 0.15,
         responseCeiling: TimeInterval = 5.0,
         movementCeiling: TimeInterval = 5.0,
-        sessionCap: TimeInterval = 90,
+        sessionCap: TimeInterval = 180,
         hand: CurrentHand = .right,
         digit: String = "index",
         screenScale: Double = 1,
@@ -120,8 +125,7 @@ enum AkinesiaTestModelError: LocalizedError {
 ////// Model
 
 // Runs one akinesia session
-// sequences rounds, classifies board events,
-// sends finished trial to analyzer and store
+// sequences rounds, classifies board events, then sends finished trial to analyzer and store
  
 @MainActor
 final class AkinesiaTestModel: ObservableObject {
@@ -176,7 +180,7 @@ final class AkinesiaTestModel: ObservableObject {
         min(completedScoredRounds + 1, configuration.scoredRounds)
     }
 
-    // practice rounds banked so far. like the scored count, a retried round does not advance it
+    // practice rounds banked so far, a
     var completedPracticeRounds: Int { practiceRoundsTowardTarget }
 
     // 1 based, eg "Practice firefly 1 of 2"
@@ -259,8 +263,8 @@ final class AkinesiaTestModel: ObservableObject {
         self.spawnGenerator = spawnGenerator
         self.deviceIdentity = deviceIdentity
         self.automaticallyScheduleTimers = automaticallyScheduleTimers
-        self.persistenceAction = persistenceAction ?? { _, _ in
-            throw AkinesiaTestModelError.storeNotImplemented
+        self.persistenceAction = persistenceAction ?? { attempt, context in
+            try AkinesiaStore.save(attempt: attempt, in: context)
         }
     }
 
@@ -509,7 +513,7 @@ final class AkinesiaTestModel: ObservableObject {
 
         lastRoundFeedback = feedback
 
-        if keepOpenForReturn {
+        if keepOpenForReturn && !completesSession(round, outcome: outcome) {
             transition(to: .returningHome)
             pendingOutcome = outcome
             if isHomeTouchDown {
@@ -525,6 +529,15 @@ final class AkinesiaTestModel: ObservableObject {
     }
 
     private var pendingOutcome: CaptureOutcome?
+
+    // True when recording this round ends the session. The return timestamp only marks the start
+    // of the NEXT foreperiod, so on the final round there is nothing for it to mark and no reason
+    // to make the patient put their finger back. Waiting anyway stalls until the session cap and
+    // loses the round, because a round held open has not been appended yet.
+    private func completesSession(_ round: RoundInProgress, outcome: CaptureOutcome) -> Bool {
+        guard !round.isPractice, Self.consumesTarget(outcome) else { return false }
+        return scoredRoundsTowardTarget + 1 >= configuration.scoredRounds
+    }
 
     private func finishReturnLeg(at timestamp: TimeInterval) {
         guard let round = current, let outcome = pendingOutcome else { return }
@@ -589,6 +602,14 @@ final class AkinesiaTestModel: ObservableObject {
         sessionCapTask?.cancel()
         sessionCapTask = nil
 
+        // A round still waiting for its return leg has already been caught, so it is a real
+        // measurement. Only the return timestamp is missing, and that is optional. A round with
+        // no outcome yet (the patient never responded) is correctly left unrecorded.
+        if let round = current, let outcome = pendingOutcome {
+            pendingOutcome = nil
+            append(round, outcome: outcome, returnedHomeAt: nil)
+        }
+
         fireflyAt = nil
         isCaptureActive = false
         roundPhase = .idle
@@ -602,10 +623,8 @@ final class AkinesiaTestModel: ObservableObject {
             homeBaseRadius: configuration.boardGeometry.homeBaseRadius,
             fireflyRadius: configuration.boardGeometry.fireflyRadius,
             hand: configuration.hand,
-            digit: configuration.digit,
             screenScale: configuration.screenScale,
             refreshRateHz: refreshRateHz,
-            cueModality: configuration.cueModality,
             startedAt: monotonicStartedAt,
             spawnRing: configuration.ring
         )

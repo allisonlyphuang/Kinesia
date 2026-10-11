@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C0DF30C307ADE890075045F /* AkinesiaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0DF30B307ADE870075045F /* AkinesiaStore.swift */; };
 		2C9C827B3075EF24001AB9DD /* AkinesiaBoardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9C827A3075EF1F001AB9DD /* AkinesiaBoardLayout.swift */; };
 		2CCF045C305F7AF90065D8B3 /* AkinesiaRoundRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCF045B305F7AF30065D8B3 /* AkinesiaRoundRecord.swift */; };
 		2CCF045E306074EB0065D8B3 /* AkinesiaMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCF045D306074E60065D8B3 /* AkinesiaMetrics.swift */; };
@@ -43,8 +44,10 @@
 		8C000017302DA0000033FABB /* FireflyBoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000028302DA0000033FABB /* FireflyBoardTests.swift */; };
 		8C000018302DA0000033FABB /* AkinesiaAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000029302DA0000033FABB /* AkinesiaAnalyzerTests.swift */; };
 		8C000019302DA0000033FABB /* AkinesiaTestModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C00002A302DA0000033FABB /* AkinesiaTestModelTests.swift */; };
-		8D000021302DA0000033FABB /* AkinesiaCopyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000031302DA0000033FABB /* AkinesiaCopyTests.swift */; };
+		8D000040302DA0000033FABB /* AkinesiaStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000041302DA0000033FABB /* AkinesiaStoreTests.swift */; };
+		8D000050302DA0000033FABB /* TestCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000051302DA0000033FABB /* TestCoreDataStack.swift */; };
 		8D000020302DA0000033FABB /* AkinesiaBoardLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000030302DA0000033FABB /* AkinesiaBoardLayoutTests.swift */; };
+		8D000021302DA0000033FABB /* AkinesiaCopyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000031302DA0000033FABB /* AkinesiaCopyTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +61,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2C0DF30B307ADE870075045F /* AkinesiaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaStore.swift; sourceTree = "<group>"; };
 		2C9C827A3075EF1F001AB9DD /* AkinesiaBoardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaBoardLayout.swift; sourceTree = "<group>"; };
 		2CCF045B305F7AF30065D8B3 /* AkinesiaRoundRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaRoundRecord.swift; sourceTree = "<group>"; };
 		2CCF045D306074E60065D8B3 /* AkinesiaMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaMetrics.swift; sourceTree = "<group>"; };
@@ -97,8 +101,8 @@
 		8C000028302DA0000033FABB /* FireflyBoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireflyBoardTests.swift; sourceTree = "<group>"; };
 		8C000029302DA0000033FABB /* AkinesiaAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaAnalyzerTests.swift; sourceTree = "<group>"; };
 		8C00002A302DA0000033FABB /* AkinesiaTestModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaTestModelTests.swift; sourceTree = "<group>"; };
-		8D000031302DA0000033FABB /* AkinesiaCopyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaCopyTests.swift; sourceTree = "<group>"; };
-		8D000030302DA0000033FABB /* AkinesiaBoardLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaBoardLayoutTests.swift; sourceTree = "<group>"; };
+		8D000041302DA0000033FABB /* AkinesiaStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaStoreTests.swift; sourceTree = "<group>"; };
+		8D000051302DA0000033FABB /* TestCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCoreDataStack.swift; sourceTree = "<group>"; };
 		8D000001302DA0000033FABB /* ACCESSIBILITY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ACCESSIBILITY.md; sourceTree = "<group>"; };
 		8D000002302DA0000033FABB /* ADR.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ADR.md; sourceTree = "<group>"; };
 		8D000003302DA0000033FABB /* ARCHITECTURE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITECTURE.md; sourceTree = "<group>"; };
@@ -106,6 +110,8 @@
 		8D000005302DA0000033FABB /* DATA_DICTIONARY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DATA_DICTIONARY.md; sourceTree = "<group>"; };
 		8D000006302DA0000033FABB /* PRD.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRD.md; sourceTree = "<group>"; };
 		8D000007302DA0000033FABB /* TESTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TESTING.md; sourceTree = "<group>"; };
+		8D000030302DA0000033FABB /* AkinesiaBoardLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaBoardLayoutTests.swift; sourceTree = "<group>"; };
+		8D000031302DA0000033FABB /* AkinesiaCopyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaCopyTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -239,6 +245,7 @@
 		8B91BC9A302DAFE90033FABB /* persistence */ = {
 			isa = PBXGroup;
 			children = (
+				2C0DF30B307ADE870075045F /* AkinesiaStore.swift */,
 				8B91BC9B302DAFF20033FABB /* BradykinesiaStore.swift */,
 			);
 			path = persistence;
@@ -255,6 +262,8 @@
 				8C000028302DA0000033FABB /* FireflyBoardTests.swift */,
 				8C000029302DA0000033FABB /* AkinesiaAnalyzerTests.swift */,
 				8C00002A302DA0000033FABB /* AkinesiaTestModelTests.swift */,
+				8D000041302DA0000033FABB /* AkinesiaStoreTests.swift */,
+				8D000051302DA0000033FABB /* TestCoreDataStack.swift */,
 				8D000031302DA0000033FABB /* AkinesiaCopyTests.swift */,
 				8D000030302DA0000033FABB /* AkinesiaBoardLayoutTests.swift */,
 				8C000027302DA0000033FABB /* BradykinesiaTestModelTests.swift */,
@@ -378,6 +387,7 @@
 				8B91BC54301D2D880033FABB /* KinesiaApp.swift in Sources */,
 				2CCF046030607CB70065D8B3 /* AkinesiaAnalyzer.swift in Sources */,
 				2C9C827B3075EF24001AB9DD /* AkinesiaBoardLayout.swift in Sources */,
+				2C0DF30C307ADE890075045F /* AkinesiaStore.swift in Sources */,
 				8B91BC74302AE64A0033FABB /* OnboardingStart.swift in Sources */,
 				8B91BC71302AE62C0033FABB /* MedicationLogView.swift in Sources */,
 				8B91BC80302D9BC00033FABB /* Kinesia.xcdatamodeld in Sources */,
@@ -415,6 +425,8 @@
 				8C000017302DA0000033FABB /* FireflyBoardTests.swift in Sources */,
 				8C000018302DA0000033FABB /* AkinesiaAnalyzerTests.swift in Sources */,
 				8C000019302DA0000033FABB /* AkinesiaTestModelTests.swift in Sources */,
+				8D000040302DA0000033FABB /* AkinesiaStoreTests.swift in Sources */,
+				8D000050302DA0000033FABB /* TestCoreDataStack.swift in Sources */,
 				8D000021302DA0000033FABB /* AkinesiaCopyTests.swift in Sources */,
 				8D000020302DA0000033FABB /* AkinesiaBoardLayoutTests.swift in Sources */,
 				8C000016302DA0000033FABB /* BradykinesiaTestModelTests.swift in Sources */,

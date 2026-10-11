@@ -3,7 +3,7 @@
 
 import CoreFoundation
 
-struct AkinesiaBoardLayout: Equatable {
+nonisolated struct AkinesiaBoardLayout: Equatable {
     
     // layout is immutable
     let boardSide: CGFloat

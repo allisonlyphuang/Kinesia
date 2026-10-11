@@ -7,7 +7,7 @@
 
 import CoreFoundation
 
-struct Spacing {
+nonisolated struct Spacing {
     static let xxs: CGFloat = 4
     static let xs:  CGFloat = 8
     static let sm:  CGFloat = 12
@@ -17,7 +17,7 @@ struct Spacing {
     static let xxl: CGFloat = 48
 }
 
-struct Radius {
+nonisolated struct Radius {
     static let primary: CGFloat = 20
     static let secondary: CGFloat = 30
     static let full: CGFloat = 999  // fully rounded / pill shape

@@ -41,10 +41,8 @@ nonisolated struct AkinesiaTrial: Codable { // one trial per session, mirror tap
     var homeBaseRadius: Double
     var fireflyRadius: Double
     var hand: CurrentHand
-    var digit: String
     var screenScale: Double
     var refreshRateHz: Double
-    var cueModality: String //"visual" for now
     var startedAt: TimeInterval // monotonic
     var spawnRing:  SpawnRing
 

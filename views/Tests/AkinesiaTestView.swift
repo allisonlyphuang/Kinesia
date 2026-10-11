@@ -57,6 +57,8 @@ private struct AkinesiaTestScreen: View {
     private let context: NSManagedObjectContext
     @Environment(\.displayScale) private var displayScale
     @StateObject private var model: AkinesiaTestModel
+    @State private var latestSavedResult: AkinesiaResult?
+    @State private var latestResultFetchFailed = false
 
     init(context: NSManagedObjectContext) {
         self.context = context
@@ -81,6 +83,10 @@ private struct AkinesiaTestScreen: View {
             .background(Color.bgPrimaryColor.ignoresSafeArea())
             .navigationTitle(AkinesiaCopy.title)
             .navigationBarTitleDisplayMode(.inline)
+            .task { refreshLatestResult() }
+            .onChange(of: model.sessionPhase) { _, phase in
+                if phase == .finished || phase == .failed { refreshLatestResult() }
+            }
             .onDisappear {
                 // Abandoning mid-session discards it and writes nothing.
                 switch model.sessionPhase {
@@ -105,6 +111,7 @@ private struct AkinesiaTestScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.lg) {
                     phaseContent(layout: layout)
+                    latestResultSection
                 }
                 .padding(Spacing.lg)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -254,6 +261,58 @@ private struct AkinesiaTestScreen: View {
             digit: "index",
             screenScale: displayScale
         )
+    }
+}
+
+private extension AkinesiaTestScreen {
+
+    var latestResultSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            Text("Latest saved test")
+                .font(.heading)
+                .foregroundStyle(Color.textDark)
+
+            if let result = latestSavedResult {
+                Text("\(result.numValidRounds) of \(result.numRounds) rounds counted")
+                Text("Median reaction: \(formattedMilliseconds(result.reactionTimeMedian, isValid: result.isValid))")
+                Text("Median movement: \(formattedMilliseconds(result.movementTimeMedian, isValid: result.isValid))")
+                Text(failureBreakdown(result))
+                if !result.isValid {
+                    // A zero in a statistic column is a placeholder while isValid is false, not a
+                    // measured zero. See DATA_DICTIONARY.md.
+                    Text("Not scored: \(result.invalidReason ?? "reason unavailable")")
+                }
+            } else if latestResultFetchFailed {
+                Text("Latest saved test is unavailable right now.")
+            } else {
+                Text("No saved Fireflies tests yet.")
+            }
+        }
+        .font(.body)
+        .foregroundStyle(Color.textDark)
+        .padding(Spacing.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.bgSecondaryColor, in: RoundedRectangle(cornerRadius: Radius.primary, style: .continuous))
+    }
+
+    func failureBreakdown(_ result: AkinesiaResult) -> String {
+        "Early \(result.numAnticipations) · False starts \(result.numFalseStarts) · Slips \(result.numSlips)"
+        + " · Missed \(result.numMissed) · Slow \(result.numLapses) · Unusable \(result.numMalformed)"
+    }
+
+    func formattedMilliseconds(_ seconds: Double, isValid: Bool) -> String {
+        guard isValid, seconds.isFinite, seconds > 0 else { return "unavailable" }
+        return "\(Int((seconds * 1000).rounded())) ms"
+    }
+
+    func refreshLatestResult() {
+        do {
+            latestSavedResult = try AkinesiaStore.fetchLatestResult(in: context)
+            latestResultFetchFailed = false
+        } catch {
+            latestSavedResult = nil
+            latestResultFetchFailed = true
+        }
     }
 }
 

@@ -14,7 +14,7 @@ import SwiftUI
 import UIKit
 
 // Board layout build
-struct FireflyBoardGeometry: Equatable {
+nonisolated struct FireflyBoardGeometry: Equatable {
     var center: TapPoint
     var homeBaseRadius: Double
     var fireflyRadius: Double

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24901" systemVersion="25F80" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="25249" systemVersion="26A428" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="AkinesiaResult" representedClassName="AkinesiaResult" syncable="YES" codeGenerationType="class">
         <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="hand" attributeType="String" defaultValueString="right"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="invalidReason" optional="YES" attributeType="String"/>
         <attribute name="isValid" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="metricsVersion" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="movementTimeMAD" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="movementTimeMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="movementTimeMean" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="movementTimeMedian" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -13,15 +15,24 @@
         <attribute name="movementTimeP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="movementTimeP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="movementTimeStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="numMisses" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="numTrials" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="startTimeMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="startTimeMean" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="startTimeMedian" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="startTimeMin" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="startTimeP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="startTimeP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="startTimeStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="numAnticipations" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numFalseStarts" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numLapses" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numMalformed" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numMissed" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numPracticeRounds" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numRounds" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numSlips" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numValidRounds" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="reactionTimeMAD" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="reactionTimeMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="reactionTimeMean" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="reactionTimeMedian" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="reactionTimeMin" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="reactionTimeP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="reactionTimeP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="reactionTimeP90" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="reactionTimeStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestSession" inverseName="akinesia" inverseEntity="TestSession"/>
         <fetchIndex name="byTimestamp">

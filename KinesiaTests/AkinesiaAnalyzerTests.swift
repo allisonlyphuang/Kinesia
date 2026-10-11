@@ -89,10 +89,8 @@ final class AkinesiaAnalyzerTests: XCTestCase {
             homeBaseRadius: 40,
             fireflyRadius: 30,
             hand: .right,
-            digit: "index",
             screenScale: 3,
             refreshRateHz: 120,
-            cueModality: "visual",
             startedAt: 5.0,
             spawnRing: SpawnRing(
                 center: TapPoint(x: 150, y: 150),

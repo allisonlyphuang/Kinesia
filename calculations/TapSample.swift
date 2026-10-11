@@ -27,7 +27,7 @@ nonisolated struct TapSample: Codable {
 }
 
 /// A Codable target center stored in the same coordinate space as `TapSample`.
-nonisolated struct TapPoint: Codable {
+nonisolated struct TapPoint: Codable, Equatable {
     var x: Double
     var y: Double
 }

@@ -1,9 +1,16 @@
-# Bradykinesia data dictionary
+# Data dictionary
 
-This document describes the current local-first Bradykinesia tapping data pipeline. It
-documents implementation semantics, not a clinical diagnosis or a severity score.
+What each stored or computed value means, and how to read it without misinterpreting it.
 
-## Three unrelated meanings of "left" and "right"
+- **Bradykinesia (tapping)** is saved to Core Data.
+- **Akinesia (fireflies)** is computed but not yet saved.
+
+## Bradykinesia: tapping
+
+This describes the local-first tapping pipeline. It documents what the code does, not a
+diagnosis or a severity score.
+
+### Three unrelated meanings of "left" and "right"
 
 These appear side by side throughout the codebase and are **independent**. Changing one must
 not change the others.
@@ -17,9 +24,9 @@ not change the others.
 A left-hand trial still has a right-side circle on screen, and its taps still split into
 left/right *statistical* partitions by mean x. The three axes never interact.
 
-## Raw trial data
+### Raw trial data
 
-### `TapSample`
+#### `TapSample`
 
 | Field | Type | Meaning |
 | --- | --- | --- |
@@ -36,7 +43,7 @@ encodes "landed within the target radius"; no separate radius check exists downs
 `target` is used by `numCorrectTaps` and by nothing else. It does not determine the
 paper-derived spatial partitions described below.
 
-### `TapTrial`
+#### `TapTrial`
 
 One trial per hand. A bilateral test produces two.
 
@@ -51,13 +58,13 @@ One trial per hand. A bilateral test produces two.
 
 `CurrentHand` is a `String`-raw-value enum, so it encodes to JSON as `"left"` / `"right"`.
 
-### `HandAttempt`
+#### `HandAttempt`
 
 The model's in-memory record of one completed hand, handed to the store. Carries the `hand`,
 its `TapTrial`, its `BradykinesiaMetrics`, wall-clock `startedAt` / `completedAt`, and
 `monotonicCompletedAt` (used with `trial.startedAt` to derive the measured capture duration).
 
-## Temporal metrics
+### Temporal metrics
 
 For supplied sample order, the analyzer derives:
 
@@ -79,7 +86,7 @@ skewness = mean((x - mean)^3) / populationSD^3
 
 `cvTapInter` and `skewTapInter` use those paper-derived formulas, not `SummaryStats.stdev`.
 
-## Paper-derived spatial metrics
+### Paper-derived spatial metrics
 
 For finite raw coordinates:
 
@@ -99,7 +106,7 @@ distance = sqrt((x2 - x1)^2 + (y2 - y1)^2)
 
 For each drift sequence, the analyzer provides the same descriptive statistics plus paper-derived CV and skewness. `corXY` is Pearson correlation across all raw x/y coordinate pairs; it is not partitioned by UI target or mean-X side.
 
-## Correct taps
+### Correct taps
 
 `numCorrectTaps` counts taps that land inside the target the protocol expects next.
 
@@ -123,7 +130,7 @@ for each tap in capture order:
 
 This is the only metric that reads `TapTarget`.
 
-## Availability semantics
+### Availability semantics
 
 The calculation layer represents unavailable derived values as `nil`, never as NaN, infinity, or a fabricated zero. Examples include insufficient samples, non-finite input, non-increasing timestamps, zero-variance skewness, and undefined Pearson correlation.
 
@@ -133,7 +140,7 @@ This matters most for the CV columns: `cvTapInter = 0` is a plausible reading me
 regular tapping*, the healthiest possible result. Always consult `isValid` before interpreting a
 CV value.
 
-## Persisted objects
+### Persisted objects
 
 Each completed test creates **one** `TestSession`, and **one** `BradykinesiaResult` plus **one**
 `RawCapture` per hand. A bilateral test therefore writes five rows in a single transaction.
@@ -147,7 +154,7 @@ Each completed test creates **one** `TestSession`, and **one** `BradykinesiaResu
 `payload` holds the actual captured data; `kind`, `schemaVersion`, `timestamp`, and `session`
 are labels that let you find and interpret it without decoding it.
 
-### Field notes
+#### Field notes
 
 | Field | Semantics |
 | --- | --- |
@@ -195,3 +202,84 @@ Raw local samples are transformed into canonical route coordinates using the sav
 `maxPointError` and speed CV are computed-only values and are not written into unrelated Core Data fields. The former must not be substituted for `rmsErrorMax`.
 
 `DexterityResult` belongs to one `TestSession`; the session has a `RawCapture` whose `kind` is `dexterity`, schema version is 1, and JSON payload is `DexteritySessionCapture`. `fingerLifts` replaces the prior model attribute name `thumbLifts` with Core Data's renaming identifier retained for lightweight migration.
+## Akinesia: fireflies
+
+Nothing is saved to Core Data yet, so this section describes the values the code produces in
+memory. These are the names a future `AkinesiaStore` will map onto database columns.
+
+### One round — `RoundRecord`
+
+| Field | Meaning |
+| --- | --- |
+| `index` | round number within the session, starting at 0 |
+| `isPractice` | practice rounds are counted but never scored |
+| `homeSettledAt` | when the finger had rested on the jar long enough for the wait to begin |
+| `plannedForeperiod` | the random wait this round drew, between 1 and 4 seconds |
+| `cueOnsetAt` | the frame the firefly actually appeared on |
+| `liftOffAt` | the finger leaving the jar |
+| `catchAt` | the finger landing on the firefly |
+| `returnedHomeAt` | the finger back on the jar. Not scored, but it is when the next wait starts, so it is still recorded. |
+| `spawn` | where the firefly appeared |
+| `captureOutcome` | what the board saw: `completed`, `falseStart`, `slip`, or `missed` |
+| `scoredOutcome` | a placeholder. The analyzer always recomputes this and ignores whatever is stored. |
+
+Every timestamp here is monotonic — seconds since the phone booted, never a date or a time of
+day. See "Two clocks, never mixed" in ARCHITECTURE.md.
+
+A round can be missing timestamps and still be valid. A false start has no `cueOnsetAt` because
+the firefly never appeared. A round where the patient lifted but never reached the firefly has no
+`catchAt`, and its reaction time still counts.
+
+### One session — `AkinesiaTrial`
+
+Holds every round plus the context needed to read them later: where the jar was and how big it
+was, how big the firefly was, the ring the firefly spawns on, which hand and finger were used,
+the screen scale, the screen's refresh rate, and the cue type (`"visual"` for now).
+
+Hand, finger, and device all matter because switching any of them breaks comparisons against a
+patient's own earlier sessions.
+
+### Derived numbers — `AkinesiaMetrics`
+
+| Field | Meaning |
+| --- | --- |
+| `numRounds` | scored rounds attempted; practice not included |
+| `numPracticeRounds` | practice rounds seen |
+| `numValidRounds` | rounds that produced a usable reaction time |
+| `numAnticipations` | responses too fast to be a real reaction |
+| `numLapses` | responses slow enough to look like a lapse in attention |
+| `numFalseStarts` | lifted before the firefly appeared |
+| `numSlips` | finger came off the jar without the patient meaning to |
+| `numMissed` | never lifted at all |
+| `numMalformed` | the round claimed to be completed but its timestamps could not produce a reaction time |
+| `reactionTimes` | the usable reaction times, in the order they happened |
+| `reactionTimeStats` | a summary of those. `nil` when there were fewer than 8. |
+| `movementTimes` | lift-off to catch, for valid rounds that also have a catch time |
+| `movementTimeStats` | a summary of those, `nil` under the same rule |
+
+Three things to know when reading these:
+
+- **The seven outcome counts add up exactly to `numRounds`.** A test asserts it, so if they ever
+  disagree something is wrong rather than merely surprising.
+- **`numMalformed` is deliberately kept apart from `numMissed`.** One is a data fault, the other
+  is a patient failing to start a movement. Someone reading `numMissed` should not find data
+  faults mixed into it.
+- **`nil` statistics mean "too little data to summarise", not zero.** The counts and the raw
+  times are still there. This follows the same rule as the tapping test; see "Availability
+  semantics" above.
+
+`movementTimes` can be shorter than `reactionTimes`, because a round can produce a reaction time
+without producing a movement time. Movement time is never averaged into the reaction-time
+statistics: it measures what the tapping test already measures.
+
+### Statistics — `SummaryStats`
+
+Two fields were added in this change, used by both tests:
+
+| Field | Meaning |
+| --- | --- |
+| `p90` | the 90th percentile — the slow tail, where trouble starting a movement shows up before the middle of the distribution moves |
+| `mad` | median absolute deviation — how spread out the values are, measured so that one extreme value cannot distort it |
+
+Reaction times are lopsided: there are a few very slow ones and none very fast. Median and MAD
+describe that shape better than mean and standard deviation.

@@ -1,10 +1,3 @@
-//
-//  BradykinesiaStore.swift
-//  Kinesia
-//
-//  Created by Allison Huang on 8/13/26.
-//
-
 import CoreData
 import Foundation
 
@@ -295,7 +288,9 @@ struct BradykinesiaStore {
                     stats.p75,
                     stats.stdev,
                     stats.range,
-                    stats.iqr
+                    stats.iqr,
+                    stats.p90,
+                    stats.mad
                   ].allSatisfy(\.isFinite) else {
                 return nil
             }

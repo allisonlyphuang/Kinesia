@@ -15,13 +15,11 @@ struct HomeView: View {
             VStack(alignment: .leading) {
                 // Top bar
                 HStack {
-                    Image("myImage")
-                        .renderingMode(.original)
+                    Image(systemName: "leaf.circle.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .clipped()
-                        .padding(.horizontal, 0)
+                        .frame(width: 44, height: 44)
+                        .foregroundStyle(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
                     Spacer()
                     ZStack {
                         RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -50,11 +48,9 @@ struct HomeView: View {
                         .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
                 }
                 .padding(.vertical)
-                Image("myImage")
-                    .renderingMode(.original)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                // Placeholder for the garden artwork.
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Color(.sRGB, red: 232/255, green: 228/255, blue: 218/255))
                     .frame(maxWidth: .infinity, maxHeight: 180, alignment: .center)
                     .clipped()
                 // streak
@@ -77,13 +73,11 @@ struct HomeView: View {
                         .clipped()
                         .padding(.bottom, 0)
                     HStack {
-                        Image("myImage")
-                            .renderingMode(.original)
+                        Image(systemName: "pills.fill")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(height: 50)
-                            .clipped()
-                            .padding(.horizontal, 0)
+                            .frame(height: 32)
+                            .foregroundStyle(.white)
                         Text("Log medicine")
                             .foregroundStyle(.white)
                             .font(.system(size: 28, weight: .regular, design: .default))
@@ -107,13 +101,20 @@ struct HomeView: View {
                             Text("Lily pads")
                                 .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
                         }
-                        HStack {
-                            Image(systemName: "light.max")
-                                .imageScale(.small)
-                                .symbolRenderingMode(.monochrome)
-                            Text("Fireflies")
-                                .font(.body)
-                                .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
+                        NavigationLink {
+                            AkinesiaTestView()
+                        } label: {
+                            HStack {
+                                Image(systemName: "light.max")
+                                    .imageScale(.small)
+                                    .symbolRenderingMode(.monochrome)
+                                Text("Fireflies")
+                                    .font(.body)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .imageScale(.small)
+                            }
+                            .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
                         }
                         NavigationLink {
                             DexterityTestView()

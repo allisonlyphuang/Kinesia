@@ -1,4 +1,4 @@
-# Bradykinesia testing
+# Testing
 
 ## Automated coverage
 
@@ -6,17 +6,32 @@ The `KinesiaTests` XCTest target has 125 passing tests as of 2026-10-07:
 
 | Suite | Tests | Covers |
 | --- | --- | --- |
-| `SummaryStatsTests` | 12 | percentile interpolation, sample SD, population SD, paper CV, population-moment skewness, non-finite input |
+| `SummaryStatsTests` | 19 | percentile interpolation, sample SD, population SD, paper CV, population-moment skewness, 90th percentile, median absolute deviation, non-finite input |
 | `BradykinesiaAnalyzerTests` | 27 | TapInter extraction, malformed/non-increasing timestamps, insufficient samples, mean-X partitions, Euclidean drift, Pearson correlation, UI-label independence, correct-tap scoring |
 | `BradykinesiaStoreTests` | 16 | Core Data mapping, bilateral session shape, validation guards, raw payload round trips, CV and correct-tap persistence, measured duration, medication context, fetch ordering, context refetch |
 | `BradykinesiaTestModelTests` | 11 | phase transitions, tap gating/order/miss preservation, bilateral sequencing and rest, duplicate-save protection, persistence failure, geometry locking, reset |
+| `AkinesiaTestModelTests` | 27 | the full round cycle; false start, slip, missed, drag-instead-of-lift and interruption paths; practice gating; geometry locking; session cap; save failure; reset; ring-spawn geometry |
+| `FireflyBoardTests` | 20 | hit-test geometry including exact boundaries and non-finite input; showing the firefly in one frame under repeated SwiftUI redraws; replacing stale callbacks; a real `CADisplayLink` reporting an onset on the right clock |
+| `AkinesiaAnalyzerTests` | 18 | reaction and movement time arithmetic; both threshold boundaries; outcome counts adding up; practice exclusion; the statistics cut-off; movement time kept out of reaction-time stats |
 | `TapModelTests` | 1 | `TapTrial` Codable round trip |
 | `TapCaptureViewTests` | 1 | UI target classification including the radius boundary |
 | Dexterity calculation, capture, route, layout, fit, protocol, store, and session suites | 57 | canonical geometry, continuous capture, ordered progression, protocol lifecycle, Core Data persistence, raw payloads, and retry/save-once behavior |
 
-Tests use an isolated in-memory Core Data store and drive the capture lifecycle synchronously
-via `countdownTick()` and `completeRunningWindow()` rather than sleeping, so a "20-second"
-capture runs in microseconds.
+Tests use an isolated in-memory Core Data store and drive each test's lifecycle synchronously
+rather than sleeping, so a "20-second" tapping capture and a full 12-round firefly session both
+run in microseconds.
+
+### Counting the tests
+
+Do not count with `grep -c "Test case .* passed"` on the build log. `xcodebuild` wraps long lines,
+so a test with a long name can be split across two lines and missed, giving a number one or two
+short. Count the declarations in the source instead:
+
+```bash
+cat KinesiaTests/*.swift | grep -cE '^\s*func test[A-Za-z0-9_]+\s*\('
+```
+
+Then confirm the run reported zero failures and `** TEST SUCCEEDED **`.
 
 ### Test doubles
 
@@ -26,6 +41,21 @@ tests can substitute a controlled clock or a failing save.
 The fake clocks must **advance** on every read. A constant clock produces a zero-length capture
 window, which `BradykinesiaStore` correctly rejects with `invalidCaptureDuration`. See
 `advancingClock(from:step:)` in `BradykinesiaTestModelTests`.
+
+`AkinesiaTestModel.init` additionally takes `foreperiodGenerator`, `spawnGenerator`, and
+`deviceIdentity`, and `automaticallyScheduleTimers: false` stops every timer from firing on its
+own. Tests then call `settleElapsed()`, `foreperiodElapsed()`, `slipWindowElapsed()`,
+`responseCeilingElapsed()`, `movementCeilingElapsed()`, and `sessionCapElapsed()` themselves. The
+same advancing-clock rule applies: a constant clock makes the session's own start and end
+identical.
+
+`AkinesiaAnalyzer.analyze(_:thresholds:)` and `score(_:thresholds:)` take the cut-offs as a
+parameter, so a test can re-score the same round under different rules.
+
+One trap worth knowing: a timestamp built by adding does not survive being subtracted again.
+`(10.0 + 0.120) - 10.0` is `0.11999999999999922`, which is genuinely below a 0.120 cut-off. Tests
+that check a threshold boundary anchor the cue at zero so the subtraction is exact. See
+`exactRound(reactionTime:)` in `AkinesiaAnalyzerTests`.
 
 ## Running the suite
 
@@ -59,13 +89,14 @@ Manual interaction validation was performed in the Xcode development tracing har
 
 ## Manual simulator validation
 
-Automated tests use an in-memory store and cannot prove that data survives process termination.
+Automated tests use an in-memory store and cannot prove that data survives the app being killed.
 
-As of 2026-08-15, manual completion of a live bilateral UI run and quit/relaunch persistence
-verification are pending. They must not be reported as completed until exercised in the
-simulator.
+### Bradykinesia
 
-The manual check should confirm:
+As of 2026-08-15, a live bilateral UI run and a quit/relaunch persistence check are still
+pending. They must not be reported as done until actually exercised in the simulator.
+
+The check should confirm:
 
 1. Home navigation into the Bradykinesia test.
 2. Countdown gating — taps during the countdown are not recorded.
@@ -78,3 +109,23 @@ The manual check should confirm:
 9. Navigating away mid-test discards the attempt and writes nothing.
 10. App termination and relaunch, with both hands still visible afterwards.
 11. With a medication dose logged earlier the same day, the session links it; with none, nothing is linked and no misleading value is shown.
+
+### Akinesia
+
+Once the board draws something and the screen exists, the check should confirm:
+
+1. Home navigation into the Fireflies test.
+2. The jar is visible in the middle and the firefly is clearly the brightest thing on screen when
+   it appears.
+3. The firefly appears suddenly, with no fade or glow ramp.
+4. Touches before the test starts are ignored.
+5. Lifting a finger before the firefly appears is handled kindly and the round is retried, not
+   counted.
+6. Letting a firefly time out without moving records a missed round and moves on.
+7. Sliding to the firefly instead of lifting works and is timed the same way.
+8. The round counter reaches the configured number of rounds and the session ends.
+9. Navigating away mid-session writes nothing.
+10. The feedback line appearing or disappearing does not shift the board under the resting finger.
+
+Until `AkinesiaStore` exists, a finished session ends on the save-failed screen. That is correct,
+not a bug, and items about saving and relaunching cannot be checked yet.

@@ -8,24 +8,8 @@ final class BradykinesiaStoreTests: XCTestCase {
     private var context: NSManagedObjectContext!
 
     override func setUpWithError() throws {
-        let modelBundle = Bundle(for: BradykinesiaResult.self)
-        let modelURL = try XCTUnwrap(modelBundle.url(forResource: "Kinesia", withExtension: "momd"))
-        let model = try XCTUnwrap(NSManagedObjectModel(contentsOf: modelURL))
-        container = NSPersistentContainer(name: "Kinesia", managedObjectModel: model)
-
-        let storeDescription = NSPersistentStoreDescription()
-        storeDescription.type = NSInMemoryStoreType
-        storeDescription.shouldAddStoreAsynchronously = false
-        container.persistentStoreDescriptions = [storeDescription]
-
-        var loadError: Error?
-        container.loadPersistentStores { _, error in
-            loadError = error
-        }
-        if let loadError {
-            throw loadError
-        }
-
+        // One shared model for the whole target; see TestCoreDataStack.
+        container = try TestCoreDataStack.makeInMemoryContainer()
         context = container.viewContext
     }
 

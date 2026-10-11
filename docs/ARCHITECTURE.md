@@ -1,6 +1,13 @@
-# Bradykinesia architecture
+# Architecture
 
-## Implemented vertical slice
+Covers both implemented tests.
+
+- **Bradykinesia (tapping)** is complete
+- **Akinesia (fireflies)** has capture and scoring, still building UI and saving
+
+## Bradykinesia: tapping
+
+### Implemented vertical slice
 
 ```text
 HomeView
@@ -19,7 +26,7 @@ HomeView
 
 The production lifecycle uses a configurable 3-second countdown and a 20-second capture duration per hand, each test beginning with the right target. Raw touch time and `TapTrial.startedAt` are monotonic. Wall-clock `Date` values are captured separately for session/result persistence; touch timestamps are never interpreted as Unix time.
 
-## Bilateral capture
+### Bilateral capture
 
 `BradykinesiaTestConfiguration.handOrder` drives the sequence and defaults to `[.right, .left]`. The model runs one hand at a time and parks in `.rest(nextHand:)` between them.
 
@@ -29,7 +36,7 @@ The production lifecycle uses a configurable 3-second countdown and a 20-second 
 - Nothing is written to Core Data until every hand in `handOrder` has completed. Abandoning mid-test (navigating away during countdown, running, or rest) discards the whole attempt.
 - `handOrder: [.right]` runs a single hand through the same code path with no rest phase.
 
-## Persistence
+### Persistence
 
 `BradykinesiaStore.save(attempts:in:)` receives already-analyzed attempts. It does not recompute metrics. It validates every attempt before creating anything, JSON-encodes each complete `TapTrial` into a `RawCapture.payload`, and creates one `TestSession` with one `BradykinesiaResult` and one `RawCapture` per hand, committed in a single `context.save()`.
 
@@ -41,7 +48,7 @@ Session wall-clock bounds are derived from the attempts: `startedAt` is the earl
 
 Result fetching is newest-first by explicit wall-clock timestamp. `fetchLatestSession` returns the most recent session that has at least one Bradykinesia result; its results are unordered (a to-many relationship is a set), so consumers sort by `BradykinesiaResult.timestamp` to recover hand order.
 
-## Initial scaffold completion note
+### Initial scaffold completion note
 
 The initial scaffold intentionally established the intended data flow but left the analyzer/metric representation incomplete. In particular, the TapInter metric scaffold represented an interval in scalar form while attempting to access summary values such as `.mean` and `.stdev`; `BradykinesiaAnalyzer` was still placeholder/malformed and did not yet produce a typed metric bundle.
 
@@ -56,16 +63,72 @@ ordered TapSample array
 
 Optional metrics preserve unavailability explicitly instead of manufacturing zero values.
 
-## Concurrency
-
-The calculation layer is pure and `nonisolated`: `BradykinesiaAnalyzer` and `SummaryStats` methods, and the value types in `calculations/` that they operate on, are all explicitly `nonisolated`. The target builds with `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, so without those annotations the synthesized protocol conformances on those types would be main-actor-isolated and unusable from the analyzer.
-
-`BradykinesiaTestModel` is `@MainActor`. Views and the store run on the main actor by default.
-
-## Deferred decisions
+### Deferred decisions
 
 - MotionQC: schema fields exist on `BradykinesiaResult`, so motion is naturally per-hand; collection and interpretation are deferred and `MotionQC` remains a stub to be later implemented.
 - Scoring: there is no normalization, composite score, severity score, or left/right asymmetry index. One session now holds both hands, so asymmetry becomes a query over that session whenever it is defined.
 - `TestSession.status`: for now reserved and unwritten. some scenarios where this might be used is in saving each hand as it completes instead of both at the end, persisting abandoned attempts, or other test types.
 - Hand order: fixed `[.right, .left]`. Dominant-hand-first or randomized order is not implemented.
 - Capture-window drift: the lifecycle timer subtracts nominal one-second ticks rather than measured elapsed time, so the real window is slightly longer than `captureDuration` and varies between runs. `BradykinesiaResult.durationSec` records the actual measured window, which makes the drift visible but does not correct it.
+
+## Akinesia: fireflies
+The tapping test measures reaction time to a visual stimulus. 
+The patient rests their index finger on a jar in the middle of the screen and holds it until a firefly appears. After a
+random wait, a firefly appears around the jar at any point on a circle with a fixed radius. 
+
+| Interval | Measurement |
+| --- | --- |
+| firefly appears to finger lifts | **Reaction time** |
+| finger lifts to firefly tapped | **Movement time** |
+
+### Implemented slice
+
+```text
+AkinesiaTestView            (currently building)
+  → AkinesiaTestModel       (ready → instructions → practicing → scoring → finished/failed)
+  → FireflyBoardView / FireflyBoard
+  → RoundRecord / AkinesiaTrial
+  → AkinesiaAnalyzer
+  → AkinesiaMetrics
+  → AkinesiaAttempt
+  → (no store yet)
+```
+
+### FireflyBoard
+`FireflyBoard` is a UIKit view hosted in SwiftUI. UIKit is used instead of SwiftUI because:
+- The firefly has to appear in a single screen frame, otherwise there would be no moment of appearance and no defined start. A `CADisplayLink`
+shows a pending firefly inside one frame and reports that frame's timestamp
+- Finger timestamp uses `UITouch.timestamp`, which iOS records using the hardware.
+  event. Reading a clock inside a gesture callback instead would add a varying delay depending on phone activity.
+- Reports if a touch has landed, when the home finger moves (lifted, dragged out of the jar, system cancel), if the firefly was displayed on the frame, and the screen's refresh rate.
+- A patient who slides to the firefly instead of lifting does not fire a lift event, so it treats the finger crossing outside the jar's edge as the movement start.
+- `configure(...)` is called on every SwiftUI redraw, so it compares the requested firefly position against the last one and only spawns a new firefly when the position changed. Otherwise one firefly would report several onsets.
+
+### Session model
+`AkinesiaTestModel` runs the session, classifies board events, counts, and sends finished session to `AkinesiaAnalyzer`. 
+
+| Outcome | Meaning | Uses a round? |
+| --- | --- | --- |
+| completed | firefly was tapped | yes |
+| completed, no catch | finger lifted but never reached the firefly; reaction time still counts, only movement time is lost | yes |
+| missed | no lift at all within 5 seconds of firefly spawning | yes |
+| false start | lifted before the firefly then touched the screen | no, retried |
+| slip | lifted before the firefly with no touch following, so the finger came off by accident | no, retried |
+| interrupted | the system cancelled the touch, such as a phone call | not recorded at all |
+### Scoring
+Scoring uses `AkinesiaAnalyzer` :
+
+```text
+   0ms         120ms                         2000ms              5000ms
+    |------------|-----------------------------|-------------------|
+    too fast to  |        real reaction        |   slow enough to  |  no lift at all
+    be a real    |                             |   be a lapse in   |
+    reaction     |                             |   attention       |
+```
+
+- Raw timestamps are kept and scores are applied after. 
+- Movement time is collected into its own list and never averaged into the reaction-time statistics.
+
+### Absolute values are not comparable
+Phones report reaction times with \~80ms delay, which differs between models. This largely cancels when a patient is compared against their own earlier
+sessions on the same phone.

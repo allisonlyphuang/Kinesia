@@ -2,7 +2,7 @@
 
 ## Automated coverage
 
-The `KinesiaTests` XCTest target has 125 passing tests as of 2026-10-07:
+The `KinesiaTests` XCTest target has **248 passing tests** as of 2026-10-11:
 
 | Suite | Tests | Covers |
 | --- | --- | --- |
@@ -10,9 +10,12 @@ The `KinesiaTests` XCTest target has 125 passing tests as of 2026-10-07:
 | `BradykinesiaAnalyzerTests` | 27 | TapInter extraction, malformed/non-increasing timestamps, insufficient samples, mean-X partitions, Euclidean drift, Pearson correlation, UI-label independence, correct-tap scoring |
 | `BradykinesiaStoreTests` | 16 | Core Data mapping, bilateral session shape, validation guards, raw payload round trips, CV and correct-tap persistence, measured duration, medication context, fetch ordering, context refetch |
 | `BradykinesiaTestModelTests` | 11 | phase transitions, tap gating/order/miss preservation, bilateral sequencing and rest, duplicate-save protection, persistence failure, geometry locking, reset |
-| `AkinesiaTestModelTests` | 27 | the full round cycle; false start, slip, missed, drag-instead-of-lift and interruption paths; practice gating; geometry locking; session cap; save failure; reset; ring-spawn geometry |
-| `FireflyBoardTests` | 20 | hit-test geometry including exact boundaries and non-finite input; showing the firefly in one frame under repeated SwiftUI redraws; replacing stale callbacks; a real `CADisplayLink` reporting an onset on the right clock |
+| `AkinesiaTestModelTests` | 31 | the full round cycle; false start, slip, missed, drag-instead-of-lift and interruption paths; practice gating; geometry locking; session cap; save failure; reset; ring-spawn geometry |
+| `FireflyBoardTests` | 25 | hit-test geometry including exact boundaries and non-finite input; showing the firefly in one frame under repeated SwiftUI redraws; replacing stale callbacks; a real `CADisplayLink` reporting an onset on the right clock |
 | `AkinesiaAnalyzerTests` | 18 | reaction and movement time arithmetic; both threshold boundaries; outcome counts adding up; practice exclusion; the statistics cut-off; movement time kept out of reaction-time stats |
+| `AkinesiaStoreTests` | 24 | created-object shape, every statistic and count column, raw payload round trip, each validation rejection leaving the context empty, medication-context rules, validity marking, durability across a context reset, fetch helpers |
+| `AkinesiaBoardLayoutTests` | 11 | board sizing across device sizes, the clearance rule that keeps a firefly from overlapping the jar, touch-target minimums, degenerate sizes, and every ring spawn landing on the board |
+| `AkinesiaCopyTests` | 7 | no empty strings, no clinical or internal vocabulary, no blame in failure messages, practice and scored progress never identical |
 | `TapModelTests` | 1 | `TapTrial` Codable round trip |
 | `TapCaptureViewTests` | 1 | UI target classification including the radius boundary |
 | Dexterity calculation, capture, route, layout, fit, protocol, store, and session suites | 57 | canonical geometry, continuous capture, ordered progression, protocol lifecycle, Core Data persistence, raw payloads, and retry/save-once behavior |

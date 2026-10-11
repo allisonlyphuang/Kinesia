@@ -71,6 +71,28 @@ Optional metrics preserve unavailability explicitly instead of manufacturing zer
 - Hand order: fixed `[.right, .left]`. Dominant-hand-first or randomized order is not implemented.
 - Capture-window drift: the lifecycle timer subtracts nominal one-second ticks rather than measured elapsed time, so the real window is slightly longer than `captureDuration` and varies between runs. `BradykinesiaResult.durationSec` records the actual measured window, which makes the drift visible but does not correct it.
 
+# Dexterity architecture
+
+## Implemented vertical slice
+
+```text
+HomeView → DexterityTestView → DexterityTraceSurface
+  → DexterityCaptureView → DexterityTestModel → DexteritySessionModel
+  → DexteritySessionCapture → DexterityAnalyzer → DexterityStore
+  → TestSession + DexterityResult + RawCapture
+```
+
+The production flow locks the V1 interaction protocol: right index finger, right hand, one successful practice trace, then three successful scored traces of the fixed `constellation-v1` route. A lift or cancellation ends an attempt; the attempt stays in raw capture data and the current practice/scored round is retried. Only the three completed scored sequences reach primary metrics.
+
+`DexterityCaptureView` is a UIKit bridge so raw samples use local capture coordinates and monotonic `UITouch.timestamp` values. `DexterityTestModel` owns ordered target progress and assigns `segmentIndex` as each sample arrives. The analyzer uses that assignment rather than globally finding the closest segment, preserving correctness for routes with crossings.
+
+The canonical route transform is saved with each capture. Raw samples remain local; geometry and speed are calculated after inverse transformation in canonical route units. This makes RMSE, path length, and speed independent of the rendering scale. Speed is expressed in canonical route units per second, not physical units.
+
+## Dexterity persistence
+
+`DexterityStore.save` validates and JSON-encodes a full `DexteritySessionCapture` before inserting a `TestSession`, one `DexterityResult`, and one `RawCapture` (`kind = "dexterity"`, schema version 1). The one save is atomic; a Core Data failure rolls back the inserted objects. Wall-clock session dates are supplied as `Date`; raw touch timing stays monotonic inside the payload.
+
+The persisted result is based only on the indexed three completed scored attempts. Practice and incomplete/retry attempts remain in the JSON payload for auditability. The store writes `isValid = false`, `invalidReason`, and required numeric placeholders if a structurally complete capture has unavailable required metrics. Consumers must not treat a placeholder zero as a measured value when `isValid` is false.
 ## Akinesia: fireflies
 The tapping test measures reaction time to a visual stimulus. 
 The patient rests their index finger on a jar in the middle of the screen and holds it until a firefly appears. After a

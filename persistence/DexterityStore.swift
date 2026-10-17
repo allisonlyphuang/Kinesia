@@ -47,6 +47,7 @@ struct DexterityStore {
         result.numSequences = Int32(DexterityProtocolV1.scoredCompletionsRequired)
         result.doneSequences = Int32(scoredSequences.count)
         result.fingerLifts = Int32(capture.scoredAttempts.filter { !$0.completed && $0.endedByLift }.count)
+        result.metricsVersion = Int16(DexterityMetrics.metricsVersion)
         result.session = session
 
         apply(metrics: metrics, invalidReason: invalidReason, to: result)

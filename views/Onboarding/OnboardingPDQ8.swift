@@ -1,168 +1,142 @@
-//
-//  OnboardingPDQ8.swift
-//  Kinesia
-//
-//  Created by Amanda Hon on 8/11/26.
-//
-
-
+import CoreData
 import SwiftUI
 
 struct OnboardingPDQ8: View {
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var model: PDQ8Model
+
+    var onFinish: (() -> Void)?
+
+    init(model: PDQ8Model? = nil, onFinish: (() -> Void)? = nil) {
+        let resolved = model ?? PDQ8Model(context: PersistenceController.shared.container.viewContext)
+        _model = StateObject(wrappedValue: resolved)
+        self.onFinish = onFinish
+    }
+
     var body: some View {
-        ZStack {
-            // bg
-            RoundedRectangle(cornerRadius: 0, style: .continuous)
-                .fill(Color(.sRGB, red: 255/255, green: 253/255, blue: 248/255))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-            VStack(alignment: .leading) {
-                HStack {
-                    Capsule(style: .continuous)
-                        .fill(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                        .frame(width: 30, height: 10)
-                        .clipped()
-                    Capsule(style: .continuous)
-                        .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 1)
-                        .background(Capsule(style: .continuous).fill(.clear))
-                        .frame(width: 30, height: 10)
-                    Capsule(style: .continuous)
-                        .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 1)
-                        .background(Capsule(style: .continuous).fill(.clear))
-                        .frame(width: 30, height: 10)
-                    Capsule(style: .continuous)
-                        .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 1)
-                        .background(Capsule(style: .continuous).fill(.clear))
-                        .frame(width: 30, height: 10)
-                    Capsule(style: .continuous)
-                        .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 1)
-                        .background(Capsule(style: .continuous).fill(.clear))
-                        .frame(width: 30, height: 10)
-                    Capsule(style: .continuous)
-                        .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 1)
-                        .background(Capsule(style: .continuous).fill(.clear))
-                        .frame(width: 30, height: 10)
-                    Capsule(style: .continuous)
-                        .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 1)
-                        .background(Capsule(style: .continuous).fill(.clear))
-                        .frame(width: 30, height: 10)
-                    Capsule(style: .continuous)
-                        .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 1)
-                        .background(Capsule(style: .continuous).fill(.clear))
-                        .frame(width: 30, height: 10)
-                }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .clipped()
-                // Instruction text
-                VStack(alignment: .leading) {
-                    Text("In the last month")
-                        .font(.title2)
-                        .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        .padding(.top, 0)
-                    Text("Have you had difficulty getting around in public?")
-                        .font(.largeTitle)
-                        .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 0)
-                }
-                .padding()
-                .frame(maxHeight: .infinity)
-                .clipped()
-                Spacer()
-                    .frame(height: 20)
-                    .clipped()
-                // Answer options
-                VStack {
-                    // Never
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 2)
-                            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(.clear))
-                            .frame(height: 80)
-                            .padding(5)
-                        HStack {
-                            Text("Never")
-                                .font(.title)
-                                .foregroundStyle(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                        }
-                    }
-                    .frame(height: 80)
-                    .padding(5)
-                    // Occasionally
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 2)
-                            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(.clear))
-                            .frame(height: 80)
-                            .padding(5)
-                        HStack {
-                            Text("Occasionally")
-                                .font(.title)
-                                .foregroundStyle(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                        }
-                    }
-                    // Sometimes
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 2)
-                            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255)))
-                            .frame(height: 80)
-                            .padding(5)
-                        HStack {
-                            Text("Sometimes")
-                                .font(.title)
-                                .foregroundStyle(.white)
-                            Spacer()
-                                .frame(width: 100)
-                                .clipped()
-                            Image(systemName: "checkmark")
-                                .imageScale(.large)
-                                .symbolRenderingMode(.monochrome)
-                                .foregroundStyle(.white)
-                                .font(.system(.body, weight: .bold))
-                        }
-                    }
-                    // Often
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 2)
-                            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(.clear))
-                            .frame(height: 80)
-                            .padding(5)
-                        HStack {
-                            Text("Often")
-                                .font(.title)
-                                .foregroundStyle(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                        }
-                    }
-                    // Always
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255), lineWidth: 2)
-                            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(.clear))
-                            .frame(height: 80)
-                            .padding(5)
-                        HStack {
-                            Text("Always")
-                                .font(.title)
-                                .foregroundStyle(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                        }
-                    }
-                }
-                .frame(maxHeight: .infinity)
-                .padding(12)
-                Spacer()
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            progress
+
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text("In the last month")
+                    .font(.heading)
+                    .foregroundStyle(Color.textMedium)
+                Text(model.currentItem.prompt)
+                    .font(.displayMedium)
+                    .foregroundStyle(Color.textDark)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .clipped()
-            .padding(20)
+
+            ScrollView {
+                VStack(spacing: Spacing.sm) {
+                    ForEach(PDQ8Response.allCases) { response in
+                        ResponseRow(
+                            response: response,
+                            isSelected: model.currentResponse == response,
+                            action: { model.select(response) }
+                        )
+                    }
+                }
+            }
+
+            if model.saveError != nil {
+                Text("That did not save. Try again.")
+                    .font(.label)
+                    .foregroundStyle(Color.textDark)
+            }
+
+            navigation
         }
+        .padding(Spacing.lg)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(Color.bgPrimaryColor.ignoresSafeArea())
+    }
+
+    private var progress: some View {
+        HStack(spacing: Spacing.xs) {
+            ForEach(model.items) { item in
+                Capsule(style: .continuous)
+                    .fill(model.response(for: item) == nil ? Color.clear : Color.primaryColor)
+                    .stroke(Color.primaryColor, lineWidth: 1)
+                    .frame(height: 10)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Question \(model.currentIndex + 1) of \(model.items.count)")
+    }
+
+    private var navigation: some View {
+        HStack(spacing: Spacing.sm) {
+            if model.currentIndex > 0 {
+                Button("Back") { model.goBack() }
+                    .font(.button)
+                    .foregroundStyle(Color.primaryColor)
+                    .frame(height: 64)
+                    .padding(.horizontal, Spacing.lg)
+                    .background {
+                        Capsule(style: .continuous).stroke(Color.secondaryColor, lineWidth: 2)
+                    }
+            }
+
+            Button {
+                if model.isLastItem {
+                    if model.submit() { onFinish?() ?? dismiss() }
+                } else {
+                    model.advance()
+                }
+            } label: {
+                Text(model.isLastItem ? "Finish" : "Next")
+                    .font(.button)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 64)
+                    .background {
+                        Capsule(style: .continuous)
+                            .fill(canContinue ? Color.primaryColor : Color.secondaryColor)
+                    }
+            }
+            .disabled(!canContinue)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var canContinue: Bool {
+        model.isLastItem ? model.isComplete : model.currentResponse != nil
     }
 }
 
+private struct ResponseRow: View {
+    let response: PDQ8Response
+    let isSelected: Bool
+    let action: () -> Void
 
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Text(response.label)
+                    .font(.heading)
+                    .foregroundStyle(isSelected ? .white : Color.primaryColor)
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(.white)
+                        .font(.system(.body, weight: .bold))
+                }
+            }
+            .padding(.horizontal, Spacing.md)
+            .frame(maxWidth: .infinity)
+            .frame(height: 72)
+            .background {
+                RoundedRectangle(cornerRadius: Radius.primary, style: .continuous)
+                    .fill(isSelected ? Color.primaryColor : Color.clear)
+                    .stroke(Color.primaryColor, lineWidth: 2)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+    }
+}
 
 #Preview {
-    OnboardingPDQ8()
+    OnboardingPDQ8(model: PDQ8Model(context: PersistenceController.preview.container.viewContext))
 }

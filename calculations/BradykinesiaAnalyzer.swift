@@ -31,8 +31,39 @@ enum BradykinesiaAnalyzer {
             skewDriftLeft: leftDrift.flatMap(SummaryStats.paperPopulationSkewness),
             skewDriftRight: rightDrift.flatMap(SummaryStats.paperPopulationSkewness),
             corXY: spatial?.correlationXY,
-            numCorrectTaps: correctTapCount(from: trial.samples)
+            numCorrectTaps: correctTapCount(from: trial.samples),
+            tapInterSlope: intervals.flatMap(tapInterSlope)
         )
+    }
+
+    // least squares slope of tap interval against tap index, in seconds per tap, for decrement over time
+    // 0 = no change, positive = slowed down, negative = sped up
+    nonisolated static func tapInterSlope(_ intervals: [Double]) -> Double? {
+        guard intervals.count >= 3, intervals.allSatisfy(\.isFinite) else {
+            return nil
+        }
+
+        let count = Double(intervals.count)
+        let meanIndex = (count - 1) / 2
+        let meanInterval = intervals.reduce(0, +) / count
+        guard meanInterval.isFinite else {
+            return nil
+        }
+
+        var covariance = 0.0
+        var indexVariance = 0.0
+        for (index, interval) in intervals.enumerated() {
+            let deltaIndex = Double(index) - meanIndex
+            covariance += deltaIndex * (interval - meanInterval)
+            indexVariance += deltaIndex * deltaIndex
+        }
+
+        guard covariance.isFinite, indexVariance.isFinite, indexVariance > 0 else {
+            return nil
+        }
+
+        let slope = covariance / indexVariance
+        return slope.isFinite ? slope : nil
     }
 
     /// Returns nil when any timestamp is non-finite or not strictly increasing.

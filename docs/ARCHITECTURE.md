@@ -154,3 +154,52 @@ Scoring uses `AkinesiaAnalyzer` :
 ### Absolute values are not comparable
 Phones report reaction times with \~80ms delay, which differs between models. This largely cancels when a patient is compared against their own earlier
 sessions on the same phone.
+
+# Medication and PDQ-8
+
+Both exist to feed the clinician view. Neither is a motor test, so neither has a capture layer or
+an analyzer; each is a value type, a store, a view model, and a form.
+
+```text
+OnboardingMeds → MedicationScheduleModel → MedicationSchedulePlan (validate) → MedicationStore
+                                                                              → MedicationSchedule
+MedicationLogView → MedicationDayModel → MedicationStore → MedicationLog
+OnboardingPDQ8 → PDQ8Model → PDQ8Score (compute) → PDQ8Store → PDQ8Log
+```
+
+`MedicationSchedulePlan` and `PDQ8Score` hold every rule. The view models call the same
+validation the stores call, so the message a patient sees and the rule the store enforces cannot
+drift apart, and both are tested without a Core Data stack.
+
+## Why the schedule is deactivated and not deleted
+
+`MedicationLog.schedule` points at the slot a dose was due at. A patient who moves their 8:00
+dose to 9:00 has not changed when last month's doses were due, so `replaceSchedule` sets
+`isActive = false` on the old rows and inserts new ones. Deleting would nullify those links and
+destroy the adherence history silently.
+
+## Why a dose is filed under the day it was due
+
+A dose scheduled for 23:00 and taken at 00:30 is 90 minutes late. Resolving `scheduledTime`
+against the taken day alone would make it 22.5 hours early, and the adherence chart would show a
+large negative delay for the most ordinary kind of lateness. `MedicationStore` resolves to the
+occurrence **nearest** the taken time across yesterday/today/tomorrow, and files the row under
+that occurrence's local midnight, so the dose lands in the column for the day it was due.
+
+## Three states, not two
+
+Not recorded, taken, and skipped are three different facts. The absence of a row means the
+patient has not answered yet; it never means the dose was skipped. `MedicationDayModel` rebuilds
+its rows from Core Data after every write rather than mutating them in place, so a row that looks
+recorded always is.
+
+## Decrement and metrics versioning
+
+`BradykinesiaAnalyzer.tapInterSlope` adds the third tapping component the clinician view needs
+alongside speed and rhythm: the OLS slope of tap interval against tap index, in seconds per tap.
+It is computed at save time and persisted as one scalar, because recovering it from the
+`RawCapture` JSON on every chart redraw would not be acceptable for a week of sessions.
+
+All three result entities now carry a `metricsVersion`. A longitudinal chart spans weeks, and
+without a version a formula change mid-window would silently mix two definitions into one line.
+Rows written before this change hold `0`, meaning "formulas not identified".

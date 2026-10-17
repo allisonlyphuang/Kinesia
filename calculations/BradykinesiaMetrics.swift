@@ -6,6 +6,10 @@
 //
 
 nonisolated struct BradykinesiaMetrics: Codable {
+    
+    // identifies formulas that produced these metrics
+    static let metricsVersion = 1
+
     /// Number of raw taps captured, including left, right, and miss classifications.
     var numTaps: Int
 
@@ -40,4 +44,9 @@ nonisolated struct BradykinesiaMetrics: Codable {
     /// right and alternates. Misses and wrong-target hits are not counted and do not advance
     /// the expected target. Always computable, so never `nil`.
     var numCorrectTaps: Int
+
+    /// Decrement: OLS slope of tap interval against tap index, in seconds per tap. Positive
+    /// means intervals lengthened across the capture. `nil` when fewer than three intervals
+    /// are available. See `BradykinesiaAnalyzer.tapInterSlope`.
+    var tapInterSlope: Double?
 }

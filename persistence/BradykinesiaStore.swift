@@ -97,6 +97,7 @@ struct BradykinesiaStore {
             result.hand = attempt.hand.rawValue
             result.numTaps = Int32(attempt.metrics.numTaps)
             result.numCorrectTaps = Int32(attempt.metrics.numCorrectTaps)
+            result.metricsVersion = Int16(BradykinesiaMetrics.metricsVersion)
             result.session = session
             result.durationSec = attempt.monotonicCompletedAt - attempt.trial.startedAt
             MetricMapping(metrics: attempt.metrics).apply(to: result)
@@ -180,6 +181,7 @@ struct BradykinesiaStore {
         private let cvTapInter: Double?
         private let cvDriftLeft: Double?
         private let cvDriftRight: Double?
+        private let tapInterSlope: Double?
 
         init(metrics: BradykinesiaMetrics) {
             tapInterStats = Self.finiteStats(metrics.tapInterStats)
@@ -192,6 +194,7 @@ struct BradykinesiaStore {
             cvTapInter = Self.finiteValue(metrics.cvTapInter)
             cvDriftLeft = Self.finiteValue(metrics.cvDriftLeft)
             cvDriftRight = Self.finiteValue(metrics.cvDriftRight)
+            tapInterSlope = Self.finiteValue(metrics.tapInterSlope)
 
 
 
@@ -227,6 +230,9 @@ struct BradykinesiaStore {
             if cvDriftRight == nil {
                 reasons.append("right drift coefficient of variation unavailable")
             }
+            if tapInterSlope == nil {
+                reasons.append("tap interval slope unavailable")
+            }
             invalidReasons = reasons
         }
 
@@ -234,6 +240,7 @@ struct BradykinesiaStore {
             apply(tapInterStats, to: (\BradykinesiaResult.tapInterMin, \BradykinesiaResult.tapInterMax, \BradykinesiaResult.tapInterMean, \BradykinesiaResult.tapInterMedian, \BradykinesiaResult.tapInterP25, \BradykinesiaResult.tapInterP75, \BradykinesiaResult.tapInterStdev), result: result)
             result.tapInterSkew = value(tapInterSkew)
             result.cvTapInter = value(cvTapInter)
+            result.tapInterSlope = value(tapInterSlope)
 
             apply(driftLeftStats, to: (\BradykinesiaResult.driftLeftMin, \BradykinesiaResult.driftLeftMax, \BradykinesiaResult.driftLeftMean, \BradykinesiaResult.driftLeftMedian, \BradykinesiaResult.driftLeftP25, \BradykinesiaResult.driftLeftP75, \BradykinesiaResult.driftLeftStdev), result: result)
             result.driftLeftSkew = value(driftLeftSkew)

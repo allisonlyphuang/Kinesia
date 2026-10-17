@@ -77,6 +77,7 @@
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="invalidReason" optional="YES" attributeType="String"/>
         <attribute name="isValid" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="metricsVersion" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="numCorrectTaps" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="numTaps" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tapInterMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -86,6 +87,7 @@
         <attribute name="tapInterP25" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="tapInterP75" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="tapInterSkew" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="tapInterSlope" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="tapInterStdev" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestSession" inverseName="bradykinesiaResults" inverseEntity="TestSession"/>
@@ -108,6 +110,7 @@
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="invalidReason" optional="YES" attributeType="String"/>
         <attribute name="isValid" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="metricsVersion" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="numSequences" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="rmsError" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="rmsErrorMax" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>

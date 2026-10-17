@@ -71,6 +71,21 @@
 		8D000050302DA0000033FABB /* TestCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000051302DA0000033FABB /* TestCoreDataStack.swift */; };
 		8D000020302DA0000033FABB /* AkinesiaBoardLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000030302DA0000033FABB /* AkinesiaBoardLayoutTests.swift */; };
 		8D000021302DA0000033FABB /* AkinesiaCopyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000031302DA0000033FABB /* AkinesiaCopyTests.swift */; };
+		AA1000003090000033FABB /* chartTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000003090000033FABB /* chartTokens.swift */; };
+		AA1000013090000033FABB /* MedicationSchedulePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000013090000033FABB /* MedicationSchedulePlan.swift */; };
+		AA1000033090000033FABB /* MedicationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000033090000033FABB /* MedicationStore.swift */; };
+		AA1000043090000033FABB /* PDQ8Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000043090000033FABB /* PDQ8Store.swift */; };
+		AA1000053090000033FABB /* MedicationScheduleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000053090000033FABB /* MedicationScheduleModel.swift */; };
+		AA1000063090000033FABB /* MedicationDayModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000063090000033FABB /* MedicationDayModel.swift */; };
+		AA1000073090000033FABB /* PDQ8Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000073090000033FABB /* PDQ8Model.swift */; };
+		AA1000083090000033FABB /* MedicationSchedulePlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000083090000033FABB /* MedicationSchedulePlanTests.swift */; };
+		AA1000093090000033FABB /* MedicationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000093090000033FABB /* MedicationStoreTests.swift */; };
+		AA1000103090000033FABB /* MedicationDayModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000103090000033FABB /* MedicationDayModelTests.swift */; };
+		AA1000113090000033FABB /* PDQ8Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000113090000033FABB /* PDQ8Tests.swift */; };
+		AA1000123090000033FABB /* PDQ8StoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000123090000033FABB /* PDQ8StoreTests.swift */; };
+		AA1000133090000033FABB /* PDQ8ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000133090000033FABB /* PDQ8ModelTests.swift */; };
+		AA1000143090000033FABB /* TapInterSlopeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000143090000033FABB /* TapInterSlopeTests.swift */; };
+		AA19999930900000F3ABB1 /* PDQ8.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA29999930900000F3ABB1 /* PDQ8.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -158,6 +173,21 @@
 		8D000007302DA0000033FABB /* TESTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TESTING.md; sourceTree = "<group>"; };
 		8D000030302DA0000033FABB /* AkinesiaBoardLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaBoardLayoutTests.swift; sourceTree = "<group>"; };
 		8D000031302DA0000033FABB /* AkinesiaCopyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaCopyTests.swift; sourceTree = "<group>"; };
+		AA2000003090000033FABB /* chartTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chartTokens.swift; sourceTree = "<group>"; };
+		AA2000013090000033FABB /* MedicationSchedulePlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationSchedulePlan.swift; sourceTree = "<group>"; };
+		AA2000033090000033FABB /* MedicationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationStore.swift; sourceTree = "<group>"; };
+		AA2000043090000033FABB /* PDQ8Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDQ8Store.swift; sourceTree = "<group>"; };
+		AA2000053090000033FABB /* MedicationScheduleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationScheduleModel.swift; sourceTree = "<group>"; };
+		AA2000063090000033FABB /* MedicationDayModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationDayModel.swift; sourceTree = "<group>"; };
+		AA2000073090000033FABB /* PDQ8Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDQ8Model.swift; sourceTree = "<group>"; };
+		AA2000083090000033FABB /* MedicationSchedulePlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationSchedulePlanTests.swift; sourceTree = "<group>"; };
+		AA2000093090000033FABB /* MedicationStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationStoreTests.swift; sourceTree = "<group>"; };
+		AA2000103090000033FABB /* MedicationDayModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationDayModelTests.swift; sourceTree = "<group>"; };
+		AA2000113090000033FABB /* PDQ8Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDQ8Tests.swift; sourceTree = "<group>"; };
+		AA2000123090000033FABB /* PDQ8StoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDQ8StoreTests.swift; sourceTree = "<group>"; };
+		AA2000133090000033FABB /* PDQ8ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDQ8ModelTests.swift; sourceTree = "<group>"; };
+		AA2000143090000033FABB /* TapInterSlopeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapInterSlopeTests.swift; sourceTree = "<group>"; };
+		AA29999930900000F3ABB1 /* PDQ8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDQ8.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,6 +239,8 @@
 		8B91BC48301D2D880033FABB /* calculations */ = {
 			isa = PBXGroup;
 			children = (
+				AA29999930900000F3ABB1 /* PDQ8.swift */,
+				AA2000013090000033FABB /* MedicationSchedulePlan.swift */,
 				8E100312302DA0000033FABB /* DexteritySessionCapture.swift */,
 				8E100311302DA0000033FABB /* DexterityProtocolV1.swift */,
 				8E100211302DA0000033FABB /* DexterityRouteFit.swift */,
@@ -250,6 +282,7 @@
 		8B91BC6A302901310033FABB /* designSystem */ = {
 			isa = PBXGroup;
 			children = (
+				AA2000003090000033FABB /* chartTokens.swift */,
 				8B91BC6D302908830033FABB /* spacingTokens.swift */,
 				8B91BC6C302907880033FABB /* typographyTokens.swift */,
 				8B91BC6B3029014A0033FABB /* colorTokens.swift */,
@@ -281,6 +314,9 @@
 		8B91BC95302DAF6E0033FABB /* viewModels */ = {
 			isa = PBXGroup;
 			children = (
+				AA2000053090000033FABB /* MedicationScheduleModel.swift */,
+				AA2000063090000033FABB /* MedicationDayModel.swift */,
+				AA2000073090000033FABB /* PDQ8Model.swift */,
 				8E100315302DA0000033FABB /* DexteritySessionModel.swift */,
 				8E100018302DA0000033FABB /* DexterityTestModel.swift */,
 				8B91BC99302DAFC00033FABB /* BradykinesiaTestModel.swift */,
@@ -305,6 +341,8 @@
 		8B91BC9A302DAFE90033FABB /* persistence */ = {
 			isa = PBXGroup;
 			children = (
+				AA2000033090000033FABB /* MedicationStore.swift */,
+				AA2000043090000033FABB /* PDQ8Store.swift */,
 				8E100314302DA0000033FABB /* DexterityStore.swift */,
 				2C0DF30B307ADE870075045F /* AkinesiaStore.swift */,
 				8B91BC9B302DAFF20033FABB /* BradykinesiaStore.swift */,
@@ -315,6 +353,13 @@
 		8C000024302DA0000033FABB /* KinesiaTests */ = {
 			isa = PBXGroup;
 			children = (
+				AA2000083090000033FABB /* MedicationSchedulePlanTests.swift */,
+				AA2000093090000033FABB /* MedicationStoreTests.swift */,
+				AA2000103090000033FABB /* MedicationDayModelTests.swift */,
+				AA2000113090000033FABB /* PDQ8Tests.swift */,
+				AA2000123090000033FABB /* PDQ8StoreTests.swift */,
+				AA2000133090000033FABB /* PDQ8ModelTests.swift */,
+				AA2000143090000033FABB /* TapInterSlopeTests.swift */,
 				8E100318302DA0000033FABB /* DexteritySessionModelTests.swift */,
 				8E100317302DA0000033FABB /* DexterityStoreTests.swift */,
 				8E100313302DA0000033FABB /* DexterityProtocolMetricsTests.swift */,
@@ -452,6 +497,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA19999930900000F3ABB1 /* PDQ8.swift in Sources */,
+				AA1000003090000033FABB /* chartTokens.swift in Sources */,
+				AA1000013090000033FABB /* MedicationSchedulePlan.swift in Sources */,
+				AA1000033090000033FABB /* MedicationStore.swift in Sources */,
+				AA1000043090000033FABB /* PDQ8Store.swift in Sources */,
+				AA1000053090000033FABB /* MedicationScheduleModel.swift in Sources */,
+				AA1000063090000033FABB /* MedicationDayModel.swift in Sources */,
+				AA1000073090000033FABB /* PDQ8Model.swift in Sources */,
 				8E100306302DA0000033FABB /* DexterityTestView.swift in Sources */,
 				8E100305302DA0000033FABB /* DexteritySessionModel.swift in Sources */,
 				8E100304302DA0000033FABB /* DexterityStore.swift in Sources */,
@@ -501,6 +554,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA1000083090000033FABB /* MedicationSchedulePlanTests.swift in Sources */,
+				AA1000093090000033FABB /* MedicationStoreTests.swift in Sources */,
+				AA1000103090000033FABB /* MedicationDayModelTests.swift in Sources */,
+				AA1000113090000033FABB /* PDQ8Tests.swift in Sources */,
+				AA1000123090000033FABB /* PDQ8StoreTests.swift in Sources */,
+				AA1000133090000033FABB /* PDQ8ModelTests.swift in Sources */,
+				AA1000143090000033FABB /* TapInterSlopeTests.swift in Sources */,
 				8E100308302DA0000033FABB /* DexteritySessionModelTests.swift in Sources */,
 				8E100307302DA0000033FABB /* DexterityStoreTests.swift in Sources */,
 				8E100303302DA0000033FABB /* DexterityProtocolMetricsTests.swift in Sources */,

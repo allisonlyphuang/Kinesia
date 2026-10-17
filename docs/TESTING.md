@@ -2,7 +2,7 @@
 
 ## Automated coverage
 
-The `KinesiaTests` XCTest target has **248 passing tests** as of 2026-10-11:
+The `KinesiaTests` XCTest target has **356 passing tests** as of 2026-10-16:
 
 | Suite | Tests | Covers |
 | --- | --- | --- |
@@ -19,6 +19,13 @@ The `KinesiaTests` XCTest target has **248 passing tests** as of 2026-10-11:
 | `TapModelTests` | 1 | `TapTrial` Codable round trip |
 | `TapCaptureViewTests` | 1 | UI target classification including the radius boundary |
 | Dexterity calculation, capture, route, layout, fit, protocol, store, and session suites | 57 | canonical geometry, continuous capture, ordered progression, protocol lifecycle, Core Data persistence, raw payloads, and retry/save-once behavior |
+| `TapInterSlopeTests` | 13 | OLS decrement arithmetic, a known hand-checked fit, speeding up, a symmetric spike leaving the trend flat, per-tap rather than per-second scaling, the three-interval minimum, non-finite input, and the slope reaching the metric bundle |
+| `MedicationSchedulePlanTests` | 18 | time-of-day and dosage validation including boundaries, duplicate slots, ordering, occurrence resolution, a late-night dose resolving to the previous day, and a clock time skipped by daylight saving |
+| `MedicationStoreTests` | 25 | schedule replacement deactivating rather than deleting, an old log keeping its slot, taken/skipped/unscheduled logging, adherence delay sign, scheduled-day filing, duplicate rejection, undo, medication-context rules, fetch ordering, and durability across a context reset |
+| `MedicationDayModelTests` | 13 | row construction per scheduled dose, taken/skipped/pending as three distinct states, undo and re-record, duplicate writes surfacing without changing the row, next-dose selection, unscheduled doses, day switching, and non-blaming failure copy |
+| `PDQ8Tests` | 18 | instrument shape, one item per dimension, scoring arithmetic at both ends and the midpoint, item order preservation, refusal to score a partial questionnaire, and stored-value range validation |
+| `PDQ8StoreTests` | 10 | created-row shape, per-item payload round trip, durability across a context reset, incomplete and non-finite input leaving the context empty, missing payload reporting, and fetch ordering in both directions |
+| `PDQ8ModelTests` | 11 | progress and navigation, selecting without auto-advancing, changing an answer, completion gating, saving, discarding a partial questionnaire, and reset |
 
 Tests use an isolated in-memory Core Data store and drive each test's lifecycle synchronously
 rather than sleeping, so a "20-second" tapping capture and a full 12-round firefly session both
@@ -99,8 +106,6 @@ Automated tests use an in-memory store and cannot prove that data survives the a
 As of 2026-08-15, a live bilateral UI run and a quit/relaunch persistence check are still
 pending. They must not be reported as done until actually exercised in the simulator.
 
-The check should confirm:
-
 1. Home navigation into the Bradykinesia test.
 2. Countdown gating — taps during the countdown are not recorded.
 3. The active hand is clearly labelled during countdown and capture.
@@ -114,9 +119,6 @@ The check should confirm:
 11. With a medication dose logged earlier the same day, the session links it; with none, nothing is linked and no misleading value is shown.
 
 ### Akinesia
-
-Once the board draws something and the screen exists, the check should confirm:
-
 1. Home navigation into the Fireflies test.
 2. The jar is visible in the middle and the firefly is clearly the brightest thing on screen when
    it appears.
@@ -130,5 +132,3 @@ Once the board draws something and the screen exists, the check should confirm:
 9. Navigating away mid-session writes nothing.
 10. The feedback line appearing or disappearing does not shift the board under the resting finger.
 
-Until `AkinesiaStore` exists, a finished session ends on the save-failed screen. That is correct,
-not a bug, and items about saving and relaunching cannot be checked yet.

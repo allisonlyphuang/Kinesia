@@ -13,7 +13,7 @@ struct OnboardingStart: View {
             Text("Kinesia")
                 .font(.system(size: 54, weight: .regular, design: .serif))
                 .foregroundStyle(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-            Text("A calm daily check-in that helps you and your care team make decisions, smarter.")
+            Text("A gamified daily check-in that helps you and your care team make decisions, smarter.")
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 60)
                 .padding(.top, 0)

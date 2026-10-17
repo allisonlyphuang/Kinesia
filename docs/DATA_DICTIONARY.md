@@ -166,10 +166,157 @@ are labels that let you find and interpret it without decoding it.
 | `BradykinesiaResult.durationSec` | The **measured** monotonic capture window (`monotonicCompletedAt - trial.startedAt`), not the nominal 20 seconds. Validated as finite and positive before writing. Expect small run-to-run variation above `captureDuration`; see the drift note in ARCHITECTURE.md. |
 | `BradykinesiaResult.numCorrectTaps` | See "Correct taps" above. |
 | `BradykinesiaResult.cvTapInter`, `cvDriftLeft`, `cvDriftRight` | Paper-derived population CVs, as percentages. Participate in `isValid` / `invalidReason`. |
+| `BradykinesiaResult.tapInterSlope` | Decrement. See "Decrement" below. Participates in `isValid` / `invalidReason`. |
+| `BradykinesiaResult.metricsVersion` | Which set of formulas produced this row. See "Metrics versioning" below. |
 | `BradykinesiaResult.accelMeanG`, `accelMaxG`, `deviceMoved` | Reserved for MotionQC. Never written; schema defaults only. |
 
 Both hands of one test share a single `TestSession`, so a bilateral test has exactly one
 medication context, one `dayStart`, and one pair of session bounds.
+
+### Decrement
+
+`tapInterSlope` is the ordinary-least-squares slope of tap interval against **tap index**:
+
+```text
+x[i] = i                      (the interval's ordinal position, 0-based)
+y[i] = TapInter[i]            (seconds)
+slope = sum((x - mean(x)) * (y - mean(y))) / sum((x - mean(x))^2)
+```
+
+Units are **seconds per tap**. Positive means intervals lengthened across the capture, so the
+participant slowed down while tapping. Negative means they sped up. Zero is a flat sequence.
+
+The regressor is the ordinal position, not the timestamp, so the value does not change when a
+capture window is longer or shorter. A capture of the same behaviour over 10 seconds and over 20
+seconds reports the same decrement.
+
+`nil` for fewer than three intervals, where a line through the points says nothing about a
+trend. Three intervals needs four taps, which a 20-second capture clears many times over, so in
+practice this only fires on an abandoned or malformed trial.
+
+This is a **trend** measure, not a hesitation detector. A single large interval in the middle of
+an otherwise even sequence leaves the slope at zero. Hesitations are visible in the
+within-session interval series drawn from `RawCapture`, not in this scalar.
+
+### Metrics versioning
+
+`metricsVersion` records which set of formulas produced a row, so a chart spanning weeks can tell
+when a definition changed inside its own window rather than silently mixing two of them.
+
+| Value | Meaning |
+| --- | --- |
+| `0` | Written before versioning existed. The formulas are not identified. |
+| `1` | The first stamped set. For tapping this is the set that includes `tapInterSlope`. |
+
+`AkinesiaResult`, `BradykinesiaResult`, and `DexterityResult` each carry their own version; the
+three are independent and a change to one does not bump the others.
+
+## Medication
+
+### `MedicationSchedule`
+
+One row per scheduled dose in the patient's day. `hour` and `minute` are a local clock time, not
+an instant: the row says "8:00 every day", and the actual occurrence is resolved per day.
+
+Replacing the schedule **deactivates** the old rows rather than deleting them. `MedicationLog`
+points at them, and a patient who moves their 8:00 dose to 9:00 has not retroactively changed
+when last month's doses were due. Always read through `MedicationStore.activeSchedule`, which
+filters on `isActive`; a historical log will correctly reference an inactive row.
+
+| Field | Meaning |
+| --- | --- |
+| `hour`, `minute` | Local clock time of day, 0–23 and 0–59. |
+| `dosageMg` | Milligrams. **Zero is allowed and is not missing data** — plenty of patients do not know the number, and the dose still has a time, which is what every dose-linked chart needs. |
+| `label` | Optional. What the patient calls the dose. |
+| `sortIndex` | Position in time-of-day order, assigned on save. |
+| `isActive` | False once a later schedule replaced this row. |
+
+### `MedicationLog`
+
+One row per dose the patient recorded, taken or skipped.
+
+| Field | Meaning |
+| --- | --- |
+| `timestamp` | When the dose was actually taken. For a **skipped** dose there is no take time, so this holds the scheduled occurrence instead; a zero here would file the row in 1970. |
+| `scheduledTime` | When the dose was due. **`0` is the sentinel for "not on the schedule"**, never a real scheduled time. |
+| `dayStart` | Local midnight of the **scheduled** day when the dose has a schedule, otherwise of the day it was taken. |
+| `wasSkipped` | The patient recorded that they did not take this dose. |
+| `source` | `"manual"` today. Reserved for an imported or notification-confirmed dose later. |
+| `schedule` | The slot this dose belongs to, possibly now inactive. `nil` for an unscheduled dose. |
+
+Three rules that are easy to get wrong:
+
+**Read `scheduledTime` through `MedicationLog.scheduledDate`, never directly.** The attribute is
+a non-optional `Double` defaulting to `0`, so an unscheduled dose read raw looks like it was due
+on 1 January 1970 and therefore 55 years late. `scheduledDate` returns `nil` for the sentinel,
+and `delayMinutes` returns `nil` with it.
+
+**A dose is filed under the day it was due, not the day it was taken.** A dose scheduled for
+23:00 and taken at 00:30 is 90 minutes late, and it belongs in the adherence column for the day
+it was due. `MedicationStore` resolves `scheduledTime` to the occurrence **nearest** the taken
+time, searching yesterday, today, and tomorrow, so the same lateness never reads as 22.5 hours
+early.
+
+**Not recorded, taken, and skipped are three different facts.** The absence of a row means the
+patient has not answered yet. It never means the dose was skipped.
+
+Adherence is then:
+
+```text
+delayMinutes = (timestamp - scheduledTime) / 60
+```
+
+Zero is on schedule, positive is late, negative is early, and `nil` is an unscheduled dose that
+has nothing to be late against.
+
+### Dose context on a session
+
+`TestSession.medicationContext` is the most recent **non-skipped** `MedicationLog` on the
+session's own local day, at or before the session started.
+
+**The only correct test for "did this session have a dose before it" is
+`session.medicationContext != nil`.** Not `minutesSinceDose > 0`: `minutesSinceDose` is a
+non-optional `Double` defaulting to `0`, so zero means either "tested at the exact moment of a
+dose" or "no qualifying dose that day". Testing the number instead of the relationship silently
+drops every pre-first-dose session, which is precisely the OFF-state data the wearing-off
+question depends on.
+
+Skipped doses are excluded because the association exists to express time since an *actual*
+dose. An unscheduled dose is included: it is still a dose the patient took.
+
+## PDQ-8
+
+The eight-item short form of the PDQ-39 quality-of-life questionnaire — one item per PDQ-39
+dimension. This is the only self-report measure in the app, and the only one that is not a touch
+timestamp.
+
+Eight items, each answered on a five-point scale scored 0 to 4:
+
+```text
+rawSum     = sum of the eight item scores            (0 to 32)
+scoreIndex = rawSum / 32 * 100                       (0 to 100)
+```
+
+| Field | Meaning |
+| --- | --- |
+| `itemScores` | JSON-encoded `[Int16]`, eight values in `PDQ8Item` order. Stored so a clinician can see *which* dimension moved, not just the total. |
+| `rawSum` | 0 to 32. |
+| `scoreIndex` | 0 to 100. |
+| `timestamp`, `dayStart` | Wall clock, and local midnight of the day it was completed. |
+
+Two things to hold onto:
+
+**Higher means worse.** A rising PDQ-8 line means quality of life declined. That is the opposite
+direction to every motor metric in the app and is the easiest misread in the whole clinician
+view, so the chart annotates the direction on its axis.
+
+**A partial questionnaire is never scored.** A missing item is not a zero; scoring seven of eight
+would understate the index and show an improvement that did not happen. `PDQ8Score.compute`
+throws rather than scoring an incomplete set, so nothing partial reaches the store.
+
+The PDQ family is licensed by Oxford University Innovation. Confirm the licence position before
+shipping. Nothing in the scoring depends on the exact item wording, so licensed phrasing can be
+substituted into `PDQ8Item.prompt` without touching any arithmetic.
 
 # Dexterity data dictionary
 
@@ -274,12 +421,8 @@ statistics: it measures what the tapping test already measures.
 
 ### Statistics — `SummaryStats`
 
-Two fields were added in this change, used by both tests:
-
 | Field | Meaning |
 | --- | --- |
 | `p90` | the 90th percentile — the slow tail, where trouble starting a movement shows up before the middle of the distribution moves |
 | `mad` | median absolute deviation — how spread out the values are, measured so that one extreme value cannot distort it |
 
-Reaction times are lopsided: there are a few very slow ones and none very fast. Median and MAD
-describe that shape better than mean and standard deviation.

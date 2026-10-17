@@ -1,163 +1,157 @@
-//
-//  OnboardingMeds.swift
-//  Kinesia
-//
-//  Created by Amanda Hon on 8/11/26.
-//
-
-
+import CoreData
 import SwiftUI
 
 struct OnboardingMeds: View {
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var model: MedicationScheduleModel
+
+    var onContinue: (() -> Void)?
+
+    init(model: MedicationScheduleModel? = nil, onContinue: (() -> Void)? = nil) {
+        let resolved = model ?? MedicationScheduleModel(context: PersistenceController.shared.container.viewContext)
+        _model = StateObject(wrappedValue: resolved)
+        self.onContinue = onContinue
+    }
+
     var body: some View {
-        ZStack {
-            // bg
-            RoundedRectangle(cornerRadius: 0, style: .continuous)
-                .fill(Color(.sRGB, red: 255/255, green: 253/255, blue: 248/255))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-            VStack(alignment: .leading) {
-                // Instruction text
-                VStack(alignment: .leading) {
-                    Text("When do you take your medication?")
-                        .font(.largeTitle)
-                        .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 12)
-                    Text("You can change this later.")
-                        .font(.title2)
-                        .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 0)
-                }
-                .padding()
-                Spacer()
-                    .frame(height: 20)
-                    .clipped()
-                // Medication times
-                VStack {
-                    // Medication time option
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color(.sRGB, red: 168/255, green: 179/255, blue: 160/255), lineWidth: 2)
-                            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(.white))
-                            .frame(height: 90)
-                            .padding(12)
-                        HStack {
-                            Image(systemName: "drop")
-                                .imageScale(.large)
-                                .symbolRenderingMode(.monochrome)
-                                .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                            Spacer()
-                                .frame(width: 30, height: 1)
-                                .clipped()
-                            Text("8:00 AM")
-                                .font(.title)
-                                .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                            Spacer()
-                                .frame(width: 100, height: 1)
-                                .clipped()
-                            Image(systemName: "xmark")
-                                .imageScale(.large)
-                                .symbolRenderingMode(.monochrome)
-                                .font(.system(size: 24, weight: .regular, design: .default))
-                                .foregroundStyle(Color(.sRGB, red: 168/255, green: 179/255, blue: 160/255))
-                        }
-                    }
-                    // Medication time option
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color(.sRGB, red: 168/255, green: 179/255, blue: 160/255), lineWidth: 2)
-                            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(.white))
-                            .frame(height: 90)
-                            .padding(12)
-                        HStack {
-                            Image(systemName: "drop")
-                                .imageScale(.large)
-                                .symbolRenderingMode(.monochrome)
-                                .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                            Spacer()
-                                .frame(width: 30, height: 1)
-                                .clipped()
-                            Text("1:00 PM")
-                                .font(.title)
-                                .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                            Spacer()
-                                .frame(width: 100, height: 1)
-                                .clipped()
-                            Image(systemName: "xmark")
-                                .imageScale(.large)
-                                .symbolRenderingMode(.monochrome)
-                                .font(.system(size: 24, weight: .regular, design: .default))
-                                .foregroundStyle(Color(.sRGB, red: 168/255, green: 179/255, blue: 160/255))
-                        }
-                    }
-                    // Medication time option
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color(.sRGB, red: 168/255, green: 179/255, blue: 160/255), lineWidth: 2)
-                            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(.white))
-                            .frame(height: 90)
-                            .padding(12)
-                        HStack {
-                            Image(systemName: "drop")
-                                .imageScale(.large)
-                                .symbolRenderingMode(.monochrome)
-                                .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                            Spacer()
-                                .frame(width: 30, height: 1)
-                                .clipped()
-                            Text("8:00 AM")
-                                .font(.title)
-                                .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                            Spacer()
-                                .frame(width: 100, height: 1)
-                                .clipped()
-                            Image(systemName: "xmark")
-                                .imageScale(.large)
-                                .symbolRenderingMode(.monochrome)
-                                .font(.system(size: 24, weight: .regular, design: .default))
-                                .foregroundStyle(Color(.sRGB, red: 168/255, green: 179/255, blue: 160/255))
-                        }
-                    }
-                    // Medication time option
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color(.sRGB, red: 163/255, green: 184/255, blue: 160/255), lineWidth: 1)
-                            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(.clear))
-                            .frame(height: 90)
-                            .padding(12)
-                        HStack {
-                            Image(systemName: "plus")
-                                .imageScale(.large)
-                                .symbolRenderingMode(.monochrome)
-                                .foregroundStyle(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                            Text("Add a time")
-                                .font(.title)
-                                .foregroundStyle(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                        }
-                    }
-                }
-                Spacer()
-                ZStack {
-                    Capsule(style: .continuous)
-                        .fill(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                        .frame(height: 100)
-                        .clipped()
-                    Text("Continue")
-                        .font(.title)
-                        .foregroundStyle(.white)
-                }
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text("When do you take your medication?")
+                    .font(.displayLarge)
+                    .foregroundStyle(Color.textDark)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("You can change this later.")
+                    .font(.heading)
+                    .foregroundStyle(Color.textMedium)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .clipped()
-            .padding(20)
+            .padding(.top, Spacing.md)
+
+            ScrollView {
+                VStack(spacing: Spacing.sm) {
+                    ForEach(model.slots) { slot in
+                        SlotRow(
+                            slot: slot,
+                            onChange: { hour, minute in model.update(slot, hour: hour, minute: minute) },
+                            onRemove: { model.remove(slot) }
+                        )
+                    }
+                    addButton
+                }
+                .padding(.vertical, Spacing.xs)
+            }
+
+            if let message = model.validationMessage {
+                Text(message)
+                    .font(.label)
+                    .foregroundStyle(Color.textDark)
+            }
+            if model.saveError != nil {
+                Text("That did not save. Try again.")
+                    .font(.label)
+                    .foregroundStyle(Color.textDark)
+            }
+
+            continueButton
+        }
+        .padding(Spacing.lg)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(Color.bgPrimaryColor.ignoresSafeArea())
+        .onAppear { model.load() }
+    }
+
+    private var addButton: some View {
+        Button {
+            model.add()
+        } label: {
+            HStack(spacing: Spacing.xs) {
+                Image(systemName: "plus")
+                Text("Add a time")
+            }
+            .font(.button)
+            .foregroundStyle(Color.primaryColor)
+            .frame(maxWidth: .infinity)
+            .frame(height: 72)
+            .background {
+                RoundedRectangle(cornerRadius: Radius.primary, style: .continuous)
+                    .stroke(Color.secondaryColor, lineWidth: 1)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var continueButton: some View {
+        Button {
+            if model.save() {
+                onContinue?() ?? dismiss()
+            }
+        } label: {
+            Text("Continue")
+                .font(.button)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 72)
+                .background {
+                    Capsule(style: .continuous)
+                        .fill(model.canSave ? Color.primaryColor : Color.secondaryColor)
+                }
+        }
+        .buttonStyle(.plain)
+        .disabled(!model.canSave)
+    }
+}
+
+private struct SlotRow: View {
+    let slot: MedicationScheduleSlot
+    let onChange: (Int, Int) -> Void
+    let onRemove: () -> Void
+
+    @State private var time: Date = .now
+
+    var body: some View {
+        HStack(spacing: Spacing.sm) {
+            Image(systemName: "drop")
+                .imageScale(.large)
+                .foregroundStyle(Color.textDark)
+
+            DatePicker(
+                "Dose time",
+                selection: $time,
+                displayedComponents: .hourAndMinute
+            )
+            .labelsHidden()
+            .onChange(of: time) { _, newValue in
+                let parts = Calendar.current.dateComponents([.hour, .minute], from: newValue)
+                onChange(parts.hour ?? slot.hour, parts.minute ?? slot.minute)
+            }
+
+            Spacer()
+
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+                    .imageScale(.large)
+                    .foregroundStyle(Color.secondaryColor)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Remove this dose time")
+        }
+        .padding(Spacing.md)
+        .frame(minHeight: 72)
+        .background {
+            RoundedRectangle(cornerRadius: Radius.primary, style: .continuous)
+                .fill(.white)
+                .stroke(Color.secondaryColor, lineWidth: 2)
+        }
+        .onAppear {
+            time = Calendar.current.date(
+                bySettingHour: slot.hour,
+                minute: slot.minute,
+                second: 0,
+                of: Calendar.current.startOfDay(for: .now)
+            ) ?? .now
         }
     }
 }
 
-
-
 #Preview {
-    OnboardingMeds()
+    OnboardingMeds(model: MedicationScheduleModel(context: PersistenceController.preview.container.viewContext))
 }

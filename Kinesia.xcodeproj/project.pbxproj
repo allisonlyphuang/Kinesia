@@ -7,31 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8E100001302DA0000033FABB /* DexterityTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100011302DA0000033FABB /* DexterityTrace.swift */; };
-		8E100002302DA0000033FABB /* DexterityRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100012302DA0000033FABB /* DexterityRoute.swift */; };
-		8E100003302DA0000033FABB /* DexterityMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100013302DA0000033FABB /* DexterityMetrics.swift */; };
-		8E100004302DA0000033FABB /* DexterityAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100014302DA0000033FABB /* DexterityAnalyzer.swift */; };
-		8E100005302DA0000033FABB /* DexterityAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100015302DA0000033FABB /* DexterityAnalyzerTests.swift */; };
-		8E100006302DA0000033FABB /* DexterityCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100016302DA0000033FABB /* DexterityCaptureView.swift */; };
-		8E100007302DA0000033FABB /* DexterityCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100017302DA0000033FABB /* DexterityCaptureTests.swift */; };
-		8E100008302DA0000033FABB /* DexterityTestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100018302DA0000033FABB /* DexterityTestModel.swift */; };
-		8E100009302DA0000033FABB /* DexterityTestModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100019302DA0000033FABB /* DexterityTestModelTests.swift */; };
-		8E100101302DA0000033FABB /* DexterityRouteLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100111302DA0000033FABB /* DexterityRouteLayout.swift */; };
-		8E100102302DA0000033FABB /* DexterityTraceSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100112302DA0000033FABB /* DexterityTraceSurface.swift */; };
-		8E100103302DA0000033FABB /* DexterityRouteLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100113302DA0000033FABB /* DexterityRouteLayoutTests.swift */; };
-		8E100201302DA0000033FABB /* DexterityRouteFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100211302DA0000033FABB /* DexterityRouteFit.swift */; };
-		8E100202302DA0000033FABB /* DexterityDebugHarness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100212302DA0000033FABB /* DexterityDebugHarness.swift */; };
-		8E100203302DA0000033FABB /* DexterityRouteFitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100213302DA0000033FABB /* DexterityRouteFitTests.swift */; };
-		8E100301302DA0000033FABB /* DexterityProtocolV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100311302DA0000033FABB /* DexterityProtocolV1.swift */; };
-		8E100302302DA0000033FABB /* DexteritySessionCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100312302DA0000033FABB /* DexteritySessionCapture.swift */; };
-		8E100303302DA0000033FABB /* DexterityProtocolMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100313302DA0000033FABB /* DexterityProtocolMetricsTests.swift */; };
-		8E100304302DA0000033FABB /* DexterityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100314302DA0000033FABB /* DexterityStore.swift */; };
-		8E100305302DA0000033FABB /* DexteritySessionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100315302DA0000033FABB /* DexteritySessionModel.swift */; };
-		8E100306302DA0000033FABB /* DexterityTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100316302DA0000033FABB /* DexterityTestView.swift */; };
-		8E100307302DA0000033FABB /* DexterityStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100317302DA0000033FABB /* DexterityStoreTests.swift */; };
-		8E100308302DA0000033FABB /* DexteritySessionModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100318302DA0000033FABB /* DexteritySessionModelTests.swift */; };
 		2C0DF30C307ADE890075045F /* AkinesiaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0DF30B307ADE870075045F /* AkinesiaStore.swift */; };
 		2C9C827B3075EF24001AB9DD /* AkinesiaBoardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9C827A3075EF1F001AB9DD /* AkinesiaBoardLayout.swift */; };
+		2CCA5FBA308317DF00B6EAC5 /* ReportSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCA5FB9308317DA00B6EAC5 /* ReportSnapshot.swift */; };
+		2CCA5FBC3083A62D00B6EAC5 /* PrimaryMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCA5FBB3083A62B00B6EAC5 /* PrimaryMetric.swift */; };
+		2CCA5FBE3083A98A00B6EAC5 /* ReportSnapShotMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCA5FBD3083A98100B6EAC5 /* ReportSnapShotMapping.swift */; };
+		2CCA5FC03083AF8000B6EAC5 /* ReportWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCA5FBF3083AF7E00B6EAC5 /* ReportWindow.swift */; };
+		2CCA5FC43083C65400B6EAC5 /* DoseBinning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCA5FC33083C65100B6EAC5 /* DoseBinning.swift */; };
 		2CCF045C305F7AF90065D8B3 /* AkinesiaRoundRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCF045B305F7AF30065D8B3 /* AkinesiaRoundRecord.swift */; };
 		2CCF045E306074EB0065D8B3 /* AkinesiaMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCF045D306074E60065D8B3 /* AkinesiaMetrics.swift */; };
 		2CCF046030607CB70065D8B3 /* AkinesiaAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCF045F30607CB00065D8B3 /* AkinesiaAnalyzer.swift */; };
@@ -67,10 +49,33 @@
 		8C000017302DA0000033FABB /* FireflyBoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000028302DA0000033FABB /* FireflyBoardTests.swift */; };
 		8C000018302DA0000033FABB /* AkinesiaAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C000029302DA0000033FABB /* AkinesiaAnalyzerTests.swift */; };
 		8C000019302DA0000033FABB /* AkinesiaTestModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C00002A302DA0000033FABB /* AkinesiaTestModelTests.swift */; };
-		8D000040302DA0000033FABB /* AkinesiaStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000041302DA0000033FABB /* AkinesiaStoreTests.swift */; };
-		8D000050302DA0000033FABB /* TestCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000051302DA0000033FABB /* TestCoreDataStack.swift */; };
 		8D000020302DA0000033FABB /* AkinesiaBoardLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000030302DA0000033FABB /* AkinesiaBoardLayoutTests.swift */; };
 		8D000021302DA0000033FABB /* AkinesiaCopyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000031302DA0000033FABB /* AkinesiaCopyTests.swift */; };
+		8D000040302DA0000033FABB /* AkinesiaStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000041302DA0000033FABB /* AkinesiaStoreTests.swift */; };
+		8D000050302DA0000033FABB /* TestCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D000051302DA0000033FABB /* TestCoreDataStack.swift */; };
+		8E100001302DA0000033FABB /* DexterityTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100011302DA0000033FABB /* DexterityTrace.swift */; };
+		8E100002302DA0000033FABB /* DexterityRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100012302DA0000033FABB /* DexterityRoute.swift */; };
+		8E100003302DA0000033FABB /* DexterityMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100013302DA0000033FABB /* DexterityMetrics.swift */; };
+		8E100004302DA0000033FABB /* DexterityAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100014302DA0000033FABB /* DexterityAnalyzer.swift */; };
+		8E100005302DA0000033FABB /* DexterityAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100015302DA0000033FABB /* DexterityAnalyzerTests.swift */; };
+		8E100006302DA0000033FABB /* DexterityCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100016302DA0000033FABB /* DexterityCaptureView.swift */; };
+		8E100007302DA0000033FABB /* DexterityCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100017302DA0000033FABB /* DexterityCaptureTests.swift */; };
+		8E100008302DA0000033FABB /* DexterityTestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100018302DA0000033FABB /* DexterityTestModel.swift */; };
+		8E100009302DA0000033FABB /* DexterityTestModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100019302DA0000033FABB /* DexterityTestModelTests.swift */; };
+		8E100101302DA0000033FABB /* DexterityRouteLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100111302DA0000033FABB /* DexterityRouteLayout.swift */; };
+		8E100102302DA0000033FABB /* DexterityTraceSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100112302DA0000033FABB /* DexterityTraceSurface.swift */; };
+		8E100103302DA0000033FABB /* DexterityRouteLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100113302DA0000033FABB /* DexterityRouteLayoutTests.swift */; };
+		8E100201302DA0000033FABB /* DexterityRouteFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100211302DA0000033FABB /* DexterityRouteFit.swift */; };
+		8E100202302DA0000033FABB /* DexterityDebugHarness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100212302DA0000033FABB /* DexterityDebugHarness.swift */; };
+		8E100203302DA0000033FABB /* DexterityRouteFitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100213302DA0000033FABB /* DexterityRouteFitTests.swift */; };
+		8E100301302DA0000033FABB /* DexterityProtocolV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100311302DA0000033FABB /* DexterityProtocolV1.swift */; };
+		8E100302302DA0000033FABB /* DexteritySessionCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100312302DA0000033FABB /* DexteritySessionCapture.swift */; };
+		8E100303302DA0000033FABB /* DexterityProtocolMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100313302DA0000033FABB /* DexterityProtocolMetricsTests.swift */; };
+		8E100304302DA0000033FABB /* DexterityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100314302DA0000033FABB /* DexterityStore.swift */; };
+		8E100305302DA0000033FABB /* DexteritySessionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100315302DA0000033FABB /* DexteritySessionModel.swift */; };
+		8E100306302DA0000033FABB /* DexterityTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100316302DA0000033FABB /* DexterityTestView.swift */; };
+		8E100307302DA0000033FABB /* DexterityStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100317302DA0000033FABB /* DexterityStoreTests.swift */; };
+		8E100308302DA0000033FABB /* DexteritySessionModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100318302DA0000033FABB /* DexteritySessionModelTests.swift */; };
 		AA1000003090000033FABB /* chartTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000003090000033FABB /* chartTokens.swift */; };
 		AA1000013090000033FABB /* MedicationSchedulePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000013090000033FABB /* MedicationSchedulePlan.swift */; };
 		AA1000033090000033FABB /* MedicationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000033090000033FABB /* MedicationStore.swift */; };
@@ -86,6 +91,23 @@
 		AA1000133090000033FABB /* PDQ8ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000133090000033FABB /* PDQ8ModelTests.swift */; };
 		AA1000143090000033FABB /* TapInterSlopeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000143090000033FABB /* TapInterSlopeTests.swift */; };
 		AA19999930900000F3ABB1 /* PDQ8.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA29999930900000F3ABB1 /* PDQ8.swift */; };
+		AB1000003091000033FABB /* DailyAggregate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000003091000033FABB /* DailyAggregate.swift */; };
+		AB1000013091000033FABB /* Baseline.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000013091000033FABB /* Baseline.swift */; };
+		AB1000023091000033FABB /* AdherencePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000023091000033FABB /* AdherencePoint.swift */; };
+		AB1000033091000033FABB /* TapComponentZScores.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000033091000033FABB /* TapComponentZScores.swift */; };
+		AB1000043091000033FABB /* DataQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000043091000033FABB /* DataQuality.swift */; };
+		AB1000053091000033FABB /* ReportFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000053091000033FABB /* ReportFixtures.swift */; };
+		AB1000063091000033FABB /* DailyAggregateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000063091000033FABB /* DailyAggregateTests.swift */; };
+		AB1000073091000033FABB /* BaselineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000073091000033FABB /* BaselineTests.swift */; };
+		AB1000083091000033FABB /* AdherencePointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000083091000033FABB /* AdherencePointTests.swift */; };
+		AB1000093091000033FABB /* TapComponentZScoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000093091000033FABB /* TapComponentZScoreTests.swift */; };
+		AB1000103091000033FABB /* DataQualityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2000103091000033FABB /* DataQualityTests.swift */; };
+		AC100001309200033FABB1 /* DoseBinningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC200001309200033FABB1 /* DoseBinningTests.swift */; };
+		AD100001309300033FABB1 /* ReportWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD200001309300033FABB1 /* ReportWindowTests.swift */; };
+		AD1000003092000033FABB /* ReportQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2000003092000033FABB /* ReportQuery.swift */; };
+		AD1000013092000033FABB /* ReportSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2000013092000033FABB /* ReportSnapshotTests.swift */; };
+		AD1000023092000033FABB /* PrimaryMetricTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2000023092000033FABB /* PrimaryMetricTests.swift */; };
+		AD1000033092000033FABB /* ReportQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2000033092000033FABB /* ReportQueryTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,31 +121,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		8E100011302DA0000033FABB /* DexterityTrace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTrace.swift; sourceTree = "<group>"; };
-		8E100012302DA0000033FABB /* DexterityRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRoute.swift; sourceTree = "<group>"; };
-		8E100013302DA0000033FABB /* DexterityMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityMetrics.swift; sourceTree = "<group>"; };
-		8E100014302DA0000033FABB /* DexterityAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityAnalyzer.swift; sourceTree = "<group>"; };
-		8E100015302DA0000033FABB /* DexterityAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityAnalyzerTests.swift; sourceTree = "<group>"; };
-		8E100016302DA0000033FABB /* DexterityCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityCaptureView.swift; sourceTree = "<group>"; };
-		8E100017302DA0000033FABB /* DexterityCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityCaptureTests.swift; sourceTree = "<group>"; };
-		8E100018302DA0000033FABB /* DexterityTestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTestModel.swift; sourceTree = "<group>"; };
-		8E100019302DA0000033FABB /* DexterityTestModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTestModelTests.swift; sourceTree = "<group>"; };
-		8E100111302DA0000033FABB /* DexterityRouteLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteLayout.swift; sourceTree = "<group>"; };
-		8E100112302DA0000033FABB /* DexterityTraceSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTraceSurface.swift; sourceTree = "<group>"; };
-		8E100113302DA0000033FABB /* DexterityRouteLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteLayoutTests.swift; sourceTree = "<group>"; };
-		8E100211302DA0000033FABB /* DexterityRouteFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteFit.swift; sourceTree = "<group>"; };
-		8E100212302DA0000033FABB /* DexterityDebugHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityDebugHarness.swift; sourceTree = "<group>"; };
-		8E100213302DA0000033FABB /* DexterityRouteFitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteFitTests.swift; sourceTree = "<group>"; };
-		8E100311302DA0000033FABB /* DexterityProtocolV1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityProtocolV1.swift; sourceTree = "<group>"; };
-		8E100312302DA0000033FABB /* DexteritySessionCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexteritySessionCapture.swift; sourceTree = "<group>"; };
-		8E100313302DA0000033FABB /* DexterityProtocolMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityProtocolMetricsTests.swift; sourceTree = "<group>"; };
-		8E100314302DA0000033FABB /* DexterityStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityStore.swift; sourceTree = "<group>"; };
-		8E100315302DA0000033FABB /* DexteritySessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexteritySessionModel.swift; sourceTree = "<group>"; };
-		8E100316302DA0000033FABB /* DexterityTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTestView.swift; sourceTree = "<group>"; };
-		8E100317302DA0000033FABB /* DexterityStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityStoreTests.swift; sourceTree = "<group>"; };
-		8E100318302DA0000033FABB /* DexteritySessionModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexteritySessionModelTests.swift; sourceTree = "<group>"; };
 		2C0DF30B307ADE870075045F /* AkinesiaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaStore.swift; sourceTree = "<group>"; };
 		2C9C827A3075EF1F001AB9DD /* AkinesiaBoardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaBoardLayout.swift; sourceTree = "<group>"; };
+		2CCA5FB9308317DA00B6EAC5 /* ReportSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSnapshot.swift; sourceTree = "<group>"; };
+		2CCA5FBB3083A62B00B6EAC5 /* PrimaryMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryMetric.swift; sourceTree = "<group>"; };
+		2CCA5FBD3083A98100B6EAC5 /* ReportSnapShotMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSnapShotMapping.swift; sourceTree = "<group>"; };
+		2CCA5FBF3083AF7E00B6EAC5 /* ReportWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportWindow.swift; sourceTree = "<group>"; };
+		2CCA5FC33083C65100B6EAC5 /* DoseBinning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseBinning.swift; sourceTree = "<group>"; };
 		2CCF045B305F7AF30065D8B3 /* AkinesiaRoundRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaRoundRecord.swift; sourceTree = "<group>"; };
 		2CCF045D306074E60065D8B3 /* AkinesiaMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaMetrics.swift; sourceTree = "<group>"; };
 		2CCF045F30607CB00065D8B3 /* AkinesiaAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaAnalyzer.swift; sourceTree = "<group>"; };
@@ -162,8 +166,6 @@
 		8C000028302DA0000033FABB /* FireflyBoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireflyBoardTests.swift; sourceTree = "<group>"; };
 		8C000029302DA0000033FABB /* AkinesiaAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaAnalyzerTests.swift; sourceTree = "<group>"; };
 		8C00002A302DA0000033FABB /* AkinesiaTestModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaTestModelTests.swift; sourceTree = "<group>"; };
-		8D000041302DA0000033FABB /* AkinesiaStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaStoreTests.swift; sourceTree = "<group>"; };
-		8D000051302DA0000033FABB /* TestCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCoreDataStack.swift; sourceTree = "<group>"; };
 		8D000001302DA0000033FABB /* ACCESSIBILITY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ACCESSIBILITY.md; sourceTree = "<group>"; };
 		8D000002302DA0000033FABB /* ADR.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ADR.md; sourceTree = "<group>"; };
 		8D000003302DA0000033FABB /* ARCHITECTURE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITECTURE.md; sourceTree = "<group>"; };
@@ -173,6 +175,31 @@
 		8D000007302DA0000033FABB /* TESTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TESTING.md; sourceTree = "<group>"; };
 		8D000030302DA0000033FABB /* AkinesiaBoardLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaBoardLayoutTests.swift; sourceTree = "<group>"; };
 		8D000031302DA0000033FABB /* AkinesiaCopyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaCopyTests.swift; sourceTree = "<group>"; };
+		8D000041302DA0000033FABB /* AkinesiaStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaStoreTests.swift; sourceTree = "<group>"; };
+		8D000051302DA0000033FABB /* TestCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCoreDataStack.swift; sourceTree = "<group>"; };
+		8E100011302DA0000033FABB /* DexterityTrace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTrace.swift; sourceTree = "<group>"; };
+		8E100012302DA0000033FABB /* DexterityRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRoute.swift; sourceTree = "<group>"; };
+		8E100013302DA0000033FABB /* DexterityMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityMetrics.swift; sourceTree = "<group>"; };
+		8E100014302DA0000033FABB /* DexterityAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityAnalyzer.swift; sourceTree = "<group>"; };
+		8E100015302DA0000033FABB /* DexterityAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityAnalyzerTests.swift; sourceTree = "<group>"; };
+		8E100016302DA0000033FABB /* DexterityCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityCaptureView.swift; sourceTree = "<group>"; };
+		8E100017302DA0000033FABB /* DexterityCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityCaptureTests.swift; sourceTree = "<group>"; };
+		8E100018302DA0000033FABB /* DexterityTestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTestModel.swift; sourceTree = "<group>"; };
+		8E100019302DA0000033FABB /* DexterityTestModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTestModelTests.swift; sourceTree = "<group>"; };
+		8E100111302DA0000033FABB /* DexterityRouteLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteLayout.swift; sourceTree = "<group>"; };
+		8E100112302DA0000033FABB /* DexterityTraceSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTraceSurface.swift; sourceTree = "<group>"; };
+		8E100113302DA0000033FABB /* DexterityRouteLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteLayoutTests.swift; sourceTree = "<group>"; };
+		8E100211302DA0000033FABB /* DexterityRouteFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteFit.swift; sourceTree = "<group>"; };
+		8E100212302DA0000033FABB /* DexterityDebugHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityDebugHarness.swift; sourceTree = "<group>"; };
+		8E100213302DA0000033FABB /* DexterityRouteFitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteFitTests.swift; sourceTree = "<group>"; };
+		8E100311302DA0000033FABB /* DexterityProtocolV1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityProtocolV1.swift; sourceTree = "<group>"; };
+		8E100312302DA0000033FABB /* DexteritySessionCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexteritySessionCapture.swift; sourceTree = "<group>"; };
+		8E100313302DA0000033FABB /* DexterityProtocolMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityProtocolMetricsTests.swift; sourceTree = "<group>"; };
+		8E100314302DA0000033FABB /* DexterityStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityStore.swift; sourceTree = "<group>"; };
+		8E100315302DA0000033FABB /* DexteritySessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexteritySessionModel.swift; sourceTree = "<group>"; };
+		8E100316302DA0000033FABB /* DexterityTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTestView.swift; sourceTree = "<group>"; };
+		8E100317302DA0000033FABB /* DexterityStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityStoreTests.swift; sourceTree = "<group>"; };
+		8E100318302DA0000033FABB /* DexteritySessionModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexteritySessionModelTests.swift; sourceTree = "<group>"; };
 		AA2000003090000033FABB /* chartTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chartTokens.swift; sourceTree = "<group>"; };
 		AA2000013090000033FABB /* MedicationSchedulePlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationSchedulePlan.swift; sourceTree = "<group>"; };
 		AA2000033090000033FABB /* MedicationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationStore.swift; sourceTree = "<group>"; };
@@ -188,6 +215,23 @@
 		AA2000133090000033FABB /* PDQ8ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDQ8ModelTests.swift; sourceTree = "<group>"; };
 		AA2000143090000033FABB /* TapInterSlopeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapInterSlopeTests.swift; sourceTree = "<group>"; };
 		AA29999930900000F3ABB1 /* PDQ8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDQ8.swift; sourceTree = "<group>"; };
+		AB2000003091000033FABB /* DailyAggregate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyAggregate.swift; sourceTree = "<group>"; };
+		AB2000013091000033FABB /* Baseline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Baseline.swift; sourceTree = "<group>"; };
+		AB2000023091000033FABB /* AdherencePoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdherencePoint.swift; sourceTree = "<group>"; };
+		AB2000033091000033FABB /* TapComponentZScores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapComponentZScores.swift; sourceTree = "<group>"; };
+		AB2000043091000033FABB /* DataQuality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataQuality.swift; sourceTree = "<group>"; };
+		AB2000053091000033FABB /* ReportFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportFixtures.swift; sourceTree = "<group>"; };
+		AB2000063091000033FABB /* DailyAggregateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyAggregateTests.swift; sourceTree = "<group>"; };
+		AB2000073091000033FABB /* BaselineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaselineTests.swift; sourceTree = "<group>"; };
+		AB2000083091000033FABB /* AdherencePointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdherencePointTests.swift; sourceTree = "<group>"; };
+		AB2000093091000033FABB /* TapComponentZScoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapComponentZScoreTests.swift; sourceTree = "<group>"; };
+		AB2000103091000033FABB /* DataQualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataQualityTests.swift; sourceTree = "<group>"; };
+		AC200001309200033FABB1 /* DoseBinningTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseBinningTests.swift; sourceTree = "<group>"; };
+		AD200001309300033FABB1 /* ReportWindowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportWindowTests.swift; sourceTree = "<group>"; };
+		AD2000003092000033FABB /* ReportQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportQuery.swift; sourceTree = "<group>"; };
+		AD2000013092000033FABB /* ReportSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSnapshotTests.swift; sourceTree = "<group>"; };
+		AD2000023092000033FABB /* PrimaryMetricTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryMetricTests.swift; sourceTree = "<group>"; };
+		AD2000033092000033FABB /* ReportQueryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportQueryTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -208,6 +252,58 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2CCA5FB43083177300B6EAC5 /* Dexterity */ = {
+			isa = PBXGroup;
+			children = (
+				8E100312302DA0000033FABB /* DexteritySessionCapture.swift */,
+				8E100311302DA0000033FABB /* DexterityProtocolV1.swift */,
+				8E100211302DA0000033FABB /* DexterityRouteFit.swift */,
+				8E100111302DA0000033FABB /* DexterityRouteLayout.swift */,
+				8E100014302DA0000033FABB /* DexterityAnalyzer.swift */,
+				8E100013302DA0000033FABB /* DexterityMetrics.swift */,
+				8E100012302DA0000033FABB /* DexterityRoute.swift */,
+				8E100011302DA0000033FABB /* DexterityTrace.swift */,
+			);
+			path = Dexterity;
+			sourceTree = "<group>";
+		};
+		2CCA5FB53083178A00B6EAC5 /* Akinesia */ = {
+			isa = PBXGroup;
+			children = (
+				2CCF045F30607CB00065D8B3 /* AkinesiaAnalyzer.swift */,
+				2CCF045D306074E60065D8B3 /* AkinesiaMetrics.swift */,
+				2CCF045B305F7AF30065D8B3 /* AkinesiaRoundRecord.swift */,
+			);
+			path = Akinesia;
+			sourceTree = "<group>";
+		};
+		2CCA5FB63083179B00B6EAC5 /* Bradykinesia */ = {
+			isa = PBXGroup;
+			children = (
+				8B91BC91302DAEB70033FABB /* BradykinesiaAnalyzer.swift */,
+				8B91BC90302DAEAC0033FABB /* BradykinesiaMetrics.swift */,
+				8B91BC81302D9EA20033FABB /* TapSample.swift */,
+			);
+			path = Bradykinesia;
+			sourceTree = "<group>";
+		};
+		2CCA5FC13083C63600B6EAC5 /* ClinicianView */ = {
+			isa = PBXGroup;
+			children = (
+				AB2000003091000033FABB /* DailyAggregate.swift */,
+				AB2000013091000033FABB /* Baseline.swift */,
+				AB2000023091000033FABB /* AdherencePoint.swift */,
+				AB2000033091000033FABB /* TapComponentZScores.swift */,
+				AB2000043091000033FABB /* DataQuality.swift */,
+				2CCA5FC33083C65100B6EAC5 /* DoseBinning.swift */,
+				2CCA5FBF3083AF7E00B6EAC5 /* ReportWindow.swift */,
+				2CCA5FBB3083A62B00B6EAC5 /* PrimaryMetric.swift */,
+				2CCA5FB9308317DA00B6EAC5 /* ReportSnapshot.swift */,
+				AA2000013090000033FABB /* MedicationSchedulePlan.swift */,
+			);
+			path = ClinicianView;
+			sourceTree = "<group>";
+		};
 		8B91BBAC2FF244AD0033FABB = {
 			isa = PBXGroup;
 			children = (
@@ -239,23 +335,12 @@
 		8B91BC48301D2D880033FABB /* calculations */ = {
 			isa = PBXGroup;
 			children = (
-				AA29999930900000F3ABB1 /* PDQ8.swift */,
-				AA2000013090000033FABB /* MedicationSchedulePlan.swift */,
-				8E100312302DA0000033FABB /* DexteritySessionCapture.swift */,
-				8E100311302DA0000033FABB /* DexterityProtocolV1.swift */,
-				8E100211302DA0000033FABB /* DexterityRouteFit.swift */,
-				8E100111302DA0000033FABB /* DexterityRouteLayout.swift */,
-				8E100014302DA0000033FABB /* DexterityAnalyzer.swift */,
-				8E100013302DA0000033FABB /* DexterityMetrics.swift */,
-				8E100012302DA0000033FABB /* DexterityRoute.swift */,
-				8E100011302DA0000033FABB /* DexterityTrace.swift */,
-				2CCF045F30607CB00065D8B3 /* AkinesiaAnalyzer.swift */,
-				2CCF045D306074E60065D8B3 /* AkinesiaMetrics.swift */,
-				2CCF045B305F7AF30065D8B3 /* AkinesiaRoundRecord.swift */,
-				8B91BC81302D9EA20033FABB /* TapSample.swift */,
-				8B91BC91302DAEB70033FABB /* BradykinesiaAnalyzer.swift */,
-				8B91BC90302DAEAC0033FABB /* BradykinesiaMetrics.swift */,
+				2CCA5FB43083177300B6EAC5 /* Dexterity */,
+				2CCA5FB53083178A00B6EAC5 /* Akinesia */,
+				2CCA5FB63083179B00B6EAC5 /* Bradykinesia */,
 				8B91BC8E302DAE3D0033FABB /* SummaryStats.swift */,
+				AA29999930900000F3ABB1 /* PDQ8.swift */,
+				2CCA5FC13083C63600B6EAC5 /* ClinicianView */,
 			);
 			path = calculations;
 			sourceTree = "<group>";
@@ -341,11 +426,13 @@
 		8B91BC9A302DAFE90033FABB /* persistence */ = {
 			isa = PBXGroup;
 			children = (
+				AD2000003092000033FABB /* ReportQuery.swift */,
 				AA2000033090000033FABB /* MedicationStore.swift */,
 				AA2000043090000033FABB /* PDQ8Store.swift */,
 				8E100314302DA0000033FABB /* DexterityStore.swift */,
 				2C0DF30B307ADE870075045F /* AkinesiaStore.swift */,
 				8B91BC9B302DAFF20033FABB /* BradykinesiaStore.swift */,
+				2CCA5FBD3083A98100B6EAC5 /* ReportSnapShotMapping.swift */,
 			);
 			path = persistence;
 			sourceTree = "<group>";
@@ -353,6 +440,17 @@
 		8C000024302DA0000033FABB /* KinesiaTests */ = {
 			isa = PBXGroup;
 			children = (
+				AD2000013092000033FABB /* ReportSnapshotTests.swift */,
+				AD2000023092000033FABB /* PrimaryMetricTests.swift */,
+				AD2000033092000033FABB /* ReportQueryTests.swift */,
+				AD200001309300033FABB1 /* ReportWindowTests.swift */,
+				AC200001309200033FABB1 /* DoseBinningTests.swift */,
+				AB2000053091000033FABB /* ReportFixtures.swift */,
+				AB2000063091000033FABB /* DailyAggregateTests.swift */,
+				AB2000073091000033FABB /* BaselineTests.swift */,
+				AB2000083091000033FABB /* AdherencePointTests.swift */,
+				AB2000093091000033FABB /* TapComponentZScoreTests.swift */,
+				AB2000103091000033FABB /* DataQualityTests.swift */,
 				AA2000083090000033FABB /* MedicationSchedulePlanTests.swift */,
 				AA2000093090000033FABB /* MedicationStoreTests.swift */,
 				AA2000103090000033FABB /* MedicationDayModelTests.swift */,
@@ -497,6 +595,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD1000003092000033FABB /* ReportQuery.swift in Sources */,
+				AB1000003091000033FABB /* DailyAggregate.swift in Sources */,
+				AB1000013091000033FABB /* Baseline.swift in Sources */,
+				AB1000023091000033FABB /* AdherencePoint.swift in Sources */,
+				AB1000033091000033FABB /* TapComponentZScores.swift in Sources */,
+				AB1000043091000033FABB /* DataQuality.swift in Sources */,
 				AA19999930900000F3ABB1 /* PDQ8.swift in Sources */,
 				AA1000003090000033FABB /* chartTokens.swift in Sources */,
 				AA1000013090000033FABB /* MedicationSchedulePlan.swift in Sources */,
@@ -506,7 +610,9 @@
 				AA1000063090000033FABB /* MedicationDayModel.swift in Sources */,
 				AA1000073090000033FABB /* PDQ8Model.swift in Sources */,
 				8E100306302DA0000033FABB /* DexterityTestView.swift in Sources */,
+				2CCA5FC03083AF8000B6EAC5 /* ReportWindow.swift in Sources */,
 				8E100305302DA0000033FABB /* DexteritySessionModel.swift in Sources */,
+				2CCA5FBC3083A62D00B6EAC5 /* PrimaryMetric.swift in Sources */,
 				8E100304302DA0000033FABB /* DexterityStore.swift in Sources */,
 				8E100302302DA0000033FABB /* DexteritySessionCapture.swift in Sources */,
 				8E100301302DA0000033FABB /* DexterityProtocolV1.swift in Sources */,
@@ -514,8 +620,10 @@
 				8E100201302DA0000033FABB /* DexterityRouteFit.swift in Sources */,
 				8E100102302DA0000033FABB /* DexterityTraceSurface.swift in Sources */,
 				8E100101302DA0000033FABB /* DexterityRouteLayout.swift in Sources */,
+				2CCA5FBE3083A98A00B6EAC5 /* ReportSnapShotMapping.swift in Sources */,
 				8E100008302DA0000033FABB /* DexterityTestModel.swift in Sources */,
 				8E100006302DA0000033FABB /* DexterityCaptureView.swift in Sources */,
+				2CCA5FBA308317DF00B6EAC5 /* ReportSnapshot.swift in Sources */,
 				8E100004302DA0000033FABB /* DexterityAnalyzer.swift in Sources */,
 				8E100003302DA0000033FABB /* DexterityMetrics.swift in Sources */,
 				8E100002302DA0000033FABB /* DexterityRoute.swift in Sources */,
@@ -526,6 +634,7 @@
 				2C9C827B3075EF24001AB9DD /* AkinesiaBoardLayout.swift in Sources */,
 				2C0DF30C307ADE890075045F /* AkinesiaStore.swift in Sources */,
 				8B91BC74302AE64A0033FABB /* OnboardingStart.swift in Sources */,
+				2CCA5FC43083C65400B6EAC5 /* DoseBinning.swift in Sources */,
 				8B91BC71302AE62C0033FABB /* MedicationLogView.swift in Sources */,
 				8B91BC80302D9BC00033FABB /* Kinesia.xcdatamodeld in Sources */,
 				8B91BC76302AE6590033FABB /* OnboardingMeds.swift in Sources */,
@@ -554,6 +663,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD1000013092000033FABB /* ReportSnapshotTests.swift in Sources */,
+				AD1000023092000033FABB /* PrimaryMetricTests.swift in Sources */,
+				AD1000033092000033FABB /* ReportQueryTests.swift in Sources */,
+				AD100001309300033FABB1 /* ReportWindowTests.swift in Sources */,
+				AC100001309200033FABB1 /* DoseBinningTests.swift in Sources */,
+				AB1000053091000033FABB /* ReportFixtures.swift in Sources */,
+				AB1000063091000033FABB /* DailyAggregateTests.swift in Sources */,
+				AB1000073091000033FABB /* BaselineTests.swift in Sources */,
+				AB1000083091000033FABB /* AdherencePointTests.swift in Sources */,
+				AB1000093091000033FABB /* TapComponentZScoreTests.swift in Sources */,
+				AB1000103091000033FABB /* DataQualityTests.swift in Sources */,
 				AA1000083090000033FABB /* MedicationSchedulePlanTests.swift in Sources */,
 				AA1000093090000033FABB /* MedicationStoreTests.swift in Sources */,
 				AA1000103090000033FABB /* MedicationDayModelTests.swift in Sources */,

@@ -2,7 +2,6 @@ import Foundation
 
 nonisolated struct DexterityMetrics: Codable {
     
-    // identifies set of formulas that produced these metrics 
     static let metricsVersion = 1
 
     var numSequences: Int

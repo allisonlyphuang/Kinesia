@@ -60,6 +60,32 @@ final class DoseBinningTests: XCTestCase {
         }
     }
 
+    // Ten full ranges do not fit across a phone, so the axis draws the short form and only
+    // labels the hour boundaries. Every bin still gets a tick.
+    func testTheShortLabelsAreJustTheBinStart() {
+        XCTAssertEqual(DoseBinKind.beforeFirstDose.shortLabel, "Before")
+        XCTAssertEqual(DoseBinKind.sinceDose(startMinutes: 0).shortLabel, "0:00")
+        XCTAssertEqual(DoseBinKind.sinceDose(startMinutes: 90).shortLabel, "1:30")
+        XCTAssertEqual(DoseBinKind.fourHoursOrMore.shortLabel, "4h+")
+    }
+
+    func testEveryShortLabelIsShorterThanItsFullLabel() {
+        for kind in DoseBinning.orderedKinds {
+            XCTAssertLessThanOrEqual(kind.shortLabel.count, kind.label.count, "\(kind)")
+            XCTAssertFalse(kind.shortLabel.isEmpty)
+        }
+    }
+
+    func testOnlyTheHourBoundariesAreLabelled() {
+        let labelled = DoseBinning.orderedKinds.filter(\.isMajor).map(\.shortLabel)
+        XCTAssertEqual(labelled, ["Before", "0:00", "1:00", "2:00", "3:00", "4h+"])
+    }
+
+    func testTheHalfHourBinsAreNotLabelled() {
+        XCTAssertFalse(DoseBinKind.sinceDose(startMinutes: 30).isMajor)
+        XCTAssertFalse(DoseBinKind.sinceDose(startMinutes: 210).isMajor)
+    }
+
     func testTheLabelsReadAsClockTimes() {
         XCTAssertEqual(DoseBinKind.beforeFirstDose.label, "Before 1st dose")
         XCTAssertEqual(DoseBinKind.sinceDose(startMinutes: 0).label, "0:00–0:30")

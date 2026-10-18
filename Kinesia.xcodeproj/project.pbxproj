@@ -108,6 +108,22 @@
 		AD1000013092000033FABB /* ReportSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2000013092000033FABB /* ReportSnapshotTests.swift */; };
 		AD1000023092000033FABB /* PrimaryMetricTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2000023092000033FABB /* PrimaryMetricTests.swift */; };
 		AD1000033092000033FABB /* ReportQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2000033092000033FABB /* ReportQueryTests.swift */; };
+		AE1000003093000033FABB /* ChartSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000003093000033FABB /* ChartSection.swift */; };
+		AE1000013093000033FABB /* ReportFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000013093000033FABB /* ReportFormat.swift */; };
+		AE1000023093000033FABB /* DailyTimelineChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000023093000033FABB /* DailyTimelineChart.swift */; };
+		AE1000033093000033FABB /* TimeSinceDoseChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000033093000033FABB /* TimeSinceDoseChart.swift */; };
+		AE1000043093000033FABB /* AdherenceChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000043093000033FABB /* AdherenceChart.swift */; };
+		AE1000053093000033FABB /* LongitudinalTrendChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000053093000033FABB /* LongitudinalTrendChart.swift */; };
+		AE1000063093000033FABB /* PDQ8TrendChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000063093000033FABB /* PDQ8TrendChart.swift */; };
+		AE1000073093000033FABB /* TapComponentChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000073093000033FABB /* TapComponentChart.swift */; };
+		AE1000083093000033FABB /* DataQualitySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000083093000033FABB /* DataQualitySection.swift */; };
+		AE1000093093000033FABB /* ClinicianReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000093093000033FABB /* ClinicianReportView.swift */; };
+		AE1000103093000033FABB /* ReportExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000103093000033FABB /* ReportExport.swift */; };
+		AE1000113093000033FABB /* ClinicianReportModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000113093000033FABB /* ClinicianReportModel.swift */; };
+		AF1000003094000033FABB /* ClinicianReportModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2000003094000033FABB /* ClinicianReportModelTests.swift */; };
+		AF1000013094000033FABB /* ReportExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2000013094000033FABB /* ReportExportTests.swift */; };
+		BA100001309500033FABB1 /* ReportSeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA200001309500033FABB1 /* ReportSeed.swift */; };
+		BB100001309600033FABB1 /* ReportFormatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB200001309600033FABB1 /* ReportFormatTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -232,6 +248,22 @@
 		AD2000013092000033FABB /* ReportSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSnapshotTests.swift; sourceTree = "<group>"; };
 		AD2000023092000033FABB /* PrimaryMetricTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryMetricTests.swift; sourceTree = "<group>"; };
 		AD2000033092000033FABB /* ReportQueryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportQueryTests.swift; sourceTree = "<group>"; };
+		AE2000003093000033FABB /* ChartSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartSection.swift; sourceTree = "<group>"; };
+		AE2000013093000033FABB /* ReportFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportFormat.swift; sourceTree = "<group>"; };
+		AE2000023093000033FABB /* DailyTimelineChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyTimelineChart.swift; sourceTree = "<group>"; };
+		AE2000033093000033FABB /* TimeSinceDoseChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeSinceDoseChart.swift; sourceTree = "<group>"; };
+		AE2000043093000033FABB /* AdherenceChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdherenceChart.swift; sourceTree = "<group>"; };
+		AE2000053093000033FABB /* LongitudinalTrendChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongitudinalTrendChart.swift; sourceTree = "<group>"; };
+		AE2000063093000033FABB /* PDQ8TrendChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDQ8TrendChart.swift; sourceTree = "<group>"; };
+		AE2000073093000033FABB /* TapComponentChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapComponentChart.swift; sourceTree = "<group>"; };
+		AE2000083093000033FABB /* DataQualitySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataQualitySection.swift; sourceTree = "<group>"; };
+		AE2000093093000033FABB /* ClinicianReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicianReportView.swift; sourceTree = "<group>"; };
+		AE2000103093000033FABB /* ReportExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportExport.swift; sourceTree = "<group>"; };
+		AE2000113093000033FABB /* ClinicianReportModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicianReportModel.swift; sourceTree = "<group>"; };
+		AF2000003094000033FABB /* ClinicianReportModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicianReportModelTests.swift; sourceTree = "<group>"; };
+		AF2000013094000033FABB /* ReportExportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportExportTests.swift; sourceTree = "<group>"; };
+		BA200001309500033FABB1 /* ReportSeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSeed.swift; sourceTree = "<group>"; };
+		BB200001309600033FABB1 /* ReportFormatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportFormatTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -356,6 +388,7 @@
 		8B91BC4F301D2D880033FABB /* views */ = {
 			isa = PBXGroup;
 			children = (
+				AE000001309300033FABB1 /* Clinician */,
 				8B91BC98302DAF980033FABB /* Tests */,
 				8B91BC72302AE6390033FABB /* Onboarding */,
 				8B91BC70302AE6250033FABB /* MedicationLogView.swift */,
@@ -399,6 +432,7 @@
 		8B91BC95302DAF6E0033FABB /* viewModels */ = {
 			isa = PBXGroup;
 			children = (
+				AE2000113093000033FABB /* ClinicianReportModel.swift */,
 				AA2000053090000033FABB /* MedicationScheduleModel.swift */,
 				AA2000063090000033FABB /* MedicationDayModel.swift */,
 				AA2000073090000033FABB /* PDQ8Model.swift */,
@@ -440,6 +474,9 @@
 		8C000024302DA0000033FABB /* KinesiaTests */ = {
 			isa = PBXGroup;
 			children = (
+				BB200001309600033FABB1 /* ReportFormatTests.swift */,
+				AF2000003094000033FABB /* ClinicianReportModelTests.swift */,
+				AF2000013094000033FABB /* ReportExportTests.swift */,
 				AD2000013092000033FABB /* ReportSnapshotTests.swift */,
 				AD2000023092000033FABB /* PrimaryMetricTests.swift */,
 				AD2000033092000033FABB /* ReportQueryTests.swift */,
@@ -495,6 +532,25 @@
 				8D000007302DA0000033FABB /* TESTING.md */,
 			);
 			path = docs;
+			sourceTree = "<group>";
+		};
+		AE000001309300033FABB1 /* Clinician */ = {
+			isa = PBXGroup;
+			children = (
+				BA200001309500033FABB1 /* ReportSeed.swift */,
+				AE2000003093000033FABB /* ChartSection.swift */,
+				AE2000013093000033FABB /* ReportFormat.swift */,
+				AE2000023093000033FABB /* DailyTimelineChart.swift */,
+				AE2000033093000033FABB /* TimeSinceDoseChart.swift */,
+				AE2000043093000033FABB /* AdherenceChart.swift */,
+				AE2000053093000033FABB /* LongitudinalTrendChart.swift */,
+				AE2000063093000033FABB /* PDQ8TrendChart.swift */,
+				AE2000073093000033FABB /* TapComponentChart.swift */,
+				AE2000083093000033FABB /* DataQualitySection.swift */,
+				AE2000093093000033FABB /* ClinicianReportView.swift */,
+				AE2000103093000033FABB /* ReportExport.swift */,
+			);
+			path = Clinician;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -595,6 +651,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA100001309500033FABB1 /* ReportSeed.swift in Sources */,
+				AE1000003093000033FABB /* ChartSection.swift in Sources */,
+				AE1000013093000033FABB /* ReportFormat.swift in Sources */,
+				AE1000023093000033FABB /* DailyTimelineChart.swift in Sources */,
+				AE1000033093000033FABB /* TimeSinceDoseChart.swift in Sources */,
+				AE1000043093000033FABB /* AdherenceChart.swift in Sources */,
+				AE1000053093000033FABB /* LongitudinalTrendChart.swift in Sources */,
+				AE1000063093000033FABB /* PDQ8TrendChart.swift in Sources */,
+				AE1000073093000033FABB /* TapComponentChart.swift in Sources */,
+				AE1000083093000033FABB /* DataQualitySection.swift in Sources */,
+				AE1000093093000033FABB /* ClinicianReportView.swift in Sources */,
+				AE1000103093000033FABB /* ReportExport.swift in Sources */,
+				AE1000113093000033FABB /* ClinicianReportModel.swift in Sources */,
 				AD1000003092000033FABB /* ReportQuery.swift in Sources */,
 				AB1000003091000033FABB /* DailyAggregate.swift in Sources */,
 				AB1000013091000033FABB /* Baseline.swift in Sources */,
@@ -663,6 +732,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB100001309600033FABB1 /* ReportFormatTests.swift in Sources */,
+				AF1000003094000033FABB /* ClinicianReportModelTests.swift in Sources */,
+				AF1000013094000033FABB /* ReportExportTests.swift in Sources */,
 				AD1000013092000033FABB /* ReportSnapshotTests.swift in Sources */,
 				AD1000023092000033FABB /* PrimaryMetricTests.swift in Sources */,
 				AD1000033092000033FABB /* ReportQueryTests.swift in Sources */,

@@ -659,6 +659,25 @@ All six use **Swift Charts**. Deployment target is iOS 26.5, so the full modern 
 Each chart is a standalone `View` taking exactly one derived array and rendering it — no fetching,
 no computation, no optionals resolved in the body.
 
+> **Built 2026-10-17 as `views/Clinician/`.** The boxed `ChartCard` below was replaced during
+> design review by `ChartSection`: no card, no border, and no "question" line. Charts run the
+> full width inside one page margin. Section 7.0's requirements survive in `ChartSection` —
+> task name, units on the axes, a method link and a caption — but the eyebrow labels and the
+> box are gone. The chart files are `DailyTimelineChart`, `TimeSinceDoseChart`,
+> `AdherenceChart`, `LongitudinalTrendChart`, `PDQ8TrendChart` and `TapComponentChart`, with
+> `DataQualitySection` above them and `ClinicianReportView` assembling the screen.
+>
+> Three things the sketch did not settle:
+>
+> - **Dual axes.** Swift Charts has one y scale per chart, so §7.6 maps accuracy into the
+>   z-score scale and labels the trailing axis in percent. One plot area, one set of gridlines.
+> - **Skipped doses.** §7.3 is two charts sharing an x scale: delays above, a skipped strip
+>   below. A skipped dose has no delay and cannot sit at zero without reading as on schedule.
+> - **Broken lines.** §7.4 gives each unbroken run of days its own series, so a gap stays a gap.
+>
+> `ReportLayout.margin` is applied once, to the scroll content and to the PDF page, so the two
+> side margins cannot drift apart. `ReportTheme` swaps cream for white on paper.
+
 ### 7.0 The chart container — `views/Clinician/ChartCard.swift`
 
 Every chart is wrapped in the same container, which is what makes the regulatory requirements
@@ -787,6 +806,32 @@ row carries "time between taps in ms / `TapSample.t`", which is a tapping quanti
 one. The reading above splits them into the tapping interval series and the firefly round plot.
 Worth confirming that this split is what was intended before building it.
 
+### 7.8 What the device pass changed
+
+Built and driven in the simulator at 7, 14 and 30 days on 2026-10-17. Five things the sketch
+did not anticipate:
+
+- **Axis label density.** Striding by day printed 30 labels on a 30 day window.
+  `ReportFormat.labelStride` keeps a tick on every point and thins labels to at most six.
+  The same applies to the component chart and, over two years, the PDQ-8 chart.
+- **Out-of-domain marks are not clipped.** A fixed ±2 SD domain on §7.6 let an outlying day
+  draw its line over the legend and the link below the chart. The domain now follows the data
+  with a floor of ±2, and `reportAxisStyle()` clips every chart's plot area.
+- **Repeated exclusions.** Three readings failing on one day printed three identical lines.
+  Identical ones are now counted into one.
+- **Stacked axis labels need both rows.** A count under an unlabelled bin rode up into the
+  line of labels beside it, because its `VStack` had nothing above it.
+- **Pluralisation.** "1 readings" and "day(s)" were visible on device. `ReportFormat.count`
+  covers every count string in the report.
+
+`views/Clinician/ReportSeed.swift` writes 45 days of history behind a `#if DEBUG` link at the
+bottom of the report, so the charts can be looked at on a device. It is not in a release build.
+
+**Still open from the sketch:** accuracy shares §7.6's y scale with a relabelled trailing axis.
+It is arithmetically right, but "above the line" means worse for the three components and means
+nothing for accuracy. Moving accuracy to its own strip under the chart, the way skipped doses
+sit under §7.3, would remove the ambiguity.
+
 ---
 
 ## 8. Data quality section
@@ -884,10 +929,10 @@ Sequenced so each phase ships something runnable.
 | ~~**1**~~ | ~~§5.4 `tapInterSlope`, §5.5 `metricsVersion`, lightweight migration~~ **Done 2026-10-16**, together with §5.6 chart tokens. | 7.6 |
 | ~~**2**~~ | ~~`ReportQuery`, snapshots, `PrimaryMetric`, `ReportWindow` + their tests~~ **Done 2026-10-17.** | Everything downstream |
 | **3** | ~~`DoseBinning`, `DailyAggregate`, `Baseline`, `AdherencePoint`, `TapComponentZScores`, `DataQuality` + tests~~ **Done 2026-10-17.** | The charts |
-| **4** | `chartTokens`, `ChartCard`, `MethodDisclosure`, charts 7.1–7.3 | First usable screen |
-| **5** | `Baseline` UI, charts 7.4–7.6, data quality section | Full report |
+| ~~**4**~~ | ~~`chartTokens`, `ChartCard`, charts 7.1–7.3~~ **Done 2026-10-17** as `ChartSection`. | First usable screen |
+| ~~**5**~~ | ~~`Baseline` UI, charts 7.4–7.6, data quality section~~ **Done 2026-10-17.** | Full report |
 | **6** | Session detail 7.7 with background `RawCapture` decoding | Independent review of the basis |
-| **7** | `ReportExport`, sharing gate, `ClinicianCopyTests` | Delivery |
+| **7** | ~~`ReportExport`~~ **Done 2026-10-17**: 3 page US Letter PDF, white, equal margins, disclaimer and page number on every page, shared with `ShareLink`. Sharing gate and `ClinicianCopyTests` still open. | Delivery |
 
 Phases 0 and 1 are done. Phase 2 is now the next piece of work, and nothing blocks it.
 

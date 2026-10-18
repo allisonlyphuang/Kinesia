@@ -27,6 +27,24 @@ nonisolated enum DoseBinKind: Equatable, Hashable, Sendable {
         }
     }
 
+    // Where the bin starts. Ten full ranges do not fit across a phone, so the axis draws
+    // these and the caption says the groups are 30 minutes wide.
+    var shortLabel: String {
+        switch self {
+        case .beforeFirstDose: return "Before"
+        case .sinceDose(let startMinutes): return Self.clock(startMinutes)
+        case .fourHoursOrMore: return "4h+"
+        }
+    }
+
+    // Bins that get a text label. Every bin still gets a tick.
+    var isMajor: Bool {
+        switch self {
+        case .beforeFirstDose, .fourHoursOrMore: return true
+        case .sinceDose(let startMinutes): return startMinutes % 60 == 0
+        }
+    }
+
     // hour:minutes, axis is 0:00–0:30 up to 3:30–4:00.
     private static func clock(_ minutes: Int) -> String {
         String(format: "%d:%02d", minutes / 60, minutes % 60)

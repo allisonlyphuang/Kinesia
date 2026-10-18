@@ -2,7 +2,7 @@
 
 ## Automated coverage
 
-The `KinesiaTests` XCTest target has **577 passing tests** as of 2026-10-17:
+The `KinesiaTests` XCTest target has **628 passing tests** as of 2026-10-17:
 
 | Suite | Tests | Covers |
 | --- | --- | --- |
@@ -27,10 +27,13 @@ The `KinesiaTests` XCTest target has **577 passing tests** as of 2026-10-17:
 | `PDQ8StoreTests` | 10 | created-row shape, per-item payload round trip, durability across a context reset, incomplete and non-finite input leaving the context empty, missing payload reporting, and fetch ordering in both directions |
 | `PDQ8ModelTests` | 11 | progress and navigation, selecting without auto-advancing, changing an answer, completion gating, saving, discarding a partial questionnaire, and reset |
 | `ReportWindowTests` | 28 | day count and ordering, start and end boundaries, adjacent windows not overlapping, zero and negative days rejected, days with no sessions still listed, spring-forward and fall-back windows keeping their day count, and each scale's own spans and default |
+| `ReportFormatTests` | 18 | axis number formatting including the printf half-to-even case, signed values, h:mm, singular and plural counts, the label stride at every window length with a proof that no window exceeds the label budget, picker titles short enough for the one-line Measure control, and task names carrying no symptom word |
+| `ClinicianReportModelTests` | 16 | loading with and without data, every derivation built, the window default and change, metric and hand switching rebuilding, a baseline established from the history a 7 day window could not hold, timeline points scoped to one day, dose markers and their skipped state |
+| `ReportExportTests` | 13 | a readable three page PDF, refusal before anything is loaded, an empty window still exporting, US Letter geometry, equal side margins, the disclaimer and page number on every page, no symptom word in the text, and the page rendering white inside its margin |
 | `ReportSnapshotTests` | 19 | placeholder zeros becoming nil on an invalid row for all three tasks, tap rate surviving one, non-finite stored values, minutesSinceDose from the relationship rather than the number, a dose at the exact moment of a session reading 0 not nil, session assembly, hand order recovered from timestamps, an unrecognised hand dropped, and snapshots outliving a context reset |
 | `PrimaryMetricTests` | 17 | each metric's extraction and unit label, per-hand selection, the seconds to milliseconds conversion, higherIsBetter per case, zero duration, and nil propagation from an invalid row |
 | `ReportQueryTests` | 15 | inclusive start and exclusive end, ordering, sessions with only some of the three tasks, dose context present and absent, dose and questionnaire fetches, the whole history loaded alongside the window, and loaded data driving the derivations after the context is reset |
-| `DoseBinningTests` | 31 | the ten-bin layout and its order, every half-hour boundary, 0 and 30 and 239.99 and exactly 240 minutes, no dose context getting its own bin, negative and non-finite values left out, empty bins kept, one session giving a median but no whisker, the p25/p75 whisker, per-hand binning, and a wearing-off pattern across the bins |
+| `DoseBinningTests` | 36 | the ten-bin layout and its order, every half-hour boundary, 0 and 30 and 239.99 and exactly 240 minutes, no dose context getting its own bin, negative and non-finite values left out, empty bins kept, one session giving a median but no whisker, the p25/p75 whisker, per-hand binning, a wearing-off pattern across the bins, and the short axis labels with only the hour boundaries marked |
 | `DailyAggregateTests` | 20 | one row per day including days with no sessions, daily median for one/odd/even session counts, hands kept separate, every primary metric, tap rate surviving an invalid row, zero duration, dose counting, window edges, and the median helper |
 | `BaselineTests` | 21 | the 5-day familiarization and 14-day baseline thresholds, every state transition at its boundary, the first five days excluded, the p25/p75 band and the stdev, an established baseline not moving as more data arrives, days counted as days with data, unsorted and non-finite input, and building daily values from sessions |
 | `AdherencePointTests` | 18 | delay sign in both directions, a late-night dose reading as late, skipped doses carrying no delay, unscheduled doses left out, slot identity and label format, ordering, window edges, and the off-schedule count at its threshold |
@@ -145,3 +148,10 @@ pending. They must not be reported as done until actually exercised in the simul
 9. Navigating away mid-session writes nothing.
 10. The feedback line appearing or disappearing does not shift the board under the resting finger.
 
+
+### What is not unit tested
+
+The chart views themselves. The derivations in `calculations/ClinicianView` carry the logic and
+are tested directly, which is the reason the views take finished arrays and only draw them.
+`ReportExportTests` covers the one thing the view layer can get wrong on its own: the geometry,
+background and footer of the printed page.

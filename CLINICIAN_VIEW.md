@@ -87,6 +87,28 @@ KinesiaApp
 is not a separate login, a separate build, or a server. Everything stays on device; the only way
 data leaves is the patient-initiated export in §9.
 
+**Built 2026-10-17, with a smaller change than the tree above.** `RootTabView` was not needed:
+the Insights half of the existing pill is now a `NavigationLink` to `ClinicianReportView`, so
+`HomeView` stays the root scene and the Garden flow is untouched. The report itself is one
+`ScrollView`:
+
+```text
+HomeView
+  └─ Insights pill → ClinicianReportView
+       ├─ header                  date range and check-in count
+       ├─ controls                window length, Measure, hand
+       ├─ ReportBody
+       │    ├─ DataQualitySection §8
+       │    └─ ChartSection × 6   §7
+       ├─ export button → ShareLink
+       └─ "Not a diagnostic tool."
+```
+
+`ReportBody` holds the quality section and the six charts together because the PDF pages reuse
+the same sections, which is what keeps paper and screen from drifting apart. The day selector
+under the daily timeline is screen-only. `SessionList` and `SessionDetailView` are not built;
+§7.7 is still open.
+
 ---
 
 ## 4. Architecture
@@ -101,7 +123,7 @@ capture (UIKit)  →  model (@MainActor ObservableObject)  →  value types
                  →  store (static, validates then saves) →  Core Data
 ```
 
-The analyzers are pure functions over value types, which is why 248 tests run in microseconds
+The analyzers are pure functions over value types, which is why 629 tests run in microseconds
 with no simulator timing. The clinician view runs the same pipeline in reverse, keeping the same
 property:
 
@@ -454,7 +476,7 @@ Takes `[SessionSnapshot]`, returns `[DoseBin]` where each bin carries its indivi
 `SummaryStats` over them — **reuse `SummaryStats`, do not write new percentile code.** The chart
 needs median plus a 25th–75th whisker, which are `median`, `p25`, `p75`. Note that
 `SummaryStats.compute` returns `nil` for fewer than two values, so a bin with one session gets
-its point drawn with no whisker, which is the honest rendering.
+its point drawn with no whisker, which is what one value supports.
 
 **Done.** `calculations/ClinicianView/DoseBinning.swift`. `DoseBinning.bins` returns all ten bins
 every time, in x-axis order, so a bin with no sessions keeps its slot on the axis.
@@ -590,7 +612,7 @@ direction: false for speed, true for rhythm and decrement.
 
 One correction to §6.1: **speed is not gated on `isValid`.** `BradykinesiaStore` validates
 `numTaps` and `durationSec` separately from the statistics and throws on a count mismatch or a
-non-positive duration, so tap rate is a real measurement even when `isValid` is false. Gating it
+non-positive duration, so tap rate is still a measurement even when `isValid` is false. Gating it
 would discard sessions because an unrelated drift CV was missing. Only `cvTapInter` and
 `tapInterSlope` are gated.
 
@@ -801,10 +823,15 @@ background context (§4.3).
   overlay is scale-independent by construction; `DexteritySessionCapture` already stores the route
   transform needed to invert the local samples.
 
-**Note on the source spec:** the chart table in the PDF merges two rows here — the "fireflies"
-row carries "time between taps in ms / `TapSample.t`", which is a tapping quantity, not a firefly
-one. The reading above splits them into the tapping interval series and the firefly round plot.
-Worth confirming that this split is what was intended before building it.
+**Note on the source spec:** the chart table in the PDF merged two rows here — the "fireflies"
+row carried "time between taps in ms" and `TapSample.t`, which are tapping quantities, not
+firefly ones. `RoundRecord` has no inter-tap interval, so that chart could not have been built
+as written. Confirmed 2026-10-17 that the split above is what was meant.
+
+Both axes are in milliseconds and both sit on one screen, so the axis titles are what keeps them
+apart: `Gap between taps (ms)` against `Reaction time (ms)`. One measures how fast repeated
+movement is sustained, the other how long it takes to start. Keep those titles when building this
+section.
 
 ### 7.8 What the device pass changed
 
@@ -814,9 +841,13 @@ did not anticipate:
 - **Axis label density.** Striding by day printed 30 labels on a 30 day window.
   `ReportFormat.labelStride` keeps a tick on every point and thins labels to at most six.
   The same applies to the component chart and, over two years, the PDQ-8 chart.
-- **Out-of-domain marks are not clipped.** A fixed ±2 SD domain on §7.6 let an outlying day
-  draw its line over the legend and the link below the chart. The domain now follows the data
-  with a floor of ±2, and `reportAxisStyle()` clips every chart's plot area.
+- **Out-of-domain marks are held in by the domain, not by clipping.** A fixed ±2 SD domain on
+  §7.6 let an outlying day draw its line over the legend and the link below the chart. Each
+  chart's y domain now follows its own data, with a floor of ±2 on the component chart.
+  Clipping the plot area was tried and reverted: `.clipped()` also removes `RuleMark`
+  annotations, which sit just outside the plot, so it dropped the dose times from the daily
+  timeline. `ReportExportTests.testEveryChartReachesTheExport` fails on that, by asserting each
+  chart's axis label reaches the printed page.
 - **Repeated exclusions.** Three readings failing on one day printed three identical lines.
   Identical ones are now counted into one.
 - **Stacked axis labels need both rows.** A count under an unlabelled bin rode up into the
@@ -888,6 +919,42 @@ Sharing:
 - A confirmation step naming the date range and chart count before the sheet opens, so an export
   is never one stray tap away.
 
+**Built 2026-10-17.** The signature is `ReportExport.renderPDF(model:) throws -> URL`, taking the
+view model rather than a `ReportBundle`: the model already holds the window and every derived
+array, and a second bundle type would have been one more thing to keep in step.
+
+What the sketch got right: `ImageRenderer` into a `CGContext` PDF consumer, fixed 612 x 792 pt
+geometry, a forced light colour scheme, the chart views reused rather than redrawn, and a page
+template that draws the disclaimer and the page number so no individual chart can omit them. The
+page fill is white behind the whole sheet, which guards the margin if a chart renders a
+transparent background.
+
+Four pages, two charts each, with the data quality table sharing the first:
+
+| Page | Holds |
+| --- | --- |
+| 1 | data quality, then the daily timeline |
+| 2 | time since dose, then dose timing |
+| 3 | the daily trend, then PDQ-8 |
+| 4 | the tapping components |
+
+`ReportExportTests` asserts the page count against `ReportExport.pageCount`, the media box of
+every page, equal side margins, the disclaimer and page number on each page, no symptom word in
+the extracted text, and a white page inside the margin.
+
+**Refactored 2026-10-18.** The export used to compose its own six `ChartSection`s, which meant
+every title, subtitle, legend and caption existed twice, once per surface. They drifted: two
+headings differed, the captions survived on screen only, and the printed subtitles skipped
+`ReportFormat.count`, so a one-dose window printed "1 scheduled doses". Sections are now
+described once in `ReportSections.all(for:)` and the export slices that list into pages through
+`ReportSections.pageGroups`, so pagination is the only thing it decides. A section's content
+closure takes the theme, which keeps the day selector and the baseline progress bar off paper.
+
+**Still open:** the two sharing controls. There is no chart selection and no confirmation step
+naming the range before the share sheet opens; the export button renders and hands the file
+straight to `ShareLink`. The method link that would print the basis of each chart is also still
+unwired, so the PDF omits it rather than printing a control nobody can tap.
+
 ---
 
 ## 10. Testing
@@ -917,6 +984,24 @@ Chart views themselves are not unit tested — the derivations carry the logic, 
 point of keeping the views dumb. A small set of snapshot previews with fixture data covers
 rendering.
 
+**Built 2026-10-17**, and every suite above exists except `ClinicianCopyTests`. The target
+declares 629 tests; per-suite counts and coverage are in `docs/TESTING.md`. What matters here is
+where the plan changed:
+
+- **Copy rules live in `ReportFormatTests` and `ReportExportTests`,** not in a separate
+  `ClinicianCopyTests`. Task names are asserted to carry no symptom word where they are defined,
+  and the disclaimer is asserted on every exported page. A dedicated copy suite covering
+  severity and recommendation vocabulary across the view strings is still worth adding, the way
+  `AkinesiaCopyTests` does for the firefly screens.
+- **Three suites the plan did not list** turned out to be necessary: `ReportFormatTests` for the
+  axis and count formatting that produced "1 readings" and a 30-label axis on device,
+  `ClinicianReportModelTests` for the load-and-rebuild behaviour, and `ReportExportTests` for
+  the page geometry.
+- **Eight derivation suites share `ReportFixtures`** and never open a Core Data store.
+  `ReportSnapshotTests` and `ReportQueryTests` do open one, and each asserts that what it read
+  back still reads correctly after `context.reset()`, which is the check that no snapshot is
+  holding a managed object.
+
 ---
 
 ## 11. Build order
@@ -928,13 +1013,16 @@ Sequenced so each phase ships something runnable.
 | ~~**0**~~ | ~~§5.1 `MedicationStore` + real `MedicationLogView`; §5.2 `PDQ8Store` + real questionnaire~~ **Done 2026-10-16.** | Every dose-linked chart. Nothing else can start. |
 | ~~**1**~~ | ~~§5.4 `tapInterSlope`, §5.5 `metricsVersion`, lightweight migration~~ **Done 2026-10-16**, together with §5.6 chart tokens. | 7.6 |
 | ~~**2**~~ | ~~`ReportQuery`, snapshots, `PrimaryMetric`, `ReportWindow` + their tests~~ **Done 2026-10-17.** | Everything downstream |
-| **3** | ~~`DoseBinning`, `DailyAggregate`, `Baseline`, `AdherencePoint`, `TapComponentZScores`, `DataQuality` + tests~~ **Done 2026-10-17.** | The charts |
+| ~~**3**~~ | ~~`DoseBinning`, `DailyAggregate`, `Baseline`, `AdherencePoint`, `TapComponentZScores`, `DataQuality` + tests~~ **Done 2026-10-17.** | The charts |
 | ~~**4**~~ | ~~`chartTokens`, `ChartCard`, charts 7.1–7.3~~ **Done 2026-10-17** as `ChartSection`. | First usable screen |
 | ~~**5**~~ | ~~`Baseline` UI, charts 7.4–7.6, data quality section~~ **Done 2026-10-17.** | Full report |
 | **6** | Session detail 7.7 with background `RawCapture` decoding | Independent review of the basis |
-| **7** | ~~`ReportExport`~~ **Done 2026-10-17**: 3 page US Letter PDF, white, equal margins, disclaimer and page number on every page, shared with `ShareLink`. Sharing gate and `ClinicianCopyTests` still open. | Delivery |
+| ~~**7**~~ | ~~`ReportExport`~~ **Done 2026-10-17**: 4 page US Letter PDF, white, equal margins, disclaimer and page number on every page, shared with `ShareLink`. Sharing gate and a dedicated copy suite still open. | Delivery |
 
-Phases 0 and 1 are done. Phase 2 is now the next piece of work, and nothing blocks it.
+Phases 0 to 5 and 7 are done. What is left is phase 6, the session detail screen, and three
+smaller pieces that each belong to a phase already marked done: the method and readings sheet
+behind `ChartSection`'s link (§7.0), the export confirmation step (§9), and a copy suite over
+the view strings (§10). None of them blocks another.
 
 ---
 
@@ -942,20 +1030,29 @@ Phases 0 and 1 are done. Phase 2 is now the next piece of work, and nothing bloc
 
 1. ~~**Baseline band definition**~~ **Resolved:** p25 to p75 of the daily medians. §6.6.
 2. ~~**Baseline recomputation**~~ **Resolved:** derived live, over a fixed 14-day span that does not grow. §6.6.
-3. **Default primary metric** — tap rate (proposed, matches the spec's default). §6.2.
+3. ~~**Default primary metric**~~ **Resolved:** tap rate. `ClinicianReportModel.metric`
+   defaults to `.tapRate`, and the Measure control switches to reaction time or tracing error.
+   §6.2.
 4. **PDQ-8 re-prompt cadence** — the months-scale chart needs more than one data point. §5.2.
-5. **Daily timeline across multiple days** — day selector (proposed) vs. faceting. §7.1.
+   Still open. (A decision given on 2026-10-17 as "4" was about composite scores; that is
+   recorded in §13, which is where it belongs.)
+5. ~~**Daily timeline across multiple days**~~ **Resolved:** a day selector. The last seven days
+   of the window are a strip of 44 pt buttons under the chart, and
+   `ClinicianReportModel.timelinePoints(for:)` scopes the chart to one day, so the dose
+   relationship stays readable at single-day resolution. The strip is screen-only; the PDF
+   prints the selected day, which defaults to the most recent day in the window. §7.1.
 5b. ~~**Does the window selector govern the long-span charts?**~~ **Resolved 2026-10-17:** no. Each longitudinal chart has its own span selector. §6.3.
-6. **The merged chart row in the source spec** — confirm the tapping-interval / firefly split. §7.7.
-7. **HealthKit** — `HealthKitLog` exists in the schema with sleep, steps, tremor and dyskinesia
-   percentages and no ingestion anywhere. The review notes that continuous wearable monitoring is
-   a competing approach whose drawback is a dedicated paid device, and that Kinesia's contribution
-   is a similar dose-linked view on the phone. Decide explicitly whether watch data is in scope
-   for this view; if it is not, say so in the ADR so the empty entity stops reading as an
-   oversight.
-8. **Multi-patient or clinician-side accounts** — out of scope here. This is a patient-owned,
-   on-device report that a patient shares. If that changes, the entire egress model in §9 changes
-   with it.
+6. ~~**The merged chart row in the source spec**~~ **Resolved 2026-10-17:** the split is
+   correct. They are two charts from two tasks. The tapping interval series plots the gap
+   between consecutive taps against tap number, from `TapSample.t`, within one capture. The
+   firefly round plot plots reaction time against round number, from `RoundRecord`, with the
+   symbol carrying how each round ended. §7.7.
+7. ~~**HealthKit**~~ **Resolved 2026-10-17:** `HealthKitLog` stays in the schema, but watch
+   data is not in scope for this view and ingesting it is not a priority. The entity is kept
+   deliberately, not left over. Nothing in the report reads it.
+8. ~~**Multi-patient or clinician-side accounts**~~ **Resolved 2026-10-17:** one patient, one
+   clinician. No accounts, no roster, no clinician-side login. The report stays patient-owned and
+   on-device, and the share sheet in §9 is the only way it leaves the phone.
 
 ---
 
@@ -963,7 +1060,10 @@ Phases 0 and 1 are done. Phase 2 is now the next piece of work, and nothing bloc
 
 Consistent with the boundaries already recorded in `docs/CLINICAL_BASIS.md`:
 
-- No severity score, composite score, or normalized index.
+- **No severity score, composite score, or normalized index — ever.** Decided 2026-10-17.
+  The report shows raw measurements with their units and nothing derived from them beyond the
+  descriptive statistics each chart names. This is a permanent product boundary, not a deferral:
+  no later version adds a single number summarising how the patient is doing.
 - No left/right asymmetry index — both hands live in one session, so asymmetry is a query away,
   but the definition is a clinical decision that has not been made.
 - No diagnosis, no classification, no OFF/ON state inference.

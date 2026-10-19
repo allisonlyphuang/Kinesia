@@ -1,7 +1,7 @@
 import CoreData
 import Foundation
 
-extension TappingSnapshot {
+nonisolated extension TappingSnapshot {
     init? (_ row: BradykinesiaResult) {
         guard let hand = row.hand.flatMap(CurrentHand.init(rawValue:)) else { return nil }
         let valid = row.isValid
@@ -27,7 +27,7 @@ extension TappingSnapshot {
     }
 }
 
-extension DoseSnapshot {
+nonisolated extension DoseSnapshot {
     init?(_ row: MedicationLog) {
         guard let id = row.id else { return nil }
 
@@ -44,7 +44,7 @@ extension DoseSnapshot {
     }
 }
 
-extension FireflySnapshot {
+nonisolated extension FireflySnapshot {
     init?(_ row: AkinesiaResult) {
         guard let hand = row.hand.flatMap(CurrentHand.init(rawValue:)) else { return nil }
         let valid = row.isValid
@@ -71,7 +71,7 @@ extension FireflySnapshot {
     }
 }
 
-extension TracingSnapshot {
+nonisolated extension TracingSnapshot {
     init?(_ row: DexterityResult) {
         guard let hand = row.hand.flatMap(CurrentHand.init(rawValue:)) else { return nil }
         let valid = row.isValid
@@ -96,7 +96,7 @@ extension TracingSnapshot {
     }
 }
 
-extension SessionSnapshot {
+nonisolated extension SessionSnapshot {
     init?(_ row: TestSession) {
         guard let id = row.id else { return nil }
 

@@ -3,6 +3,20 @@ import SwiftUI
 // for each chart: the title, line of context, chart,
 // legend, caption, and link to method and the readings
 
+/// One section of the report, described once and rendered by both surfaces.
+///
+/// The screen draws these in order; `ReportExport` slices the same array into pages. No
+/// section's wording lives in either caller, so paper and screen cannot drift apart.
+struct ReportSectionSpec: Identifiable {
+    let id: String
+    let title: String
+    let subtitle: String
+    var caption: String?
+    var legend: [LegendEntry] = []
+    /// Takes the theme, so a section can leave out a screen-only control when it prints.
+    let content: (ReportTheme) -> AnyView
+}
+
 struct ChartSection<Content: View>: View {
     let title: String
     let subtitle: String
@@ -40,8 +54,11 @@ struct ChartSection<Content: View>: View {
                     .padding(.top, 8)
             }
 
-            // allows clinician to review the basis of any output
-            // on paper, these must be printed out
+            // Placeholder, on purpose. The regulatory requirement is that a clinician can
+            // review the basis of any output, which means this link has to open the formula and
+            // the underlying rows. No caller passes `onMethodTap` yet, so the control is in
+            // place and does nothing. On paper the link is left out and the same material has
+            // to be printed instead.
             if !theme.isPrint {
                 Button(methodLabel) { onMethodTap?() }
                     .font(.system(size: 12))
@@ -50,6 +67,20 @@ struct ChartSection<Content: View>: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+extension ChartSection where Content == AnyView {
+    init(spec: ReportSectionSpec, theme: ReportTheme, onMethodTap: (() -> Void)? = nil) {
+        self.init(
+            title: spec.title,
+            subtitle: spec.subtitle,
+            caption: spec.caption,
+            legend: spec.legend,
+            theme: theme,
+            onMethodTap: onMethodTap,
+            content: { spec.content(theme) }
+        )
     }
 }
 

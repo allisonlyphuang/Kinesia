@@ -95,7 +95,8 @@ struct PDQ8Store {
     }
 }
 
-extension PDQ8Log {
+// Read by the nonisolated snapshot initialisers, so these stay off the main actor.
+nonisolated extension PDQ8Log {
 
     func decodedScore() throws -> PDQ8Score {
         guard let itemScores else {

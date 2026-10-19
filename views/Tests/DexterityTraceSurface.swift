@@ -44,10 +44,10 @@ struct DexterityTraceSurface: View {
         .onAppear {
             onPhaseChanged?(model.phase)
         }
-        .onChange(of: model.phase) { phase in
+        .onChange(of: model.phase) { _, phase in
             onPhaseChanged?(phase)
         }
-        .onChange(of: model.latestSequence) { sequence in
+        .onChange(of: model.latestSequence) { _, sequence in
             guard let sequence, let monotonicStartedAt = model.monotonicStartedAt else {
                 return
             }

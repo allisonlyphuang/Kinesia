@@ -53,9 +53,7 @@ struct ClinicianReportView: View {
     }
 
     private var subtitle: String {
-        guard let window = model.window else { return "Loading" }
-        let range = "\(window.start.formatted(ReportFormat.dayMonth)) to \(window.days.last?.formatted(ReportFormat.dayMonth) ?? "")"
-        return "\(range). \(ReportFormat.count(model.sessions.count, "check-in"))"
+        ReportSections.headerSubtitle(for: model)
     }
 
     private var controls: some View {
@@ -191,54 +189,75 @@ struct ClinicianReportView: View {
     }
 }
 
-struct ReportBody: View {
-    @ObservedObject var model: ClinicianReportModel
-    let theme: ReportTheme
+/// Every section of the report, in reading order, built once from the model.
+///
+/// Both surfaces read this list: `ReportBody` renders it as one column, `ReportExport`
+/// slices it into pages by `pageGroups`. A heading, subtitle, legend or caption is written
+/// here and nowhere else.
+@MainActor
+enum ReportSections {
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: ReportLayout.sectionSpacing) {
-            if let quality = model.quality {
-                DataQualitySection(quality: quality, theme: theme)
-                Divider().overlay(ChartTokens.gridLine)
-            }
-
-            dailyTimeline
-            Divider().overlay(ChartTokens.gridLine)
-
-            timeSinceDose
-            Divider().overlay(ChartTokens.gridLine)
-
-            adherence
-            Divider().overlay(ChartTokens.gridLine)
-
-            trend
-            Divider().overlay(ChartTokens.gridLine)
-
-            pdq8
-            Divider().overlay(ChartTokens.gridLine)
-
-            components
-        }
+    enum ID: String {
+        case dailyTimeline
+        case timeSinceDose
+        case adherence
+        case trend
+        case pdq8
+        case components
     }
 
-    @ViewBuilder
-    private var dailyTimeline: some View {
+    /// Which sections share a printed page. The data quality table rides on the first one.
+    static let pageGroups: [[ID]] = [
+        [.dailyTimeline],
+        [.timeSinceDose, .adherence],
+        [.trend, .pdq8],
+        [.components]
+    ]
+
+    /// The line under "Movement report", on screen and on the first printed page.
+    static func headerSubtitle(for model: ClinicianReportModel) -> String {
+        guard let window = model.window else { return "Loading" }
+        let range = "\(window.start.formatted(ReportFormat.dayMonth)) to \(window.days.last?.formatted(ReportFormat.dayMonth) ?? "")"
+        return "\(range). \(ReportFormat.count(model.sessions.count, "check-in")), \(model.hand.rawValue) hand"
+    }
+
+    static func all(for model: ClinicianReportModel) -> [ReportSectionSpec] {
+        var specs: [ReportSectionSpec] = []
+        // The timeline needs a day to draw. Everything else renders empty rather than vanishing.
         if let day = model.timelineDay {
-            VStack(alignment: .leading, spacing: 0) {
-                ChartSection(
-                    title: "\(model.metric.shortTitle) throughout the day",
-                    subtitle: "\(day.formatted(.dateTime.weekday(.wide).day().month(.wide))), \(ReportFormat.count(model.timelinePoints(for: day).count, "reading"))",
-                    caption: nil,
-                    legend: [
-                        .symbol("Right hand", ChartTokens.handColor(.right), ChartTokens.handSymbol(.right)),
-                        .symbol("Left hand", ChartTokens.handColor(.left), ChartTokens.handSymbol(.left)),
-                        .line("Dose taken", ChartTokens.doseMarker),
-                        .line("Dose skipped", ChartTokens.doseMarker, dash: [3, 2.5])
-                    ],
-                    theme: theme
-                ) {
+            specs.append(dailyTimeline(model, day: day))
+        }
+        specs.append(timeSinceDose(model))
+        specs.append(adherence(model))
+        specs.append(trend(model))
+        specs.append(pdq8(model))
+        specs.append(components(model))
+        return specs
+    }
+
+    static func specs(for ids: [ID], in all: [ReportSectionSpec]) -> [ReportSectionSpec] {
+        ids.compactMap { id in all.first { $0.id == id.rawValue } }
+    }
+
+    // MARK: Sections
+
+    private static func dailyTimeline(_ model: ClinicianReportModel, day: Date) -> ReportSectionSpec {
+        ReportSectionSpec(
+            id: ID.dailyTimeline.rawValue,
+            title: "\(model.metric.shortTitle) throughout the day",
+            subtitle: "\(day.formatted(.dateTime.weekday(.wide).day().month(.wide))), \(ReportFormat.count(model.timelinePoints(for: day).count, "reading"))",
+            caption: nil,
+            legend: [
+                .symbol("Right hand", ChartTokens.handColor(.right), ChartTokens.handSymbol(.right)),
+                .symbol("Left hand", ChartTokens.handColor(.left), ChartTokens.handSymbol(.left)),
+                .line("Dose taken", ChartTokens.doseMarker),
+                .line("Dose skipped", ChartTokens.doseMarker, dash: [3, 2.5])
+            ],
+            content: { theme in
+                AnyView(
                     VStack(alignment: .leading, spacing: 10) {
-                        if !theme.isPrint { daySelector(selected: day) }
+                        // The day strip is a control, so it stays off the page.
+                        if !theme.isPrint { DaySelector(model: model, selected: day) }
                         DailyTimelineChart(
                             points: model.timelinePoints(for: day),
                             doses: model.doseMarkers(for: day),
@@ -246,12 +265,142 @@ struct ReportBody: View {
                             theme: theme
                         )
                     }
+                )
+            }
+        )
+    }
+
+    private static func timeSinceDose(_ model: ClinicianReportModel) -> ReportSectionSpec {
+        ReportSectionSpec(
+            id: ID.timeSinceDose.rawValue,
+            title: "\(model.metric.shortTitle) by time since dose",
+            subtitle: "All \(ReportFormat.count(model.days.count, "day")) pooled. \(ReportFormat.count(model.doseBins.reduce(0) { $0 + $1.sessionCount }, "reading")), \(model.hand.rawValue) hand",
+            caption: "Groups are 30 minutes wide; a group with one reading has a median and no range",
+            legend: [
+                .symbol("One check-in", Color.secondaryColor, .circle),
+                .symbol("Median", Color.primaryColor, .circle),
+                .line("25th to 75th percentile", Color.primaryColor)
+            ],
+            content: { theme in
+                AnyView(TimeSinceDoseChart(bins: model.doseBins, metric: model.metric, theme: theme))
+            }
+        )
+    }
+
+    private static func adherence(_ model: ClinicianReportModel) -> ReportSectionSpec {
+        let window = model.window ?? .trailing()!
+        return ReportSectionSpec(
+            id: ID.adherence.rawValue,
+            title: "Dose timing",
+            subtitle: ReportFormat.count(model.adherence.count, "scheduled dose"),
+            caption: nil,
+            legend: AdherenceChart(points: model.adherence, window: window, theme: .screen).legend(),
+            content: { theme in
+                AnyView(AdherenceChart(points: model.adherence, window: window, theme: theme))
+            }
+        )
+    }
+
+    private static func trend(_ model: ClinicianReportModel) -> ReportSectionSpec {
+        ReportSectionSpec(
+            id: ID.trend.rawValue,
+            title: "\(model.metric.shortTitle) per day",
+            subtitle: trendSubtitle(model),
+            caption: nil,
+            legend: model.baseline == nil ? [] : [.band("Baseline, 25th to 75th percentile", ChartTokens.baselineBand)],
+            content: { theme in
+                AnyView(
+                    VStack(alignment: .leading, spacing: 10) {
+                        LongitudinalTrendChart(
+                            aggregates: model.dailyAggregates,
+                            baseline: model.baseline,
+                            hand: model.hand,
+                            metric: model.metric,
+                            theme: theme
+                        )
+                        // The data quality table already states baseline progress on paper.
+                        if model.baseline == nil, !theme.isPrint {
+                            BaselineProgress(state: model.baselineState)
+                        }
+                    }
+                )
+            }
+        )
+    }
+
+    private static func trendSubtitle(_ model: ClinicianReportModel) -> String {
+        switch model.baselineState {
+        case .established(let baseline):
+            return "Daily median, \(model.hand.rawValue) hand, baseline set \(baseline.establishedOn.formatted(ReportFormat.dayMonth))"
+        default:
+            return "Daily median, \(model.hand.rawValue) hand, no baseline yet"
+        }
+    }
+
+    private static func pdq8(_ model: ClinicianReportModel) -> ReportSectionSpec {
+        ReportSectionSpec(
+            id: ID.pdq8.rawValue,
+            title: "Quality of life",
+            subtitle: "PDQ-8 short form, \(ReportFormat.count(model.questionnaires.count, "answer"))",
+            caption: nil,
+            content: { theme in
+                AnyView(PDQ8TrendChart(answers: model.questionnaires, theme: theme))
+            }
+        )
+    }
+
+    private static func components(_ model: ClinicianReportModel) -> ReportSectionSpec {
+        ReportSectionSpec(
+            id: ID.components.rawValue,
+            title: "Tapping Task: Component Breakdown",
+            subtitle: "\(model.hand.rawValue.capitalizedFirst) hand, distance from baseline in standard deviations",
+            caption: nil,
+            legend: TapComponentChart(
+                points: model.componentPoints,
+                accuracy: model.accuracyPoints,
+                theme: .screen
+            ).legend(),
+            content: { theme in
+                AnyView(
+                    TapComponentChart(
+                        points: model.componentPoints,
+                        accuracy: model.accuracyPoints,
+                        theme: theme
+                    )
+                )
+            }
+        )
+    }
+}
+
+struct ReportBody: View {
+    @ObservedObject var model: ClinicianReportModel
+    let theme: ReportTheme
+
+    var body: some View {
+        let specs = ReportSections.all(for: model)
+
+        VStack(alignment: .leading, spacing: ReportLayout.sectionSpacing) {
+            if let quality = model.quality {
+                DataQualitySection(quality: quality, theme: theme)
+                Divider().overlay(ChartTokens.gridLine)
+            }
+
+            ForEach(specs) { spec in
+                ChartSection(spec: spec, theme: theme)
+                if spec.id != specs.last?.id {
+                    Divider().overlay(ChartTokens.gridLine)
                 }
             }
         }
     }
+}
 
-    private func daySelector(selected: Date) -> some View {
+struct DaySelector: View {
+    @ObservedObject var model: ClinicianReportModel
+    let selected: Date
+
+    var body: some View {
         HStack(spacing: 3) {
             ForEach(model.days.suffix(7), id: \.self) { day in
                 Button {
@@ -270,91 +419,6 @@ struct ReportBody: View {
                 }
                 .buttonStyle(.plain)
             }
-        }
-    }
-
-    private var timeSinceDose: some View {
-        ChartSection(
-            title: "\(model.metric.shortTitle) by time since dose",
-            subtitle: "All \(ReportFormat.count(model.days.count, "day")) pooled. \(ReportFormat.count(model.doseBins.reduce(0) { $0 + $1.sessionCount }, "reading")), \(model.hand.rawValue) hand",
-            caption: "Groups are 30 minutes wide; a group with one reading has a median and no range",
-            legend: [
-                .symbol("One check-in", Color.secondaryColor, .circle),
-                .symbol("Median", Color.primaryColor, .circle),
-                .line("25th to 75th percentile", Color.primaryColor)
-            ],
-            theme: theme
-        ) {
-            TimeSinceDoseChart(bins: model.doseBins, metric: model.metric, theme: theme)
-        }
-    }
-
-    private var adherence: some View {
-        let chart = AdherenceChart(points: model.adherence, window: model.window ?? .trailing()!, theme: theme)
-        return ChartSection(
-            title: "Dose timing",
-            subtitle: "\(ReportFormat.count(model.adherence.count, "scheduled dose"))",
-            legend: chart.legend(),
-            theme: theme
-        ) {
-            chart
-        }
-    }
-
-    private var trend: some View {
-        ChartSection(
-            title: "\(model.metric.shortTitle) day by day",
-            subtitle: trendSubtitle,
-            legend: model.baseline == nil ? [] : [.band("Baseline, 25th to 75th percentile", ChartTokens.baselineBand)],
-            theme: theme
-        ) {
-            VStack(alignment: .leading, spacing: 10) {
-                LongitudinalTrendChart(
-                    aggregates: model.dailyAggregates,
-                    baseline: model.baseline,
-                    hand: model.hand,
-                    metric: model.metric,
-                    theme: theme
-                )
-                if model.baseline == nil {
-                    BaselineProgress(state: model.baselineState)
-                }
-            }
-        }
-    }
-
-    private var trendSubtitle: String {
-        switch model.baselineState {
-        case .established(let baseline):
-            return "Daily median, \(model.hand.rawValue) hand, baseline set \(baseline.establishedOn.formatted(ReportFormat.dayMonth))"
-        default:
-            return "Daily median, \(model.hand.rawValue) hand, no baseline yet"
-        }
-    }
-
-    private var pdq8: some View {
-        ChartSection(
-            title: "Quality of life",
-            subtitle: "PDQ-8 short form, \(ReportFormat.count(model.questionnaires.count, "answer"))",
-            theme: theme
-        ) {
-            PDQ8TrendChart(answers: model.questionnaires, theme: theme)
-        }
-    }
-
-    private var components: some View {
-        let chart = TapComponentChart(
-            points: model.componentPoints,
-            accuracy: model.accuracyPoints,
-            theme: theme
-        )
-        return ChartSection(
-            title: "Tapping Task: Component Breakdown",
-            subtitle: "\(model.hand.rawValue.capitalizedFirst) hand, distance from baseline in standard deviations",
-            legend: chart.legend(),
-            theme: theme
-        ) {
-            chart
         }
     }
 }

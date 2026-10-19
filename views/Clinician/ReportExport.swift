@@ -7,10 +7,6 @@ nonisolated enum ReportExportError: Error, Equatable {
     case nothingToRender
 }
 
-// Section 9. Renders the same chart views into a PDF.
-//
-// Reusing the views is the point: there is no second drawing path to keep in step, so what
-// the clinician reads on paper is what the patient saw on screen.
 @MainActor
 enum ReportExport {
 
@@ -34,85 +30,31 @@ enum ReportExport {
         return url
     }
 
-    /// one page per group of sections, split by hand
+    /// One page per group in `ReportSections.pageGroups`. The sections themselves come from
+    /// the same list the screen renders, so a heading or caption cannot differ between them.
     private static func pages(for model: ClinicianReportModel) -> [AnyView] {
-        var result: [AnyView] = []
+        let all = ReportSections.all(for: model)
 
-        result.append(AnyView(
-            ReportPage(pageNumber: 1, of: 3, model: model) {
-                VStack(alignment: .leading, spacing: ReportLayout.sectionSpacing) {
-                    if let quality = model.quality {
-                        DataQualitySection(quality: quality, theme: .print)
+        return ReportSections.pageGroups.enumerated().map { index, ids in
+            let pageSpecs = ReportSections.specs(for: ids, in: all)
+
+            return AnyView(
+                ReportPage(pageNumber: index + 1, of: pageCount, model: model) {
+                    VStack(alignment: .leading, spacing: ReportLayout.sectionSpacing) {
+                        if index == 0, let quality = model.quality {
+                            DataQualitySection(quality: quality, theme: .print)
+                        }
+
+                        ForEach(pageSpecs) { spec in
+                            ChartSection(spec: spec, theme: .print)
+                        }
                     }
                 }
-            }
-        ))
-
-        result.append(AnyView(
-            ReportPage(pageNumber: 2, of: 3, model: model) {
-                VStack(alignment: .leading, spacing: ReportLayout.sectionSpacing) {
-                    ChartSection(
-                        title: "\(model.metric.shortTitle) by time since dose",
-                        subtitle: "All \(model.days.count) days pooled, \(model.hand.rawValue) hand",
-                        caption: "A group with one reading has a median and no range",
-                        legend: [
-                            .symbol("One check-in", Color.secondaryColor, .circle),
-                            .symbol("Median", Color.primaryColor, .circle),
-                            .line("25th to 75th percentile", Color.primaryColor)
-                        ],
-                        theme: .print
-                    ) {
-                        TimeSinceDoseChart(bins: model.doseBins, metric: model.metric, theme: .print)
-                    }
-
-                    ChartSection(
-                        title: "Dose timing",
-                        subtitle: "\(model.adherence.count) scheduled doses",
-                        caption: "Dots on the line were taken on schedule, dots above the line indicate late dose",
-                        theme: .print
-                    ) {
-                        AdherenceChart(
-                            points: model.adherence,
-                            window: model.window ?? .trailing()!,
-                            theme: .print
-                        )
-                    }
-                }
-            }
-        ))
-
-        result.append(AnyView(
-            ReportPage(pageNumber: 3, of: 3, model: model) {
-                VStack(alignment: .leading, spacing: ReportLayout.sectionSpacing) {
-                    ChartSection(
-                        title: "\(model.metric.shortTitle) per day",
-                        subtitle: "Daily median, \(model.hand.rawValue) hand",
-                        caption: "The line breaks across days with no check-in",
-                        legend: model.baseline == nil ? [] : [.band("Baseline, 25th to 75th percentile", ChartTokens.baselineBand)],
-                        theme: .print
-                    ) {
-                        LongitudinalTrendChart(
-                            aggregates: model.dailyAggregates,
-                            baseline: model.baseline,
-                            hand: model.hand,
-                            metric: model.metric,
-                            theme: .print
-                        )
-                    }
-
-                    ChartSection(
-                        title: "Quality of life",
-                        subtitle: "PDQ-8 short form",
-                        theme: .print
-                    ) {
-                        PDQ8TrendChart(answers: model.questionnaires, theme: .print)
-                    }
-                }
-            }
-        ))
-
-        return result
+            )
+        }
     }
+
+    static var pageCount: Int { ReportSections.pageGroups.count }
 
     private static func render(_ page: AnyView, into pdf: CGContext) {
         let renderer = ImageRenderer(
@@ -178,8 +120,6 @@ struct ReportPage<Content: View>: View {
     }
 
     private var subtitle: String {
-        guard let window = model.window else { return "" }
-        let range = "\(window.start.formatted(ReportFormat.dayMonth)) to \(window.days.last?.formatted(ReportFormat.dayMonth) ?? "")"
-        return "\(range). \(model.sessions.count) check-ins, \(model.hand.rawValue.capitalizedFirst) hand"
+        ReportSections.headerSubtitle(for: model)
     }
 }

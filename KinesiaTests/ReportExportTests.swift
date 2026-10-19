@@ -88,9 +88,11 @@ final class ReportExportTests: XCTestCase {
         XCTAssertGreaterThan(document.pageCount, 0)
     }
 
-    func testExportProducesThreePages() throws {
+    // Six charts at two per page, with the data quality table sharing the first.
+    func testExportProducesAPageForEveryChart() throws {
         let document = try render(try loadedModel())
-        XCTAssertEqual(document.pageCount, 3)
+        XCTAssertEqual(document.pageCount, ReportExport.pageCount)
+        XCTAssertEqual(document.pageCount, 4)
     }
 
     func testExportRefusesBeforeAnythingIsLoaded() {
@@ -102,7 +104,7 @@ final class ReportExportTests: XCTestCase {
 
     func testAnEmptyWindowStillExports() throws {
         let document = try render(try loadedModel(sessionCount: 0))
-        XCTAssertEqual(document.pageCount, 3)
+        XCTAssertEqual(document.pageCount, ReportExport.pageCount)
     }
 
     // MARK: - Page geometry
@@ -154,7 +156,10 @@ final class ReportExportTests: XCTestCase {
 
         for index in 0..<document.pageCount {
             let text = try XCTUnwrap(document.page(at: index)).string ?? ""
-            XCTAssertTrue(text.contains("Page \(index + 1) of 3"), "page \(index + 1) is not numbered")
+            XCTAssertTrue(
+                text.contains("Page \(index + 1) of \(ReportExport.pageCount)"),
+                "page \(index + 1) is not numbered"
+            )
         }
     }
 
@@ -167,6 +172,34 @@ final class ReportExportTests: XCTestCase {
             for word in banned {
                 XCTAssertFalse(text.contains(word), "page \(index + 1) contains \"\(word)\"")
             }
+        }
+    }
+
+    // Two charts were missing from the export entirely: the daily timeline and the component
+    // chart. Nothing caught it, because the page template supplies the footer and the numbers.
+    //
+    // Asserts on axis labels, not section headings. Headings are prose and get reworded; an
+    // axis label has to carry its quantity and unit, so losing one is a real defect.
+    func testEveryChartReachesTheExport() throws {
+        let document = try render(try loadedModel())
+        let text = (0..<document.pageCount)
+            .compactMap { document.page(at: $0)?.string }
+            .joined(separator: "\n")
+
+        let axisLabels = [
+            "Time of day": "daily timeline",
+            "Time since last dose": "time since dose",
+            "Taken minus scheduled": "dose timing",
+            "Daily median": "longitudinal trend",
+            "PDQ-8 index": "quality of life",
+            "Distance from baseline": "tapping components"
+        ]
+
+        for (label, chart) in axisLabels {
+            XCTAssertTrue(
+                text.contains(label),
+                "the \(chart) chart is missing from the export, or its axis lost \"\(label)\""
+            )
         }
     }
 

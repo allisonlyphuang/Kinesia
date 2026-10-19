@@ -100,7 +100,7 @@ struct ReportQuery {
     }
 }
 
-extension PDQ8Snapshot {
+nonisolated extension PDQ8Snapshot {
     init?(_ row: PDQ8Log) {
         guard let id = row.id, row.scoreIndex.isFinite else { return nil }
         self.init(

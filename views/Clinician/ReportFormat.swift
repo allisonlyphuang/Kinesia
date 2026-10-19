@@ -87,9 +87,10 @@ extension View {
             .font(.system(size: 9.5))
             .foregroundStyle(ChartTokens.axisLabel)
             .chartPlotStyle { plot in
-                // Clipped so a value outside the y domain cannot draw over the legend
-                // and the text below the chart.
-                plot.background(Color.clear).clipped()
+                // Not clipped. `.clipped()` also removes RuleMark annotations, which sit just
+                // outside the plot area: it dropped the dose times from the timeline. Marks are
+                // kept inside by each chart's y domain following its own data instead.
+                plot.background(Color.clear)
             }
     }
 }

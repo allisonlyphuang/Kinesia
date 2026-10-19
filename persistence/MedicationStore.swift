@@ -267,7 +267,8 @@ struct MedicationStore {
     }
 }
 
-extension MedicationLog {
+// Read by the nonisolated snapshot initialisers, so these stay off the main actor.
+nonisolated extension MedicationLog {
 
     var scheduledDate: Date? {
         scheduledTime == 0 ? nil : Date(timeIntervalSince1970: scheduledTime)

@@ -1,6 +1,6 @@
 import Foundation
 
-struct SummaryStats: Codable, Equatable, Sendable {
+nonisolated struct SummaryStats: Codable, Equatable, Sendable {
     var min: Double
     var max: Double
     var mean: Double

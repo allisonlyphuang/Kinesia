@@ -1,13 +1,6 @@
-//
-//  SummaryStats.swift
-//  Kinesia
-//
-//  Created by Allison Huang on 8/13/26.
-//
-
 import Foundation
 
-struct SummaryStats: Codable {
+nonisolated struct SummaryStats: Codable, Equatable, Sendable {
     var min: Double
     var max: Double
     var mean: Double

@@ -2,7 +2,9 @@
 
 ## Automated coverage
 
-The `KinesiaTests` XCTest target has **356 passing tests** as of 2026-10-16:
+The `KinesiaTests` XCTest target has **629 tests**, all passing as of 2026-10-18. The count is
+taken from the source, as described under "Counting the tests" below, and the run reported 629
+cases passed and none failed.
 
 | Suite | Tests | Covers |
 | --- | --- | --- |
@@ -26,6 +28,30 @@ The `KinesiaTests` XCTest target has **356 passing tests** as of 2026-10-16:
 | `PDQ8Tests` | 18 | instrument shape, one item per dimension, scoring arithmetic at both ends and the midpoint, item order preservation, refusal to score a partial questionnaire, and stored-value range validation |
 | `PDQ8StoreTests` | 10 | created-row shape, per-item payload round trip, durability across a context reset, incomplete and non-finite input leaving the context empty, missing payload reporting, and fetch ordering in both directions |
 | `PDQ8ModelTests` | 11 | progress and navigation, selecting without auto-advancing, changing an answer, completion gating, saving, discarding a partial questionnaire, and reset |
+| `ReportWindowTests` | 28 | day count and ordering, start and end boundaries, adjacent windows not overlapping, zero and negative days rejected, days with no sessions still listed, spring-forward and fall-back windows keeping their day count, and each scale's own spans and default |
+| `ReportFormatTests` | 18 | axis number formatting including the printf half-to-even case, signed values, h:mm, singular and plural counts, the label stride at every window length with a proof that no window exceeds the label budget, picker titles short enough for the one-line Measure control, and task names carrying no symptom word |
+| `ClinicianReportModelTests` | 16 | loading with and without data, every derivation built, the window default and change, metric and hand switching rebuilding, a baseline established from the history a 7 day window could not hold, timeline points scoped to one day, dose markers and their skipped state |
+| `ReportExportTests` | 14 | a readable four page PDF, refusal before anything is loaded, an empty window still exporting, US Letter geometry, equal side margins, the disclaimer and page number on every page, no symptom word in the text, the page rendering white inside its margin, and every one of the six charts reaching the export |
+| `ReportSnapshotTests` | 19 | placeholder zeros becoming nil on an invalid row for all three tasks, tap rate surviving one, non-finite stored values, minutesSinceDose from the relationship rather than the number, a dose at the exact moment of a session reading 0 not nil, session assembly, hand order recovered from timestamps, an unrecognised hand dropped, and snapshots outliving a context reset |
+| `PrimaryMetricTests` | 17 | each metric's extraction and unit label, per-hand selection, the seconds to milliseconds conversion, higherIsBetter per case, zero duration, and nil propagation from an invalid row |
+| `ReportQueryTests` | 15 | inclusive start and exclusive end, ordering, sessions with only some of the three tasks, dose context present and absent, dose and questionnaire fetches, the whole history loaded alongside the window, and loaded data driving the derivations after the context is reset |
+| `DoseBinningTests` | 35 | the ten-bin layout and its order, every half-hour boundary, 0 and 30 and 239.99 and exactly 240 minutes, no dose context getting its own bin, negative and non-finite values left out, empty bins kept, one session giving a median but no whisker, the p25/p75 whisker, per-hand binning, a wearing-off pattern across the bins, and the short axis labels with only the hour boundaries marked |
+| `DailyAggregateTests` | 20 | one row per day including days with no sessions, daily median for one/odd/even session counts, hands kept separate, every primary metric, tap rate surviving an invalid row, zero duration, dose counting, window edges, and the median helper |
+| `BaselineTests` | 21 | the 5-day familiarization and 14-day baseline thresholds, every state transition at its boundary, the first five days excluded, the p25/p75 band and the stdev, an established baseline not moving as more data arrives, days counted as days with data, unsorted and non-finite input, and building daily values from sessions |
+| `AdherencePointTests` | 18 | delay sign in both directions, a late-night dose reading as late, skipped doses carrying no delay, unscheduled doses left out, slot identity and label format, ordering, window edges, and the off-schedule count at its threshold |
+| `TapComponentZScoreTests` | 30 | each component's value accessor, speed surviving an invalid row, the sign convention for all three components, z unavailable without a baseline or with zero spread, one point per day per component, per-component baselines, and accuracy kept off the z-axis |
+| `DataQualityTests` | 22 | day and session counts, the fewer-than-5-days boundary, exclusions per result rather than per session, a missing reason stated, task names containing no symptom word, one and two metrics versions in a window, and baseline state pass-through |
+
+Eight suites share `ReportFixtures`, which builds snapshots as plain values: `ReportWindowTests`,
+`PrimaryMetricTests`, `DoseBinningTests`, `DailyAggregateTests`, `BaselineTests`,
+`AdherencePointTests`, `TapComponentZScoreTests`, and `DataQualityTests`. None of them opens a
+Core Data store, because none of the types they test has ever seen one.
+
+The four suites that do open one — `ReportSnapshotTests`, `ReportQueryTests`,
+`ClinicianReportModelTests`, and `ReportExportTests` — use the same in-memory
+`TestCoreDataStack` as the store suites. `ReportSnapshotTests` and `ReportQueryTests` each
+assert that what they read back still reads correctly after `context.reset()`, which is the
+check that no snapshot is holding a managed object.
 
 Tests use an isolated in-memory Core Data store and drive each test's lifecycle synchronously
 rather than sleeping, so a "20-second" tapping capture and a full 12-round firefly session both
@@ -62,8 +88,8 @@ identical.
 `AkinesiaAnalyzer.analyze(_:thresholds:)` and `score(_:thresholds:)` take the cut-offs as a
 parameter, so a test can re-score the same round under different rules.
 
-One trap worth knowing: a timestamp built by adding does not survive being subtracted again.
-`(10.0 + 0.120) - 10.0` is `0.11999999999999922`, which is genuinely below a 0.120 cut-off. Tests
+One trap: a timestamp built by adding does not survive being subtracted again.
+`(10.0 + 0.120) - 10.0` is `0.11999999999999922`, which is below a 0.120 cut-off. Tests
 that check a threshold boundary anchor the cue at zero so the subtraction is exact. See
 `exactRound(reactionTime:)` in `AkinesiaAnalyzerTests`.
 
@@ -132,3 +158,10 @@ pending. They must not be reported as done until actually exercised in the simul
 9. Navigating away mid-session writes nothing.
 10. The feedback line appearing or disappearing does not shift the board under the resting finger.
 
+
+### What is not unit tested
+
+The chart views themselves. The derivations in `calculations/ClinicianView` carry the logic and
+are tested directly, which is the reason the views take finished arrays and only draw them.
+`ReportExportTests` covers the one thing the view layer can get wrong on its own: the geometry,
+background and footer of the printed page.

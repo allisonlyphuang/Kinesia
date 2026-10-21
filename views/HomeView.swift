@@ -185,9 +185,14 @@ struct HomeView: View {
                             .font(.system(size: 17, weight: .regular, design: .default))
                             .foregroundStyle(.primary)
                         Spacer()
-                        Text("Insights")
-                            .font(.system(size: 17, weight: .regular, design: .default))
-                            .foregroundStyle(.white)
+                        NavigationLink {
+                            ClinicianReportView()
+                        } label: {
+                            Text("Insights")
+                                .font(.system(size: 17, weight: .regular, design: .default))
+                                .foregroundStyle(.white)
+                        }
+                        .buttonStyle(.plain)
                         Spacer()
                     }
                 }

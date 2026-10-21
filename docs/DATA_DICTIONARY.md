@@ -1,72 +1,51 @@
 # Data dictionary
 
-What each stored or computed value means, and how to read it without misinterpreting it.
-
-- **Bradykinesia (tapping)** is saved to Core Data.
-- **Akinesia (fireflies)** is computed but not yet saved.
-
 ## Bradykinesia: tapping
-
-This describes the local-first tapping pipeline. It documents what the code does, not a
-diagnosis or a severity score.
-
-### Three unrelated meanings of "left" and "right"
-
-These appear side by side throughout the codebase and are **independent**. Changing one must
-not change the others.
-
-| Name | Domain | Meaning | Set by |
-| --- | --- | --- | --- |
-| `leftCenter`, `rightCenter` | screen position | where the two target circles are drawn | `BradykinesiaTestScreen.targetGeometry(in:)` |
-| `CurrentHand.left`, `.right` | body laterality | which hand is being tested | `BradykinesiaTestConfiguration.handOrder` |
-| `leftDrift`, `rightDrift` | statistics | the mean-X partition of tap coordinates | `BradykinesiaAnalyzer.paperSpatialPartition` |
-
-A left-hand trial still has a right-side circle on screen, and its taps still split into
-left/right *statistical* partitions by mean x. The three axes never interact.
+### "left" and "right"
+| Name | Meaning | Set in |
+| --- | --- | --- |
+| `leftCenter`, `rightCenter` | where the two target circles are drawn | `BradykinesiaTestScreen.targetGeometry(in:)` |
+| `CurrentHand.left`, `.right` | which hand is being tested | `BradykinesiaTestConfiguration.handOrder` |
+| `leftDrift`, `rightDrift` | the mean-X partition of tap coordinates | `BradykinesiaAnalyzer.paperSpatialPartition` |
+Regardless of which hand is being used, taps are still split into left/right statistical partitions by mean x. 
 
 ### Raw trial data
 
 #### `TapSample`
-
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `t` | `TimeInterval` | Raw `UITouch.timestamp` at touch-down. It is monotonic/touch-relative timing, **not** a Unix or wall-clock timestamp. |
-| `x` | `Double` | Tap x-coordinate in the local capture-view coordinate space. |
-| `y` | `Double` | Tap y-coordinate in the local capture-view coordinate space. |
+| `t` | `TimeInterval` |  `UITouch.timestamp` at touch. It is monotonic/touch-relative timing. |
+| `x` | `Double` | Tap x-coordinate in the coordinate space. |
+| `y` | `Double` | Tap y-coordinate in the coordinate space. |
 | `target` | `TapTarget` | UI hit classification: `.left`, `.right`, or `.miss`. |
-
-`target` is the **stored result of a geometry test already performed** at capture time by
-`RawTouchView.classify`: `.left` means the tap's distance from the left circle's center was
-within `targetRadius`, `.right` likewise, `.miss` means outside both. It therefore already
-encodes "landed within the target radius"; no separate radius check exists downstream.
-
-`target` is used by `numCorrectTaps` and by nothing else. It does not determine the
-paper-derived spatial partitions described below.
+`target` values are produced by `RawTouchView.classify`. `.left` means the distance of the tap from the center of the left circle was within `targetRadius`, `.right` is classified the same way, `.miss` means it is outside both circles.
+`target` is only used by `numCorrectTaps` .
 
 #### `TapTrial`
-
-One trial per hand. A bilateral test produces two.
+The complete recording for one 20 second tapping trial.
 
 | Field | Meaning |
 | --- | --- |
-| `samples` | Every captured `TapSample`, in arrival order, including misses. |
+| `samples` | Each `TapSample` in order, including misses. |
 | `leftCenter`, `rightCenter` | Displayed target centers in the same local coordinate space as `x` and `y`. |
 | `targetRadius` | Displayed/UI-classification target radius. |
-| `startedAt` | Monotonic start time for this hand's capture; not wall-clock time. |
-| `hand` | `CurrentHand` — which hand this trial recorded. |
+| `startedAt` | Monotonic start time for the round/trial. |
+| `hand` | `CurrentHand` ; current hand being tested. |
 | `screenScale` | Active display scale used while the trial was configured. |
-
-`CurrentHand` is a `String`-raw-value enum, so it encodes to JSON as `"left"` / `"right"`.
+`CurrentHand` is a `String` enum; it encodes to JSON as `"left"` / `"right"`.
 
 #### `HandAttempt`
+Stored record of one completed hand. 
 
-The model's in-memory record of one completed hand, handed to the store. Carries the `hand`,
-its `TapTrial`, its `BradykinesiaMetrics`, wall-clock `startedAt` / `completedAt`, and
-`monotonicCompletedAt` (used with `trial.startedAt` to derive the measured capture duration).
+| Field | Meaning |
+| --- | --- |
+|  `hand`|  Current hand for this hand attempt. |
+| `trial` |  The `TapTrial` containing this attempt's data.  |
+| `BradykinesiaMetrics` | Collected metrics for this attempt. |
+| `startedAt` | Monotonic time that the round began. |
 
 ### Temporal metrics
-
-For supplied sample order, the analyzer derives:
+For sample order, the analyzer derives:
 
 ```text
 TapInter[t] = T[t] - T[t-1]
@@ -351,8 +330,7 @@ Raw local samples are transformed into canonical route coordinates using the sav
 `DexterityResult` belongs to one `TestSession`; the session has a `RawCapture` whose `kind` is `dexterity`, schema version is 1, and JSON payload is `DexteritySessionCapture`. `fingerLifts` replaces the prior model attribute name `thumbLifts` with Core Data's renaming identifier retained for lightweight migration.
 ## Akinesia: fireflies
 
-Nothing is saved to Core Data yet, so this section describes the values the code produces in
-memory. These are the names a future `AkinesiaStore` will map onto database columns.
+The in-memory value types come first, then the columns `AkinesiaStore` maps them onto.
 
 ### One round — `RoundRecord`
 
@@ -426,3 +404,195 @@ statistics: it measures what the tapping test already measures.
 | `p90` | the 90th percentile — the slow tail, where trouble starting a movement shows up before the middle of the distribution moves |
 | `mad` | median absolute deviation — how spread out the values are, measured so that one extreme value cannot distort it |
 
+### Persisted objects
+
+One completed session writes **one** `TestSession`, **one** `AkinesiaResult`, and **one**
+`RawCapture` (`kind = "akinesia"`, `schemaVersion = 1`, the whole `AkinesiaTrial` as JSON) in a
+single transaction.
+
+| Field | Semantics |
+| --- | --- |
+| `AkinesiaResult.timestamp` | Wall clock, the session's completion. Result fetching is newest-first on this column. |
+| `AkinesiaResult.dayStart` | Local midnight of the day the session began. |
+| `AkinesiaResult.hand` | `CurrentHand.rawValue`. The finger is in the payload, not a column. |
+| `reactionTime*` | min, max, mean, median, p25, p75, **p90**, stdev, MAD of the usable reaction times, in seconds. |
+| `movementTime*` | the same statistics except p90, in seconds. There is no `movementTimeP90` column. |
+| the nine counts | `numRounds`, `numPracticeRounds`, `numValidRounds`, `numAnticipations`, `numLapses`, `numFalseStarts`, `numSlips`, `numMissed`, `numMalformed`. Validated to fit `Int32`, and the seven outcome counts are validated to sum to `numRounds` before anything is inserted. |
+| `metricsVersion` | `AkinesiaMetrics.metricsVersion`. See "Metrics versioning" above. |
+| `isValid`, `invalidReason` | Per statistics bundle. See below. |
+
+**The two statistics bundles are independent.** Reaction time and movement time are written from
+separate `SummaryStats`, and either can be unavailable on its own: a round where the patient
+lifted but never reached the firefly has a reaction time and no movement time. A bundle holding
+any non-finite value is treated as unavailable, its columns take the placeholder zero, and
+`invalidReason` says which bundle was missing (`"reaction time statistics unavailable"`,
+`"movement time statistics unavailable"`, or both, joined by `;`).
+
+The same rule as tapping applies: **a placeholder zero is not a measured zero when
+`isValid == false`.** A reaction time of 0 s is not a possible reading, so the placeholder is
+less dangerous here than a tapping CV of 0, but it is still a placeholder.
+
+The counts are always written and never gated on `isValid`, because they are counted directly
+from the rounds rather than derived from the statistics.
+
+`AkinesiaResult` stores no capture duration, unlike `BradykinesiaResult.durationSec`. The
+session's wall-clock bounds live on `TestSession`, and the monotonic session duration is
+validated at save time rather than stored.
+
+
+# Clinician view: snapshots and derived values
+
+The read path turns Core Data rows into flat value types before anything draws them. These are
+the names the derivations and the charts use. The rules that decide what becomes `nil` are in
+`persistence/ReportSnapShotMapping.swift` and are described in ARCHITECTURE.md under "The two
+snapshot rules".
+
+## `ReportData`
+
+What one `ReportQuery.load(window:in:)` returns.
+
+| Field | Meaning |
+| --- | --- |
+| `window` | The `ReportWindow` the fetch used. |
+| `sessions` | Sessions that started inside the window, oldest first. |
+| `doses` | `MedicationLog` rows whose `dayStart` falls inside the window: the day the dose was due, or the day it was taken when it was unscheduled. |
+| `questionnaires` | Every PDQ-8 answer ever recorded, oldest first. Not limited to the window. |
+| `history` | Every session ever recorded. Not limited to the window; a baseline needs 19 days with data. |
+
+## Snapshot types
+
+Every one is a `nonisolated struct ... Sendable` with no reference to a managed object or a
+context, so it survives the context being reset and can cross an actor boundary.
+
+### `SessionSnapshot`
+
+| Field | Meaning |
+| --- | --- |
+| `id`, `startedAt`, `dayStart` | From `TestSession`. `dayStart` is local midnight of the day the session began. |
+| `minutesSinceDose` | `Double?`. Minutes from the last qualifying dose to the session start, `nil` when the session had no dose context. Zero is a real reading, meaning a session that started at the moment of a dose. |
+| `tapping` | `[TappingSnapshot]`, one per hand, **sorted by timestamp** because the Core Data relationship is a set and hand order is not stored. |
+| `firefly` | `FireflySnapshot?` |
+| `tracing` | `TracingSnapshot?` |
+
+A session holds whichever tasks the patient completed. One, two, or all three may be present, and
+a session with no usable task is still a session for the day and session counts.
+
+### `TappingSnapshot`
+
+| Field | Unit | Gated on `isValid` |
+| --- | --- | --- |
+| `numTaps`, `numCorrectTaps` | count | no |
+| `durationSec` | seconds | no |
+| `tapInterMedian` | seconds | yes |
+| `cvTapInter` | percent | yes |
+| `tapInterSlope` | seconds per tap | yes |
+
+The three ungated fields are what tap rate is computed from, and `BradykinesiaStore` validates
+them separately from the statistics. Tap rate therefore survives a row whose `isValid` is false.
+
+### `FireflySnapshot`
+
+| Field | Unit | Gated on `isValid` |
+| --- | --- | --- |
+| `reactionTimeMedian`, `reactionTimeP90`, `movementTimeMedian` | seconds | yes |
+| `numRounds`, `numValidRounds`, `numLapses`, `numMissed` | count | no |
+
+Reaction time is stored in **seconds** and plotted in **milliseconds**;
+`PrimaryMetric.reactionTime` does the conversion, and nothing else should.
+
+### `TracingSnapshot`
+
+| Field | Unit | Gated on `isValid` |
+| --- | --- | --- |
+| `rmsError` | canonical route units | yes |
+| `swipeSpeedMedian` | canonical route units per second | yes |
+| `fingerLifts`, `numSequences`, `doneSequences` | count | no |
+
+### `DoseSnapshot`
+
+| Field | Meaning |
+| --- | --- |
+| `dayStart` | Local midnight of the day the dose was **due**. |
+| `takenAt` | When it was taken. For a skipped dose, the scheduled instant. |
+| `scheduledAt` | `Date?`. `nil` for an unscheduled dose, read through `MedicationLog.scheduledDate` so the `0` sentinel never reaches a chart. |
+| `wasSkipped` | The patient recorded that they did not take it. |
+| `slotLabel`, `slotMinutesIntoDay` | The schedule slot, as a name and as minutes into the day. The minutes identify the slot for colouring, so a patient renaming a dose does not split its series. |
+| `delayMinutes` | Computed. `nil` for an unscheduled dose and for a skipped one, because neither has something to be late by. |
+
+### `PDQ8Snapshot`
+
+`id`, `completedAt`, `rawSum` (0 to 32), `scoreIndex` (0 to 100, higher is worse). A row with a
+non-finite `scoreIndex` is dropped rather than plotted.
+
+## Derived values
+
+| Type | One per | Carries |
+| --- | --- | --- |
+| `DoseBin` | bin, always ten, in x-axis order | its points, `SummaryStats?`, `median`, `hasWhisker` |
+| `DailyAggregate` | day in the window | daily median per hand, session count, taken-dose count |
+| `Baseline` | request | `center` (median of daily medians), `lower` (p25), `upper` (p75), `spread` (sample SD), `dayCount`, `establishedOn` |
+| `AdherencePoint` | scheduled dose | `delayMinutes?`, `wasSkipped`, slot identity |
+| `TapComponentPoint` | day per component | `rawValue?` in the component's own unit, `z?` |
+| `TapAccuracyPoint` | day | `accuracy?`, 0 to 1 |
+| `DataQuality` | window | day and session counts, `excludedSessions`, `metricsVersionsInWindow` |
+| `ExcludedSession` | invalid **result**, not per session | date, task name, hand, reason |
+
+Three conventions that run through all of them:
+
+**A bin, a day, or a slot keeps its place when it has no data.** `DoseBinning.bins` returns all
+ten bins every time and `DailyAggregation.aggregate` returns one row per day in the window, with
+`nil` values. "No data" has to be visible as itself.
+
+**`SummaryStats.compute` returns `nil` below two values, so a one-session bin has a median and no
+whisker.** `DoseBin.median` comes from `DailyAggregation.median`, which is defined for one value;
+`DoseBin.stats` is the percentile bundle and is absent for a single point. `hasWhisker` is the
+flag the chart reads.
+
+**Positive z always means further from baseline in the worsening direction.** `TapComponent`
+carries `higherIsWorse` — false for speed, true for rhythm and decrement — and
+`TapComponents.zScore` applies the sign. Without it, speed and rhythm would point opposite ways
+on one axis. Accuracy is deliberately not a z-score: it is a compliance measure in its own units.
+
+### Dose bins
+
+| Bin | Contains |
+| --- | --- |
+| `beforeFirstDose` | sessions with no dose context, where `minutesSinceDose` is `nil` |
+| `sinceDose(startMinutes:)` | eight 30-minute bins covering 0:00 to 4:00 since the last dose |
+| `fourHoursOrMore` | 240 minutes or more |
+
+A negative or non-finite `minutesSinceDose` is placed in no bin at all. The store only records a
+dose at or before the session start, so a negative value means the row is wrong, and forcing it
+into the first bin would pass that error on to the chart.
+
+### Baseline states
+
+| State | Meaning |
+| --- | --- |
+| `familiarization(dayNumber:of:)` | fewer than 5 days with data. Tapping frequency rises over the first days and plateaus, so these days are excluded. |
+| `building(dayNumber:of:)` | past familiarization, fewer than 14 baseline days. |
+| `established(Baseline)` | the 5 familiarization days are dropped and the next 14 days with data form the band. |
+
+Days are counted as **days that produced a value**, not calendar days, so a patient who skips
+days takes longer to reach a baseline. The baseline does not grow once established: it stays the
+first 14 qualifying days, so the band stays where the patient started while the line moves.
+
+A baseline is computed per variable, not per metric. `Baseline` carries the hand but no metric,
+because the tapping components need baselines on `cvTapInter` and `tapInterSlope` and neither is
+a `PrimaryMetric` case. The caller asked for one variable's daily values and knows which.
+
+### `PrimaryMetric`
+
+| Case | Value | Unit | Higher is better |
+| --- | --- | --- | --- |
+| `tapRate` | `numTaps / durationSec` for that hand | taps/sec | yes |
+| `reactionTime` | `reactionTimeMedian × 1000` | ms | no |
+| `tracingError` | `rmsError` | canonical route units | no |
+
+`higherIsBetter` exists so the baseline band and the trend chart can orient "improvement" without
+any chart hardcoding a direction. It is a presentation property and never produces a judgement
+label.
+
+Each case reads one task and one hand. A session with no tapping row for the requested hand
+returns `nil` for `tapRate` rather than falling back to the other hand, and `reactionTime` and
+`tracingError` return `nil` unless that task's row was recorded for the requested hand.

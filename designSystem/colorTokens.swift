@@ -7,7 +7,9 @@
 
 import SwiftUI
 
-extension Color {
+// The project defaults declarations to the main actor. These are Sendable constants and the
+// chart tokens read them from a nonisolated context, so they are declared nonisolated here.
+nonisolated extension Color {
     // Brand
     static let primaryColor   = Color("moss")
     static let secondaryColor = Color("sage")

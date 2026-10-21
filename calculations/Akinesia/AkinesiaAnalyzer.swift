@@ -1,10 +1,3 @@
-//
-//  AkinesiaAnalyzer.swift
-//  Kinesia
-//
-//  Created by Allison Huang on 9/20/26.
-//
-
 import Foundation
 
 nonisolated enum AkinesiaAnalyzer {

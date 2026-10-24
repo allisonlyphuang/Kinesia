@@ -171,7 +171,7 @@ struct HomeView: View {
             separator
             row(.constellation, icon: Image(systemName: "point.3.connected.trianglepath.dotted")) { DexterityTestView() }
             separator
-            row(.ripples, icon: RipplesGlyph()) { BradykinesiaTestView() }
+            row(.plants, icon: Image(systemName: "leaf")){ BradykinesiaTestView() }
         }
     }
 
@@ -271,7 +271,7 @@ struct HomeView: View {
         switch task {
         case .fireflies:     AkinesiaTestView()
         case .constellation: DexterityTestView()
-        case .ripples:       BradykinesiaTestView()
+        case .plants:       BradykinesiaTestView()
         }
     }
 
@@ -280,20 +280,6 @@ struct HomeView: View {
         case 0..<12:  return "Good morning"
         case 12..<18: return "Good afternoon"
         default:      return "Good evening"
-        }
-    }
-}
-
-struct RipplesGlyph: View {
-    var body: some View {
-        GeometryReader { proxy in
-            let side = min(proxy.size.width, proxy.size.height)
-            ZStack {
-                Circle().strokeBorder(lineWidth: 1.6).frame(width: side)
-                Circle().strokeBorder(lineWidth: 1.6).frame(width: side * 0.61)
-                Circle().strokeBorder(lineWidth: 1.6).frame(width: side * 0.22)
-            }
-            .frame(width: proxy.size.width, height: proxy.size.height)
         }
     }
 }

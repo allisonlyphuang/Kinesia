@@ -80,7 +80,7 @@ private struct AkinesiaTestScreen: View {
         GeometryReader { proxy in
             content(layout: AkinesiaBoardLayout.fit(in: boardSpace(in: proxy.size)))
         }
-            .background(Color.bgPrimaryColor.ignoresSafeArea())
+            .gameGround()
             .navigationTitle(AkinesiaCopy.title)
             .navigationBarTitleDisplayMode(.inline)
             .task { refreshLatestResult() }
@@ -111,9 +111,10 @@ private struct AkinesiaTestScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.lg) {
                     phaseContent(layout: layout)
-                    latestResultSection
+                   // latestResultSection - remove for patient view
                 }
-                .padding(Spacing.lg)
+                .padding(.horizontal, GameChrome.gutter)
+                .padding(.bottom, Spacing.lg)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -128,14 +129,13 @@ private struct AkinesiaTestScreen: View {
             feedbackLine
             Spacer(minLength: 0)
         }
-        .padding(Spacing.lg)
+        .padding(.horizontal, GameChrome.gutter)
+        .padding(.top, Spacing.md)
         .frame(maxWidth: .infinity)
     }
 
     private var progressLine: some View {
-        Text(progressText)
-            .font(.heading)
-            .foregroundStyle(Color.textDark)
+        GameSectionLabel(progressText)
             .accessibilityAddTraits(.updatesFrequently)
     }
 
@@ -163,7 +163,7 @@ private struct AkinesiaTestScreen: View {
             onFrameClockReady: model.handleFrameClockReady(refreshRateHz:)
         )
         .frame(width: layout.boardSide, height: layout.boardSide)
-        .clipShape(RoundedRectangle(cornerRadius: Radius.primary, style: .continuous))
+        .playSurfaceEdge()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Firefly catching area")
         .accessibilityHint(AkinesiaCopy.setup[2])
@@ -202,54 +202,58 @@ private struct AkinesiaTestScreen: View {
     }
 
     private func instructions(layout: AkinesiaBoardLayout) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            Text(AkinesiaCopy.title)
-                .font(.displayMedium)
-                .foregroundStyle(Color.textDark)
+        VStack(alignment: .leading, spacing: Spacing.lg) {
+            GameHeader(game: AkinesiaCopy.title)
 
-            ForEach(AkinesiaCopy.setup, id: \.self) { line in
-                Text(line)
-                    .font(.body)
-                    .foregroundStyle(Color.textDark)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                ForEach(AkinesiaCopy.setup, id: \.self) { line in
+                    Text(line)
+                        .font(.body)
+                        .foregroundStyle(Color.textDark)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
-            if model.totalPracticeRounds > 0 {
-                Text(AkinesiaCopy.practiceIntro(rounds: model.totalPracticeRounds))
-                    .font(.subheading)
-                    .foregroundStyle(Color.textDark)
-                    .fixedSize(horizontal: false, vertical: true)
+                if model.totalPracticeRounds > 0 {
+                    Text(AkinesiaCopy.practiceIntro(rounds: model.totalPracticeRounds))
+                        .font(.subheadline)
+                        .foregroundStyle(Color.textQuiet)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, Spacing.xxs)
+                }
             }
+            .gameCard()
 
             Button(AkinesiaCopy.startButton) {
                 model.configure(configuration(for: layout))
                 model.startRounds()
             }
-            .buttonStyle(AkinesiaButtonStyle())
+            .buttonStyle(.primaryCapsule)
         }
     }
 
     private var finished: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
             Text(AkinesiaCopy.finished(caught: model.completedScoredRounds, of: model.totalScoredRounds))
                 .font(.heading)
                 .foregroundStyle(Color.textDark)
                 .fixedSize(horizontal: false, vertical: true)
+                .gameCard()
 
             Button("Play again") { model.reset() }
-                .buttonStyle(AkinesiaButtonStyle())
+                .buttonStyle(.primaryCapsule)
         }
     }
 
     private var failed: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
             Text(AkinesiaCopy.saveFailed)
-                .font(.heading)
+                .font(.body)
                 .foregroundStyle(Color.textDark)
                 .fixedSize(horizontal: false, vertical: true)
+                .gameCard()
 
             Button("Start over") { model.reset() }
-                .buttonStyle(AkinesiaButtonStyle())
+                .buttonStyle(.primaryCapsule)
         }
     }
 
@@ -268,9 +272,8 @@ private extension AkinesiaTestScreen {
 
     var latestResultSection: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
-            Text("Latest saved test")
-                .font(.heading)
-                .foregroundStyle(Color.textDark)
+            GameSectionLabel("Latest saved test")
+                .padding(.bottom, Spacing.xxs)
 
             if let result = latestSavedResult {
                 Text("\(result.numValidRounds) of \(result.numRounds) rounds counted")
@@ -290,9 +293,7 @@ private extension AkinesiaTestScreen {
         }
         .font(.body)
         .foregroundStyle(Color.textDark)
-        .padding(Spacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.bgSecondaryColor, in: RoundedRectangle(cornerRadius: Radius.primary, style: .continuous))
+        .gameCard()
     }
 
     func failureBreakdown(_ result: AkinesiaResult) -> String {
@@ -313,18 +314,5 @@ private extension AkinesiaTestScreen {
             latestSavedResult = nil
             latestResultFetchFailed = true
         }
-    }
-}
-
-private struct AkinesiaButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.button)
-            .foregroundStyle(Color.textLight)
-            .frame(maxWidth: .infinity, minHeight: 56)
-            .background(
-                Color.textDark.opacity(configuration.isPressed ? 0.75 : 1),
-                in: Capsule()
-            )
     }
 }

@@ -367,11 +367,27 @@ final class FireflyBoardTests: XCTestCase {
         let jar = try characterView(of: board)
         let firefly = try fireflyView(of: board)
 
-        XCTAssertNotNil(jar.backgroundColor, "an unfilled jar is invisible")
-        XCTAssertNotNil(firefly.backgroundColor, "an unfilled firefly is invisible")
-        XCTAssertNotEqual(jar.backgroundColor, .clear)
-        XCTAssertNotEqual(firefly.backgroundColor, .clear)
+        assertDrawn(jar, "jar")
+        assertDrawn(firefly, "firefly")
         XCTAssertNotNil(board.backgroundColor)
+    }
+
+    /// An overridden fill applies only where there is no art. Art replaces the fill, so the view
+    /// goes clear instead.
+    private func assertFill(_ view: UIImageView, _ expected: UIColor, _ name: String) {
+        if view.image == nil {
+            XCTAssertEqual(view.backgroundColor, expected, "the \(name) fill was not applied")
+        } else {
+            XCTAssertEqual(view.backgroundColor, .clear, "\(name) art should replace the fill")
+        }
+    }
+
+    /// Either the art is in the catalogue or the plain fill stands in for it. Neither one and the
+    /// view is an invisible rectangle, which is the bug this guards.
+    private func assertDrawn(_ view: UIImageView, _ name: String) {
+        if view.image != nil { return }
+        XCTAssertNotNil(view.backgroundColor, "an unfilled \(name) with no art is invisible")
+        XCTAssertNotEqual(view.backgroundColor, .clear, "an unfilled \(name) with no art is invisible")
     }
 
     func testBothViewsAreRoundedIntoCircles() throws {
@@ -406,25 +422,38 @@ final class FireflyBoardTests: XCTestCase {
         XCTAssertEqual(try fireflyView(of: board).layer.cornerRadius, 26, accuracy: 0.001)
     }
 
-    func testTheFireflyIsLighterThanTheJarAndTheBoard() throws {
+    func testTheFireflyStandsOutMoreThanTheJarDoes() throws {
         // Not a style preference: a low-contrast cue takes longer to notice, which lengthens the
-        // measurement and makes it depend on ambient light. The firefly must be the brightest
-        // thing on the board.
-        func brightness(_ color: UIColor?) throws -> CGFloat {
-            var white: CGFloat = 0
+        // measurement and makes it depend on ambient light. This is written as contrast rather
+        // than brightness because the board went from pine to cream, and a rule that says the
+        // firefly is the lightest thing would have passed an invisible cream firefly on it.
+        func luminance(_ color: UIColor?) throws -> CGFloat {
+            var red: CGFloat = 0
+            var green: CGFloat = 0
+            var blue: CGFloat = 0
             var alpha: CGFloat = 0
-            let converted = try XCTUnwrap(color).getWhite(&white, alpha: &alpha)
-            XCTAssertTrue(converted, "colour could not be read as greyscale")
-            return white
+            let converted = try XCTUnwrap(color).getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+            XCTAssertTrue(converted, "colour could not be read as RGB")
+
+            func channel(_ value: CGFloat) -> CGFloat {
+                value <= 0.03928 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+            }
+            return 0.2126 * channel(red) + 0.7152 * channel(green) + 0.0722 * channel(blue)
+        }
+
+        func contrast(_ one: CGFloat, _ other: CGFloat) -> CGFloat {
+            let lighter = max(one, other)
+            let darker = min(one, other)
+            return (lighter + 0.05) / (darker + 0.05)
         }
 
         let appearance = FireflyBoardAppearance.default
-        let firefly = try brightness(appearance.fireflyFill)
-        let jar = try brightness(appearance.jarFill)
-        let boardFill = try brightness(appearance.boardFill)
+        let board = try luminance(appearance.boardFill)
+        let firefly = contrast(try luminance(appearance.fireflyFill), board)
+        let jar = contrast(try luminance(appearance.jarFill), board)
 
-        XCTAssertGreaterThan(firefly, jar)
-        XCTAssertGreaterThan(jar, boardFill)
+        XCTAssertGreaterThan(firefly, jar, "the jar competes with the cue")
+        XCTAssertGreaterThan(firefly, 4.5, "the cue is too close to the board to be seen quickly")
     }
 
     func testAnOverriddenAppearanceIsAppliedImmediately() throws {
@@ -440,7 +469,7 @@ final class FireflyBoardTests: XCTestCase {
         )
 
         XCTAssertEqual(board.backgroundColor, .clear)
-        XCTAssertEqual(try characterView(of: board).backgroundColor, .systemRed)
-        XCTAssertEqual(try fireflyView(of: board).backgroundColor, .systemYellow)
+        assertFill(try characterView(of: board), .systemRed, "jar")
+        assertFill(try fireflyView(of: board), .systemYellow, "firefly")
     }
 }

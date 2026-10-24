@@ -70,6 +70,8 @@
 		8E100009302DA0000033FABB /* DexterityTestModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100019302DA0000033FABB /* DexterityTestModelTests.swift */; };
 		8E100101302DA0000033FABB /* DexterityRouteLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100111302DA0000033FABB /* DexterityRouteLayout.swift */; };
 		8E100102302DA0000033FABB /* DexterityTraceSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100112302DA0000033FABB /* DexterityTraceSurface.swift */; };
+		8E1001FF302DA0000033FACC /* GameArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100120302DA0000033FACC /* GameArt.swift */; };
+		8E1001FF302DA0000033FAD0 /* GameScreenChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100120302DA0000033FAD0 /* GameScreenChrome.swift */; };
 		8E100103302DA0000033FABB /* DexterityRouteLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100113302DA0000033FABB /* DexterityRouteLayoutTests.swift */; };
 		8E100201302DA0000033FABB /* DexterityRouteFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100211302DA0000033FABB /* DexterityRouteFit.swift */; };
 		8E100202302DA0000033FABB /* DexterityDebugHarness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E100212302DA0000033FABB /* DexterityDebugHarness.swift */; };
@@ -216,6 +218,8 @@
 		8E100019302DA0000033FABB /* DexterityTestModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTestModelTests.swift; sourceTree = "<group>"; };
 		8E100111302DA0000033FABB /* DexterityRouteLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteLayout.swift; sourceTree = "<group>"; };
 		8E100112302DA0000033FABB /* DexterityTraceSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityTraceSurface.swift; sourceTree = "<group>"; };
+		8E100120302DA0000033FACC /* GameArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameArt.swift; sourceTree = "<group>"; };
+		8E100120302DA0000033FAD0 /* GameScreenChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScreenChrome.swift; sourceTree = "<group>"; };
 		8E100113302DA0000033FABB /* DexterityRouteLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteLayoutTests.swift; sourceTree = "<group>"; };
 		8E100211302DA0000033FABB /* DexterityRouteFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityRouteFit.swift; sourceTree = "<group>"; };
 		8E100212302DA0000033FABB /* DexterityDebugHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexterityDebugHarness.swift; sourceTree = "<group>"; };
@@ -467,6 +471,8 @@
 				8E100316302DA0000033FABB /* DexterityTestView.swift */,
 				8E100212302DA0000033FABB /* DexterityDebugHarness.swift */,
 				8E100112302DA0000033FABB /* DexterityTraceSurface.swift */,
+				8E100120302DA0000033FACC /* GameArt.swift */,
+				8E100120302DA0000033FAD0 /* GameScreenChrome.swift */,
 				2C9C827A3075EF1F001AB9DD /* AkinesiaBoardLayout.swift */,
 				2CCF04653063369E0065D8B3 /* AkinesiaTestView.swift */,
 				8B91BC96302DAF840033FABB /* BradykinesiaTestView.swift */,
@@ -711,6 +717,8 @@
 				8E100202302DA0000033FABB /* DexterityDebugHarness.swift in Sources */,
 				8E100201302DA0000033FABB /* DexterityRouteFit.swift in Sources */,
 				8E100102302DA0000033FABB /* DexterityTraceSurface.swift in Sources */,
+				8E1001FF302DA0000033FACC /* GameArt.swift in Sources */,
+				8E1001FF302DA0000033FAD0 /* GameScreenChrome.swift in Sources */,
 				8E100101302DA0000033FABB /* DexterityRouteLayout.swift in Sources */,
 				2CCA5FBE3083A98A00B6EAC5 /* ReportSnapShotMapping.swift in Sources */,
 				8E100008302DA0000033FABB /* DexterityTestModel.swift in Sources */,

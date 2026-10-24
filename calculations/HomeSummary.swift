@@ -4,13 +4,13 @@ import Foundation
 nonisolated enum CheckInTask: String, CaseIterable, Sendable {
     case fireflies
     case constellation
-    case ripples
+    case plants
 
     var title: String {
         switch self {
         case .fireflies:     return "Fireflies"
         case .constellation: return "Constellation"
-        case .ripples:       return "Ripples"
+        case .plants:       return "Plants"
         }
     }
 }
@@ -53,7 +53,7 @@ nonisolated enum HomeSummaryBuilder {
         for session in sessions where calendar.startOfDay(for: session.dayStart) == today {
             if session.firefly != nil { done.insert(.fireflies) }
             if session.tracing != nil { done.insert(.constellation) }
-            if !session.tapping.isEmpty { done.insert(.ripples) }
+            if !session.tapping.isEmpty { done.insert(.plants) }
         }
 
         return HomeSummary(

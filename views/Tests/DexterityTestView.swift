@@ -15,11 +15,12 @@ struct DexterityTestView: View {
                 VStack(alignment: .leading, spacing: Spacing.lg) {
                     header
                     content(configuration: configuration(width: width, height: height))
-                    latestResultSection
                 }
-                .padding(Spacing.lg)
+                .padding(.horizontal, GameChrome.gutter)
+                .padding(.bottom, Spacing.lg)
             }
             .scrollDisabled(isTracingRound)
+            .gameGround()
         .onAppear {
             configure(width: width, height: height)
             refreshLatestResult()
@@ -28,19 +29,15 @@ struct DexterityTestView: View {
             refreshLatestResult()
         }
         }
-        .navigationTitle("Dexterity")
+        .navigationTitle(CheckInTask.constellation.title)
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            Text("Constellation tracing")
-                .font(.displayMedium)
-                .foregroundStyle(Color.textDark)
-            Text("Use your right index finger. Complete one practice trace, then three scored traces without lifting your finger.")
-                .font(.body)
-                .foregroundStyle(Color.textDark)
-        }
+        GameHeader(
+            game: CheckInTask.constellation.title,
+            instruction: "Use your right index finger. Complete one practice trace, then three more traces without lifting your finger."
+        )
     }
 
     @ViewBuilder
@@ -48,14 +45,12 @@ struct DexterityTestView: View {
         switch model.phase {
         case .instructions:
             Button("Start practice") { model.start() }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.primaryCapsule)
                 .disabled(configuration == nil)
         case .practice, .scored:
             if let configuration {
                 VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text(phaseText)
-                        .font(.subheading)
-                        .foregroundStyle(Color.textDark)
+                    GameSectionLabel(phaseText)
                     DexterityTraceSurface(
                         configuration: configuration,
                         onSequenceFinished: { sequence, monotonicStartedAt in
@@ -69,12 +64,20 @@ struct DexterityTestView: View {
             }
         case .saving:
             ProgressView("Saving trace")
+                .tint(Color.primaryColor)
+                .font(.body)
+                .foregroundStyle(Color.textQuiet)
+                .gameCard(alignment: .center)
         case .finished:
             finishedContent
         case .failed(let message):
-            VStack(alignment: .leading, spacing: Spacing.sm) {
-                Text(message).foregroundStyle(Color.textDark)
-                Button("Try again") { model.reset() }.buttonStyle(.bordered)
+            VStack(alignment: .leading, spacing: Spacing.lg) {
+                Text(message)
+                    .font(.body)
+                    .foregroundStyle(Color.textDark)
+                    .gameCard()
+                Button("Try again") { model.reset() }
+                    .buttonStyle(.primaryCapsule)
             }
         }
     }
@@ -97,35 +100,44 @@ struct DexterityTestView: View {
     }
 
     private var finishedContent: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            Text("Tracing complete")
-                .font(.displayMedium)
-                .foregroundStyle(Color.textDark)
-            if let result = model.latestResult {
-                Text("Completed traces: \(result.doneSequences)")
-                Text("Average trace length: \(result.swipeDist, format: .number.precision(.fractionLength(1))) canonical units")
-                Text("Mean swipe speed: \(result.swipeSpeedMean, format: .number.precision(.fractionLength(1))) canonical units / second")
+        VStack(alignment: .leading, spacing: Spacing.lg) {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                GameSectionLabel("Tracing complete")
+                    .padding(.bottom, Spacing.xxs)
+                if let result = model.latestResult {
+                    Text("Completed traces: \(result.doneSequences)")
+                }
             }
-            Button("Run again") { model.reset() }.buttonStyle(.borderedProminent)
+            .font(.body)
+            .foregroundStyle(Color.textDark)
+            .gameCard()
+
+            Button("Run again") { model.reset() }
+                .buttonStyle(.primaryCapsule)
         }
-        .foregroundStyle(Color.textDark)
     }
 
     @ViewBuilder
     private var latestResultSection: some View {
         if let latestSavedResult {
             VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text("Latest saved trace").font(.subheading)
+                GameSectionLabel("Latest saved trace")
+                    .padding(.bottom, Spacing.xxs)
                 Text("Completed traces: \(latestSavedResult.doneSequences)")
                 Text("Mean swipe speed: \(latestSavedResult.swipeSpeedMean, format: .number.precision(.fractionLength(1))) canonical units / second")
                 Text(latestSavedResult.isValid ? "Saved result is available" : "Saved result needs review")
             }
+            .font(.body)
             .foregroundStyle(Color.textDark)
+            .gameCard()
         }
     }
 
     private var unavailable: some View {
-        Text("This tracing surface is unavailable.").foregroundStyle(Color.textDark)
+        Text("This tracing surface is unavailable.")
+            .font(.body)
+            .foregroundStyle(Color.textDark)
+            .gameCard()
     }
 
     private func configuration(width: CGFloat, height: CGFloat) -> DexterityTestConfiguration? {

@@ -2,7 +2,7 @@
 
 ## Automated coverage
 
-The `KinesiaTests` XCTest target has **642 tests**, all passing as of 2026-10-23. The count is taken from the source, as described under "Counting the tests" below, and the run reported `** TEST SUCCEEDED **` with no failures.
+The `KinesiaTests` XCTest target has **644 tests**, all passing as of 2026-10-24. The count is taken from the source, as described under "Counting the tests" below, and the run reported `** TEST SUCCEEDED **` with no failures.
 
 | Suite | Tests | Covers |
 | --- | --- | --- |
@@ -21,8 +21,8 @@ The `KinesiaTests` XCTest target has **642 tests**, all passing as of 2026-10-23
 | Dexterity calculation, capture, route, layout, fit, protocol, store, and session suites | 57 | canonical geometry, continuous capture, ordered progression, protocol lifecycle, Core Data persistence, raw payloads, and retry/save-once behavior |
 | `TapInterSlopeTests` | 13 | OLS decrement arithmetic, a known hand-checked fit, speeding up, a symmetric spike leaving the trend flat, per-tap rather than per-second scaling, the three-interval minimum, non-finite input, and the slope reaching the metric bundle |
 | `MedicationSchedulePlanTests` | 18 | time-of-day and dosage validation including boundaries, duplicate slots, ordering, occurrence resolution, a late-night dose resolving to the previous day, and a clock time skipped by daylight saving |
-| `MedicationStoreTests` | 26 | schedule replacement deactivating rather than deleting, new rows taking fresh ids so re-saving a loaded schedule does not collide with the uniqueness constraint on `id`, an old log keeping its slot, taken/skipped/unscheduled logging, adherence delay sign, scheduled-day filing, duplicate rejection, undo, medication-context rules, fetch ordering, and durability across a context reset |
-| `MedicationDayModelTests` | 13 | row construction per scheduled dose, taken/skipped/pending as three distinct states, undo and re-record, duplicate writes surfacing without changing the row, next-dose selection, unscheduled doses, day switching, and non-blaming failure copy |
+| `MedicationStoreTests` | 26 | schedule replacement deactivating rather than deleting, new rows taking fresh ids so re-saving a loaded schedule does not collide with the uniqueness constraint on `id`, an old log keeping its slot, taken/skipped/unscheduled logging, adherence delay sign, scheduled-day filing, duplicate rejection, undo, medication-context rules, fetch ordering, a day start that a 32-bit float cannot hold, and durability across a context reset |
+| `MedicationDayModelTests` | 16 | row construction per scheduled dose, taken/skipped/pending as three distinct states, undo and re-record, undo clearing a dose recorded twice, undo on an extra dose, duplicate writes surfacing without changing the row, next-dose selection, unscheduled doses, one day at a time, and non-blaming failure copy |
 | `PDQ8Tests` | 18 | instrument shape, one item per dimension, scoring arithmetic at both ends and the midpoint, item order preservation, refusal to score a partial questionnaire, and stored-value range validation |
 | `PDQ8StoreTests` | 10 | created-row shape, per-item payload round trip, durability across a context reset, incomplete and non-finite input leaving the context empty, missing payload reporting, and fetch ordering in both directions |
 | `PDQ8ModelTests` | 11 | progress and navigation, selecting without auto-advancing, changing an answer, completion gating, saving, discarding a partial questionnaire, and reset |

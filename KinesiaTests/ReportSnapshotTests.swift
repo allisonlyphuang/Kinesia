@@ -278,7 +278,7 @@ final class ReportSnapshotTests: XCTestCase {
 
     func testAScheduledDoseCarriesItsSlot() throws {
         let schedule = try MedicationStore.replaceSchedule(
-            with: [MedicationScheduleSlot(label: "Morning", hour: 8, minute: 30)],
+            with: [MedicationScheduleSlot(hour: 8, minute: 30)],
             in: context
         )[0]
         let scheduledAt = try XCTUnwrap(
@@ -293,7 +293,6 @@ final class ReportSnapshotTests: XCTestCase {
 
         let snapshot = try XCTUnwrap(DoseSnapshot(log))
         XCTAssertEqual(snapshot.slotMinutesIntoDay, 8 * 60 + 30)
-        XCTAssertEqual(snapshot.slotLabel, "Morning")
         XCTAssertEqual(try XCTUnwrap(snapshot.delayMinutes), 15, accuracy: 1e-9)
     }
 

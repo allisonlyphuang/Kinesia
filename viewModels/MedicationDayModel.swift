@@ -15,7 +15,7 @@ final class MedicationDayModel: ObservableObject {
     struct Row: Identifiable {
         let id: UUID
         let schedule: MedicationSchedule
-        let label: String?
+        let dosageMg: Double
         let scheduledDate: Date
         let state: DoseState
         let log: MedicationLog?
@@ -51,11 +51,6 @@ final class MedicationDayModel: ObservableObject {
         rows.first { $0.state == .pending }
     } // = nil when everything is recorded
 
-    func show(day: Date) {
-        self.day = day
-        load()
-    }
-
     func load() {
         do {
             let schedules = try MedicationStore.activeSchedule(in: context)
@@ -80,7 +75,7 @@ final class MedicationDayModel: ObservableObject {
                 return Row(
                     id: schedule.id ?? UUID(),
                     schedule: schedule,
-                    label: schedule.label,
+                    dosageMg: schedule.dosageMg,
                     scheduledDate: scheduledDate,
                     state: state(for: log),
                     log: log
@@ -119,7 +114,17 @@ final class MedicationDayModel: ObservableObject {
     }
 
     func clear(_ row: Row) {
-        guard let log = row.log else { return }
+        perform {
+            try MedicationStore.clearLogs(
+                for: row.schedule,
+                onDayContaining: self.day,
+                in: self.context,
+                calendar: self.calendar
+            )
+        }
+    }
+
+    func clearUnscheduled(_ log: MedicationLog) {
         perform {
             try MedicationStore.delete(log, in: self.context)
         }

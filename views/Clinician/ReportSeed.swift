@@ -15,9 +15,9 @@ enum ReportSeed {
 
         let schedules = try MedicationStore.replaceSchedule(
             with: [
-                MedicationScheduleSlot(label: "Morning", dosageMg: 100, hour: 8, minute: 0),
-                MedicationScheduleSlot(label: "Midday", dosageMg: 100, hour: 13, minute: 0),
-                MedicationScheduleSlot(label: "Evening", dosageMg: 100, hour: 18, minute: 0)
+                MedicationScheduleSlot(dosageMg: 100, hour: 8, minute: 0),
+                MedicationScheduleSlot(dosageMg: 100, hour: 13, minute: 0),
+                MedicationScheduleSlot(dosageMg: 100, hour: 18, minute: 0)
             ],
             in: context
         )

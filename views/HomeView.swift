@@ -64,7 +64,10 @@ struct HomeView: View {
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") { showingSchedule = false }
+                                .foregroundStyle(Color.primaryColor)
                         }
+
+                        .sharedBackgroundVisibility(.hidden)
                     }
             }
         }

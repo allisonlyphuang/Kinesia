@@ -19,7 +19,10 @@ Every series in the report is denoted by both color and shape, so the charts rea
 | Dose taken | pine | solid rule |
 | Dose skipped | pine | dashed rule |
 
-## Contrast on the opening screen and the dashboard
+## Contrast on patient screens
+
+Patient screens: opening screen, dashboard, medication log, dose times screen, and PDQ-8.
+
 | Pair | Usage | Ratio of on screen color : background |
 | --- | --- | --- |
 | moss `#576155` on cream | secondary text, section labels | 6.4:1 |
@@ -27,6 +30,8 @@ Every series in the report is denoted by both color and shape, so the charts rea
 | pine on the  sage button `#DDE2D2` | button text | 7.9:1 |
 | `textQuiet #6E7569` on cream | row values, tab labels | 4.7:1 |
 | cream on the opening scrim at its lightest color | the wordmark and subtitle | above 4.5:1 |
+
+
 
 ## Copy
 

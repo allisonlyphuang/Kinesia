@@ -118,6 +118,55 @@ final class MedicationDayModelTests: XCTestCase {
         XCTAssertEqual(try context.count(for: MedicationLog.fetchRequest()), 0)
     }
 
+    /// A build whose fetch predicate never matched could write the same dose twice. Undo has
+    /// to clear the slot, not peel off one log and leave the row recorded at a later time.
+    func testUndoClearsADoseThatWasRecordedTwice() throws {
+        let schedules = try threeDoseSchedule()
+        let model = makeModel(now: time(8, 5))
+        model.load()
+
+        model.markTaken(model.rows[0])
+        let duplicate = MedicationLog(context: context)
+        duplicate.id = UUID()
+        duplicate.timestamp = time(8, 40).timeIntervalSince1970
+        duplicate.scheduledTime = time(8, 0).timeIntervalSince1970
+        duplicate.dayStart = referenceDay.timeIntervalSince1970
+        duplicate.schedule = schedules[0]
+        try context.save()
+        model.load()
+
+        model.clear(model.rows[0])
+
+        XCTAssertEqual(model.rows[0].state, .pending)
+        XCTAssertEqual(try context.count(for: MedicationLog.fetchRequest()), 0)
+    }
+
+    func testUndoOnAnExtraDoseRemovesIt() throws {
+        try threeDoseSchedule()
+        let model = makeModel(now: time(15, 30))
+        model.load()
+
+        model.logUnscheduledDose()
+        let extra = try XCTUnwrap(model.unscheduledDoses.first)
+        model.clearUnscheduled(extra)
+
+        XCTAssertTrue(model.unscheduledDoses.isEmpty)
+        XCTAssertEqual(try context.count(for: MedicationLog.fetchRequest()), 0)
+        XCTAssertNil(model.actionError)
+    }
+
+    func testUndoOnAnExtraDoseLeavesTheScheduledDosesAlone() throws {
+        try threeDoseSchedule()
+        let model = makeModel(now: time(8, 5))
+        model.load()
+        model.markTaken(model.rows[0])
+
+        model.logUnscheduledDose()
+        model.clearUnscheduled(try XCTUnwrap(model.unscheduledDoses.first))
+
+        XCTAssertEqual(model.rows[0].state, .taken(at: time(8, 5)))
+    }
+
     func testARowCanBeRecordedAgainAfterUndo() throws {
         try threeDoseSchedule()
         let model = makeModel(now: time(8, 5))
@@ -199,21 +248,29 @@ final class MedicationDayModelTests: XCTestCase {
         XCTAssertTrue(model.rows.allSatisfy { $0.state == .pending })
     }
 
-    // MARK: - Day switching
+    // MARK: - One day at a time
 
-    func testShowingAnotherDayLoadsThatDaysRecords() throws {
+    /// A model built for another day sees that day only. The screen is always today, so this
+    /// is the day boundary itself under test, not a day picker.
+    func testAModelForAnotherDaySeesNoneOfTodaysRecords() throws {
         try threeDoseSchedule()
-        let model = makeModel(now: time(8, 5))
-        model.load()
-        model.markTaken(model.rows[0])
+        let today = makeModel(now: time(8, 5))
+        today.load()
+        today.markTaken(today.rows[0])
 
         let nextDay = utc.date(byAdding: .day, value: 1, to: referenceDay)!
-        model.show(day: nextDay)
+        let tomorrow = MedicationDayModel(
+            context: context,
+            day: nextDay,
+            calendar: utc,
+            now: { self.time(8, 5) }
+        )
+        tomorrow.load()
 
-        XCTAssertTrue(model.rows.allSatisfy { $0.state == .pending })
+        XCTAssertTrue(tomorrow.rows.allSatisfy { $0.state == .pending })
 
-        model.show(day: referenceDay)
-        XCTAssertEqual(model.rows[0].state, .taken(at: time(8, 5)))
+        today.load()
+        XCTAssertEqual(today.rows[0].state, .taken(at: time(8, 5)))
     }
 
     // MARK: - Copy

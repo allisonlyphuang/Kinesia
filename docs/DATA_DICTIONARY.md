@@ -205,8 +205,7 @@ filters on `isActive`; a historical log will correctly reference an inactive row
 | Field | Meaning |
 | --- | --- |
 | `hour`, `minute` | Local clock time of day, 0–23 and 0–59. |
-| `dosageMg` | Milligrams. **Zero is allowed and is not missing data** — plenty of patients do not know the number, and the dose still has a time, which is what every dose-linked chart needs. |
-| `label` | Optional. What the patient calls the dose. |
+| `dosageMg` | Dose in milligrams. Zero is allowed in consideration of patients who don't know the dosage. |
 | `sortIndex` | Position in time-of-day order, assigned on save. |
 | `isActive` | False once a later schedule replaced this row. |
 
@@ -220,8 +219,7 @@ One row per dose the patient recorded, taken or skipped.
 | `scheduledTime` | When the dose was due. **`0` is the sentinel for "not on the schedule"**, never a real scheduled time. |
 | `dayStart` | Local midnight of the **scheduled** day when the dose has a schedule, otherwise of the day it was taken. |
 | `wasSkipped` | The patient recorded that they did not take this dose. |
-| `source` | `"manual"` today. Reserved for an imported or notification-confirmed dose later. |
-| `schedule` | The slot this dose belongs to, possibly now inactive. `nil` for an unscheduled dose. |
+| `schedule` | The schedule for this dose |
 
 Three rules that are easy to get wrong:
 

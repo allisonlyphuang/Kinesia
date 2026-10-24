@@ -178,7 +178,6 @@
         <attribute name="dayStart" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="scheduledTime" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="source" attributeType="String" defaultValueString="manual"/>
         <attribute name="timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="wasSkipped" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <relationship name="schedule" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicationSchedule" inverseName="logs" inverseEntity="MedicationSchedule"/>
@@ -200,7 +199,6 @@
         <attribute name="hour" attributeType="Integer 16" defaultValueString="8" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isActive" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="label" optional="YES" attributeType="String"/>
         <attribute name="minute" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="sortIndex" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="logs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MedicationLog" inverseName="schedule" inverseEntity="MedicationLog"/>

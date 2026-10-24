@@ -75,9 +75,9 @@ struct PDQ8Store {
     ) throws -> [PDQ8Log] {
         let request = PDQ8Log.fetchRequest()
         request.predicate = NSPredicate(
-            format: "timestamp >= %f AND timestamp < %f",
-            start.timeIntervalSince1970,
-            end.timeIntervalSince1970
+            format: "timestamp >= %@ AND timestamp < %@",
+            NSNumber(value: start.timeIntervalSince1970),
+            NSNumber(value: end.timeIntervalSince1970)
         )
         request.sortDescriptors = [NSSortDescriptor(key: #keyPath(PDQ8Log.timestamp), ascending: true)]
         return try context.fetch(request)

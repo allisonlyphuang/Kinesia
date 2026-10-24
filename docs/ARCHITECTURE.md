@@ -17,6 +17,7 @@
 - Durations are the difference of two monotonic readings taken in the same capture.
 - Raw payloads are recorded using monotonic timestamps. 
 
+
 ## Bradykinesia: tapping
 
 ### Implemented vertical slice
@@ -193,9 +194,13 @@ The new rows take fresh ids, and that follows from the line above. `MedicationSc
 
 A dose scheduled for 23:00 and taken at 00:30 is 90 minutes late. Resolving `scheduledTime` against the taken day alone would make it 22.5 hours early, and the adherence chart would show a large negative delay for the most ordinary kind of lateness. `MedicationStore` resolves to the occurrence **nearest** the taken time across yesterday/today/tomorrow, and files the row under that occurrence's local midnight, so the dose lands in the column for the day it was due.
 
-## Three states, not two
+## Three dose states
 
-Not recorded, taken, and skipped are three different facts. The absence of a row means the patient has not answered yet; it never means the dose was skipped. `MedicationDayModel` rebuilds its rows from Core Data after every write rather than mutating them in place, so a row that looks recorded always is.
+Medication doses can be not recorded, taken, or skipped. `MedicationDayModel` rebuilds its rows from Core Data instead of mutating in place.
+
+Undo clears every log the timeslot has that day, allowing a slot that might have multiple records to still return to not recorded. 
+
+`MedicationDayModel` keeps a `loadError`, which is communicated on the screen instead of falling through to an empty state.
 
 ## Decrement and metrics versioning
 
@@ -264,13 +269,6 @@ No runner chains the three tests. The card opens `CheckInTask.allCases.first { !
 
 The cog opens the medication schedule directly rather than a settings list of one item. It is the only way back into `OnboardingMeds` once onboarding has finished, which is why that screen takes a `continueTitle` and reads "Save" there and "Continue" during onboarding.
 
-## Design tokens for the shell
-
-`designSystem/surfaceTokens.swift` holds the gradient ground, the translucent card and hairline, the two text colours used over the photograph, and three gradients. The opening scrim's alphas are measured rather than chosen: the photograph's brightest pixel runs from about 0.22 relative luminance at the top to about 0.70 at the foot, so cream text needs roughly 0.21 alpha at the top rising to 0.77 at the bottom to hold 4.5:1. Replacing the photograph means measuring again.
-
-`designSystem/typographyTokens.swift` carries the dashboard's scale for the whole app, and every token is built from a system text style, so all of them scale with Dynamic Type. The section-label style is a `sectionLabelStyle()` modifier rather than a `Font`, because its tracking and casing cannot live in one.
-
-`Assets.xcassets/brandMark` is a template image whose alpha comes from the artwork's luminance, so one asset renders white over the photograph and moss on the dashboard.
 
 # Clinician view: the read path
 
@@ -328,9 +326,7 @@ One exception, by design: `numTaps`, `numCorrectTaps`, and `durationSec` are not
 
 `SessionSnapshot` sorts its tapping rows by timestamp, because the relationship is a set and hand order is not stored.
 
-## The derivations
-
-One file per concern in `calculations/ClinicianView/`, all pure value types, each with its own test suite.
+## Derivations
 
 | File | Produces | For |
 | --- | --- | --- |

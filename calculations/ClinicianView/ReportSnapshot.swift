@@ -59,7 +59,6 @@ nonisolated struct DoseSnapshot: Sendable, Equatable, Identifiable {
     let takenAt: Date
     let scheduledAt: Date?
     let wasSkipped: Bool
-    let slotLabel: String?
     let slotMinutesIntoDay: Int?
     
     var delayMinutes: Double? {

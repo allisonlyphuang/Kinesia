@@ -10,8 +10,6 @@ nonisolated enum MedicationStoreError: Error, Equatable {
 
 struct MedicationStore {
 
-    static let manualSource = "manual"
-
     // MARK: Schedule
 
     @discardableResult
@@ -37,7 +35,6 @@ struct MedicationStore {
             // deleted. Reusing the id puts two live rows under the uniqueness constraint
             // on MedicationSchedule.id and the save throws, so only the first save worked.
             schedule.id = UUID()
-            schedule.label = slot.label
             schedule.dosageMg = slot.dosageMg
             schedule.hour = Int16(slot.hour)
             schedule.minute = Int16(slot.minute)
@@ -74,7 +71,6 @@ struct MedicationStore {
     static func logDose(
         schedule: MedicationSchedule,
         takenAt: Date,
-        source: String = manualSource,
         in context: NSManagedObjectContext,
         calendar: Calendar = .current
     ) throws -> MedicationLog {
@@ -89,7 +85,6 @@ struct MedicationStore {
             timestamp: takenAt,
             scheduledDate: scheduledDate,
             wasSkipped: false,
-            source: source,
             in: context,
             calendar: calendar
         )
@@ -113,7 +108,6 @@ struct MedicationStore {
             timestamp: scheduledDate,
             scheduledDate: scheduledDate,
             wasSkipped: true,
-            source: manualSource,
             in: context,
             calendar: calendar
         )
@@ -123,7 +117,6 @@ struct MedicationStore {
     @discardableResult
     static func logUnscheduledDose(
         takenAt: Date,
-        source: String = manualSource,
         in context: NSManagedObjectContext,
         calendar: Calendar = .current
     ) throws -> MedicationLog {
@@ -132,7 +125,6 @@ struct MedicationStore {
             timestamp: takenAt,
             scheduledDate: nil,
             wasSkipped: false,
-            source: source,
             in: context,
             calendar: calendar
         )
@@ -144,35 +136,42 @@ struct MedicationStore {
         try commit(context)
     }
 
-    // MARK: Reading back
-
-    static func logs(
-        from start: Date,
-        to end: Date,
-        in context: NSManagedObjectContext
-    ) throws -> [MedicationLog] {
+    /// Undo for a slot: removes every log it has on that day, not just the first.
+    ///
+    /// A build whose fetch predicate never matched could record the same dose more than
+    /// once, and deleting one of those leaves the dose still recorded, at a later time.
+    static func clearLogs(
+        for schedule: MedicationSchedule,
+        onDayContaining day: Date,
+        in context: NSManagedObjectContext,
+        calendar: Calendar = .current
+    ) throws {
         let request = MedicationLog.fetchRequest()
         request.predicate = NSPredicate(
-            format: "timestamp >= %f AND timestamp < %f",
-            start.timeIntervalSince1970,
-            end.timeIntervalSince1970
+            format: "schedule == %@ AND dayStart == %@",
+            schedule,
+            NSNumber(value: calendar.startOfDay(for: day).timeIntervalSince1970)
         )
-        request.sortDescriptors = [
-            NSSortDescriptor(key: #keyPath(MedicationLog.timestamp), ascending: true)
-        ]
-        return try context.fetch(request)
+        for log in try context.fetch(request) {
+            context.delete(log)
+        }
+        try commit(context)
     }
 
-  
+    // MARK: Reading back
+
     static func logs(
         onDayContaining day: Date,
         in context: NSManagedObjectContext,
         calendar: Calendar = .current
     ) throws -> [MedicationLog] {
         let request = MedicationLog.fetchRequest()
+        // NSNumber, not %f. A %f placeholder is parsed as a 32-bit float, and an epoch
+        // second around 1.79e9 needs 31 bits, so the value the predicate compares against
+        // can land up to 128 seconds off. On an equality test that means no rows at all.
         request.predicate = NSPredicate(
-            format: "dayStart == %f",
-            calendar.startOfDay(for: day).timeIntervalSince1970
+            format: "dayStart == %@",
+            NSNumber(value: calendar.startOfDay(for: day).timeIntervalSince1970)
         )
         request.sortDescriptors = [
             NSSortDescriptor(key: #keyPath(MedicationLog.timestamp), ascending: true)
@@ -188,9 +187,9 @@ struct MedicationStore {
     ) throws -> MedicationLog? {
         let request = MedicationLog.fetchRequest()
         request.predicate = NSPredicate(
-            format: "schedule == %@ AND dayStart == %f",
+            format: "schedule == %@ AND dayStart == %@",
             schedule,
-            dayStart
+            NSNumber(value: dayStart)
         )
         request.fetchLimit = 1
         return try context.fetch(request).first
@@ -217,7 +216,6 @@ struct MedicationStore {
     static func slot(for schedule: MedicationSchedule) -> MedicationScheduleSlot {
         MedicationScheduleSlot(
             id: schedule.id ?? UUID(),
-            label: schedule.label,
             dosageMg: schedule.dosageMg,
             hour: Int(schedule.hour),
             minute: Int(schedule.minute)
@@ -231,7 +229,6 @@ struct MedicationStore {
         timestamp: Date,
         scheduledDate: Date?,
         wasSkipped: Bool,
-        source: String,
         in context: NSManagedObjectContext,
         calendar: Calendar
     ) throws -> MedicationLog {
@@ -254,7 +251,6 @@ struct MedicationStore {
         log.scheduledTime = scheduledEpoch
         log.dayStart = dayStart
         log.wasSkipped = wasSkipped
-        log.source = source
         log.schedule = schedule
 
         try commit(context)

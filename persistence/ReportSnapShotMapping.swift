@@ -38,7 +38,6 @@ nonisolated extension DoseSnapshot {
             takenAt: row.takenDate,
             scheduledAt: row.scheduledDate,
             wasSkipped: row.wasSkipped,
-            slotLabel: schedule?.label,
             slotMinutesIntoDay: schedule.map { Int($0.hour) * 60 + Int($0.minute) }
         )
     }

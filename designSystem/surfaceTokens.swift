@@ -25,11 +25,57 @@ nonisolated extension Color {
 
     // Controls
     static let buttonSoft = Color(.sRGB, red: 221/255, green: 226/255, blue: 210/255, opacity: 1)
+    static let buttonSoftPressed = Color(.sRGB, red: 209/255, green: 215/255, blue: 197/255, opacity: 1)
 
     // Over the photograph
     static let scrimDark        = Color(.sRGB, red: 36/255, green: 43/255, blue: 36/255, opacity: 1)
     static let textOnPhoto      = Color(.sRGB, red: 255/255, green: 253/255, blue: 248/255, opacity: 1)
     static let textOnPhotoQuiet = Color(.sRGB, red: 217/255, green: 222/255, blue: 205/255, opacity: 1)
+}
+
+// The two button shapes allowed on the page ground.
+//
+// On the opening screen the primary button is a cream capsule, which works over the
+// photograph. On cream it would be white on cream, so it inverts: moss fill, cream text.
+// A disabled primary loses the moss fill and quietens its text. textQuiet on buttonSoft is
+// 3.6:1, which WCAG exempts for an inactive control, and the softer label is what separates
+// a disabled button from an enabled soft one on a screen made of soft buttons.
+struct PrimaryCapsuleStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.button)
+            .foregroundStyle(isEnabled ? Color.textLight : Color.textQuiet)
+            .frame(maxWidth: .infinity, minHeight: 54)
+            .background(fill(pressed: configuration.isPressed), in: Capsule(style: .continuous))
+    }
+
+    private func fill(pressed: Bool) -> Color {
+        guard isEnabled else { return .buttonSoft }
+        return pressed ? .primaryColor.opacity(0.85) : .primaryColor
+    }
+}
+
+struct SoftCapsuleStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.button)
+            .foregroundStyle(Color.textDark)
+            .frame(maxWidth: .infinity, minHeight: 54)
+            .background(
+                configuration.isPressed ? Color.buttonSoftPressed : Color.buttonSoft,
+                in: Capsule(style: .continuous)
+            )
+    }
+}
+
+extension ButtonStyle where Self == PrimaryCapsuleStyle {
+    static var primaryCapsule: Self { PrimaryCapsuleStyle() }
+}
+
+extension ButtonStyle where Self == SoftCapsuleStyle {
+    static var softCapsule: Self { SoftCapsuleStyle() }
 }
 
 nonisolated extension ShapeStyle where Self == LinearGradient {

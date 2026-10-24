@@ -141,8 +141,7 @@ enum ReportFixtures {
         scheduledMinute: Int = 0,
         delayMinutes: Double = 0,
         wasSkipped: Bool = false,
-        scheduled: Bool = true,
-        slotLabel: String? = nil
+        scheduled: Bool = true
     ) -> DoseSnapshot {
         let scheduledAt = instant(dayOffset, hour: scheduledHour, minute: scheduledMinute)
         return DoseSnapshot(
@@ -151,7 +150,6 @@ enum ReportFixtures {
             takenAt: scheduledAt.addingTimeInterval(delayMinutes * 60),
             scheduledAt: scheduled ? scheduledAt : nil,
             wasSkipped: wasSkipped,
-            slotLabel: slotLabel,
             slotMinutesIntoDay: scheduled ? scheduledHour * 60 + scheduledMinute : nil
         )
     }

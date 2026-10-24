@@ -120,6 +120,21 @@ final class MedicationStoreTests: XCTestCase {
         XCTAssertEqual(log.scheduledDate, time(8, 0))
     }
 
+    /// The schedule screen loads the saved rows before editing them, so the slots it hands
+    /// back carry the ids of rows that still exist. The new rows must not reuse those ids:
+    /// MedicationSchedule.id is unique, and the old rows are deactivated rather than deleted.
+    func testReplaceScheduleAcceptsSlotsLoadedFromTheSavedSchedule() throws {
+        _ = try threeDoseSchedule()
+        let loaded = try MedicationStore.activeSchedule(in: context).map(MedicationStore.slot(for:))
+
+        let created = try MedicationStore.replaceSchedule(with: loaded, in: context)
+
+        XCTAssertEqual(created.count, 3)
+        XCTAssertEqual(try MedicationStore.activeSchedule(in: context).count, 3)
+        XCTAssertEqual(try count(MedicationSchedule.self, MedicationSchedule.fetchRequest()), 6)
+        XCTAssertTrue(Set(created.compactMap(\.id)).isDisjoint(with: Set(loaded.map(\.id))))
+    }
+
     func testReplaceScheduleRejectsAnInvalidPlanAndWritesNothing() throws {
         XCTAssertThrowsError(
             try MedicationStore.replaceSchedule(

@@ -32,7 +32,11 @@ struct MedicationStore {
         created.reserveCapacity(ordered.count)
         for (index, slot) in ordered.enumerated() {
             let schedule = MedicationSchedule(context: context)
-            schedule.id = slot.id
+            // A fresh id, not slot.id. The slots come from the screen, which loaded them
+            // from the rows being replaced, and those rows are deactivated rather than
+            // deleted. Reusing the id puts two live rows under the uniqueness constraint
+            // on MedicationSchedule.id and the save throws, so only the first save worked.
+            schedule.id = UUID()
             schedule.label = slot.label
             schedule.dosageMg = slot.dosageMg
             schedule.hour = Int16(slot.hour)

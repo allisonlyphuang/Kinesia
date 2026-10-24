@@ -127,7 +127,7 @@ final class HomeSummaryTests: XCTestCase {
             now: date(23),
             calendar: calendar
         )
-        XCTAssertEqual(complete.doneToday, [.fireflies, .constellation, .ripples])
+        XCTAssertEqual(complete.doneToday, [.fireflies, .constellation, .plants])
         XCTAssertTrue(complete.checkedInToday)
     }
 

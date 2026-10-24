@@ -7,9 +7,17 @@ struct OnboardingMeds: View {
 
     var onContinue: (() -> Void)?
 
-    init(model: MedicationScheduleModel? = nil, onContinue: (() -> Void)? = nil) {
+    // "Continue" during onboarding, "Save" when the screen is opened from settings
+    private let continueTitle: String
+
+    init(
+        model: MedicationScheduleModel? = nil,
+        continueTitle: String = "Continue",
+        onContinue: (() -> Void)? = nil
+    ) {
         let resolved = model ?? MedicationScheduleModel(context: PersistenceController.shared.container.viewContext)
         _model = StateObject(wrappedValue: resolved)
+        self.continueTitle = continueTitle
         self.onContinue = onContinue
     }
 
@@ -85,7 +93,7 @@ struct OnboardingMeds: View {
                 onContinue?() ?? dismiss()
             }
         } label: {
-            Text("Continue")
+            Text(continueTitle)
                 .font(.button)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)

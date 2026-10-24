@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		46115B9E339AFA68A80A5FD0 /* HomeSummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C386ABBC0856C2B2073F166 /* HomeSummaryTests.swift */; };
+		4E2726A6DB47E92F3F2D3936 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F996F47662CC1805FACB410 /* RootView.swift */; };
+		7C62A1FB20B35D58F61D0FD5 /* OpeningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D5B461C010470CE56F78DC /* OpeningView.swift */; };
+		829043E8AE2DD30092E0F4F9 /* HomeSummaryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648B2C6EA8363579455F4CD4 /* HomeSummaryModel.swift */; };
+		AAA020247EE5464AE40A9804 /* HomeSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CCD01E89AB5A0C88540FE62 /* HomeSummary.swift */; };
+		A3EDC393F969661476E81C06 /* surfaceTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5B6B274BC91CD3251D3835 /* surfaceTokens.swift */; };
 		2C0DF30C307ADE890075045F /* AkinesiaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0DF30B307ADE870075045F /* AkinesiaStore.swift */; };
 		2C9C827B3075EF24001AB9DD /* AkinesiaBoardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9C827A3075EF1F001AB9DD /* AkinesiaBoardLayout.swift */; };
 		2CCA5FBA308317DF00B6EAC5 /* ReportSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCA5FB9308317DA00B6EAC5 /* ReportSnapshot.swift */; };
@@ -137,6 +143,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8C386ABBC0856C2B2073F166 /* HomeSummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeSummaryTests.swift; sourceTree = "<group>"; };
+		1F996F47662CC1805FACB410 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		63D5B461C010470CE56F78DC /* OpeningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpeningView.swift; sourceTree = "<group>"; };
+		648B2C6EA8363579455F4CD4 /* HomeSummaryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeSummaryModel.swift; sourceTree = "<group>"; };
+		7CCD01E89AB5A0C88540FE62 /* HomeSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeSummary.swift; sourceTree = "<group>"; };
+		2C5B6B274BC91CD3251D3835 /* surfaceTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = surfaceTokens.swift; sourceTree = "<group>"; };
 		2C0DF30B307ADE870075045F /* AkinesiaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaStore.swift; sourceTree = "<group>"; };
 		2C9C827A3075EF1F001AB9DD /* AkinesiaBoardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkinesiaBoardLayout.swift; sourceTree = "<group>"; };
 		2CCA5FB9308317DA00B6EAC5 /* ReportSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSnapshot.swift; sourceTree = "<group>"; };
@@ -367,6 +379,7 @@
 		8B91BC48301D2D880033FABB /* calculations */ = {
 			isa = PBXGroup;
 			children = (
+				7CCD01E89AB5A0C88540FE62 /* HomeSummary.swift */,
 				2CCA5FB43083177300B6EAC5 /* Dexterity */,
 				2CCA5FB53083178A00B6EAC5 /* Akinesia */,
 				2CCA5FB63083179B00B6EAC5 /* Bradykinesia */,
@@ -388,6 +401,7 @@
 		8B91BC4F301D2D880033FABB /* views */ = {
 			isa = PBXGroup;
 			children = (
+				1F996F47662CC1805FACB410 /* RootView.swift */,
 				AE000001309300033FABB1 /* Clinician */,
 				8B91BC98302DAF980033FABB /* Tests */,
 				8B91BC72302AE6390033FABB /* Onboarding */,
@@ -400,6 +414,7 @@
 		8B91BC6A302901310033FABB /* designSystem */ = {
 			isa = PBXGroup;
 			children = (
+				2C5B6B274BC91CD3251D3835 /* surfaceTokens.swift */,
 				AA2000003090000033FABB /* chartTokens.swift */,
 				8B91BC6D302908830033FABB /* spacingTokens.swift */,
 				8B91BC6C302907880033FABB /* typographyTokens.swift */,
@@ -411,6 +426,7 @@
 		8B91BC72302AE6390033FABB /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
+				63D5B461C010470CE56F78DC /* OpeningView.swift */,
 				8B91BC73302AE6430033FABB /* OnboardingStart.swift */,
 				8B91BC75302AE6520033FABB /* OnboardingMeds.swift */,
 				8B91BC77302AE65D0033FABB /* OnboardingPDQ8.swift */,
@@ -432,6 +448,7 @@
 		8B91BC95302DAF6E0033FABB /* viewModels */ = {
 			isa = PBXGroup;
 			children = (
+				648B2C6EA8363579455F4CD4 /* HomeSummaryModel.swift */,
 				AE2000113093000033FABB /* ClinicianReportModel.swift */,
 				AA2000053090000033FABB /* MedicationScheduleModel.swift */,
 				AA2000063090000033FABB /* MedicationDayModel.swift */,
@@ -474,6 +491,7 @@
 		8C000024302DA0000033FABB /* KinesiaTests */ = {
 			isa = PBXGroup;
 			children = (
+				8C386ABBC0856C2B2073F166 /* HomeSummaryTests.swift */,
 				BB200001309600033FABB1 /* ReportFormatTests.swift */,
 				AF2000003094000033FABB /* ClinicianReportModelTests.swift */,
 				AF2000013094000033FABB /* ReportExportTests.swift */,
@@ -651,6 +669,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E2726A6DB47E92F3F2D3936 /* RootView.swift in Sources */,
+				7C62A1FB20B35D58F61D0FD5 /* OpeningView.swift in Sources */,
+				829043E8AE2DD30092E0F4F9 /* HomeSummaryModel.swift in Sources */,
+				AAA020247EE5464AE40A9804 /* HomeSummary.swift in Sources */,
+				A3EDC393F969661476E81C06 /* surfaceTokens.swift in Sources */,
 				BA100001309500033FABB1 /* ReportSeed.swift in Sources */,
 				AE1000003093000033FABB /* ChartSection.swift in Sources */,
 				AE1000013093000033FABB /* ReportFormat.swift in Sources */,
@@ -732,6 +755,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46115B9E339AFA68A80A5FD0 /* HomeSummaryTests.swift in Sources */,
 				BB100001309600033FABB1 /* ReportFormatTests.swift in Sources */,
 				AF1000003094000033FABB /* ClinicianReportModelTests.swift in Sources */,
 				AF1000013094000033FABB /* ReportExportTests.swift in Sources */,

@@ -1,46 +1,21 @@
 # Architecture
-
-Covers the three motor tests, the two self-report writers, and the clinician view that reads
-them back.
-
 | Area | State |
 | --- | --- |
 | Bradykinesia (tapping) | capture, analyzer, store, UI |
 | Akinesia (fireflies) | capture, analyzer, store, UI |
 | Dexterity (constellation tracing) | capture, analyzer, store, UI |
 | Medication and PDQ-8 | value types, stores, forms; no capture layer |
+| Patient view shell | opening screen, tab container, dashboard, derived summary |
 | Clinician view | query, snapshots, derivations, charts, PDF export |
 
-Each motor test follows the same shape: a capture layer that only records, a pure analyzer over
-value types, a store that validates everything before inserting anything, and one atomic
-`context.save()`. The medication log and the questionnaire skip the first two layers, because
-neither records a touch.
-
-## Two clocks, never mixed
-
-Each test reads two unrelated clocks, and a value from one is never used in place of the other.
-
+## Clocks
 | Clock | Source | Used for |
 | --- | --- | --- |
 | Monotonic | `UITouch.timestamp`, `CADisplayLink.timestamp` | every interval inside a capture: tap intervals, reaction time, movement time, swipe speed, measured capture duration |
 | Wall clock | `Date` | every stored instant: `startedAt`, `completedAt`, `dayStart`, `timestamp` |
 
-The monotonic clock counts seconds since the device booted. It does not move when the system
-clock is corrected, which is why every interval is derived from it, and it is meaningless as a
-date, which is why no column stores one. Wall-clock instants are stored as epoch seconds in
-`Double` columns.
-
-Two consequences:
-
-- A duration is always the difference of two monotonic readings taken in the same capture.
-  `BradykinesiaResult.durationSec` and the akinesia session duration are both computed that way
-  and validated as finite and positive before the row is written.
-- Raw payloads keep their monotonic timestamps. A reader decoding `RawCapture.payload` gets
-  seconds-since-boot, and the session's own wall-clock fields say when the capture happened.
-
-All three stores reject a non-finite wall-clock timestamp before inserting anything, and the two
-that record a timed capture window also reject a non-positive measured duration. A mixed-up
-clock fails the save rather than producing a row that looks plausible.
+- Durations are the difference of two monotonic readings taken in the same capture.
+- Raw payloads are recorded using monotonic timestamps. 
 
 ## Bradykinesia: tapping
 
@@ -94,11 +69,7 @@ ordered TapSample array
   → typed optional BradykinesiaMetrics
 ```
 
-The sequences are built explicitly rather than derived on demand, so an interval is a value in a
-list and not a scalar that summary statistics are read off of. Every derived metric on
-`BradykinesiaMetrics` is optional, which states unavailability instead of manufacturing a zero:
-non-increasing timestamps make the temporal metrics `nil` and leave `numTaps` and the raw samples
-intact.
+The sequences are built explicitly rather than derived on demand, so an interval is a value in a list and not a scalar that summary statistics are read off of. Every derived metric on `BradykinesiaMetrics` is optional, which states unavailability instead of manufacturing a zero: non-increasing timestamps make the temporal metrics `nil` and leave `numTaps` and the raw samples intact.
 
 ### Deferred decisions
 
@@ -131,9 +102,7 @@ The canonical route transform is saved with each capture. Raw samples remain loc
 
 The persisted result is based only on the indexed three completed scored attempts. Practice and incomplete/retry attempts remain in the JSON payload for auditability. The store writes `isValid = false`, `invalidReason`, and required numeric placeholders if a structurally complete capture has unavailable required metrics. Consumers must not treat a placeholder zero as a measured value when `isValid` is false.
 ## Akinesia: fireflies
-The tapping test measures reaction time to a visual stimulus. 
-The patient rests their index finger on a jar in the middle of the screen and holds it until a firefly appears. After a
-random wait, a firefly appears around the jar at any point on a circle with a fixed radius. 
+The tapping test measures reaction time to a visual stimulus. The patient rests their index finger on a jar in the middle of the screen and holds it until a firefly appears. After a random wait, a firefly appears around the jar at any point on a circle with a fixed radius.
 
 | Interval | Measurement |
 | --- | --- |
@@ -157,16 +126,14 @@ HomeView
 
 ### FireflyBoard
 `FireflyBoard` is a UIKit view hosted in SwiftUI. UIKit is used instead of SwiftUI because:
-- The firefly has to appear in a single screen frame, otherwise there would be no moment of appearance and no defined start. A `CADisplayLink`
-shows a pending firefly inside one frame and reports that frame's timestamp
-- Finger timestamp uses `UITouch.timestamp`, which iOS records using the hardware.
-  event. Reading a clock inside a gesture callback instead would add a varying delay depending on phone activity.
+- The firefly has to appear in a single screen frame, otherwise there would be no moment of appearance and no defined start. A `CADisplayLink` shows a pending firefly inside one frame and reports that frame's timestamp
+- Finger timestamp uses `UITouch.timestamp`, which iOS records using the hardware. event. Reading a clock inside a gesture callback instead would add a varying delay depending on phone activity.
 - Reports if a touch has landed, when the home finger moves (lifted, dragged out of the jar, system cancel), if the firefly was displayed on the frame, and the screen's refresh rate.
 - A patient who slides to the firefly instead of lifting does not fire a lift event, so it treats the finger crossing outside the jar's edge as the movement start.
 - `configure(...)` is called on every SwiftUI redraw, so it compares the requested firefly position against the last one and only spawns a new firefly when the position changed. Otherwise one firefly would report several onsets.
 
 ### Session model
-`AkinesiaTestModel` runs the session, classifies board events, counts, and sends finished session to `AkinesiaAnalyzer`. 
+`AkinesiaTestModel` runs the session, classifies board events, counts, and sends finished session to `AkinesiaAnalyzer`.
 
 | Outcome | Meaning | Uses a round? |
 | --- | --- | --- |
@@ -187,37 +154,25 @@ Scoring uses `AkinesiaAnalyzer` :
     reaction     |                             |   attention       |
 ```
 
-- Raw timestamps are kept and scores are applied after. 
+- Raw timestamps are kept and scores are applied after.
 - Movement time is collected into its own list and never averaged into the reaction-time statistics.
 
 ### Akinesia persistence
 
-`AkinesiaStore.save(attempt:in:)` takes an already-analyzed `AkinesiaAttempt` and writes one
-`TestSession`, one `AkinesiaResult`, and one `RawCapture` (`kind = "akinesia"`, the full
-`AkinesiaTrial` as JSON) in a single `context.save()`, with `context.rollback()` on failure.
+`AkinesiaStore.save(attempt:in:)` takes an already-analyzed `AkinesiaAttempt` and writes one `TestSession`, one `AkinesiaResult`, and one `RawCapture` (`kind = "akinesia"`, the full `AkinesiaTrial` as JSON) in a single `context.save()`, with `context.rollback()` on failure.
 
-Validation runs before the first insert: at least one round, metric round counts agreeing with
-the trial's own rounds, the seven outcome counts summing to `numRounds`, every count inside
-`Int32`, finite wall-clock timestamps, and a finite positive session duration measured on the
-monotonic clock.
+Validation runs before the first insert: at least one round, metric round counts agreeing with the trial's own rounds, the seven outcome counts summing to `numRounds`, every count inside `Int32`, finite wall-clock timestamps, and a finite positive session duration measured on the monotonic clock.
 
-Reaction-time and movement-time statistics are written as two independent bundles. A bundle
-holding a non-finite value is treated as unavailable: its columns take the placeholder zero, and
-`invalidReason` names which bundle was missing. Movement time can be unavailable while reaction
-time is present, because a round where the patient lifted but never reached the firefly still has
-a reaction time. `reactionTimeP90` is written; there is no movement-time P90 column.
+Reaction-time and movement-time statistics are written as two independent bundles. A bundle holding a non-finite value is treated as unavailable: its columns take the placeholder zero, and `invalidReason` names which bundle was missing. Movement time can be unavailable while reaction time is present, because a round where the patient lifted but never reached the firefly still has a reaction time. `reactionTimeP90` is written; there is no movement-time P90 column.
 
-The medication context comes from `BradykinesiaStore.mostRecentDose`, so both tests resolve a
-dose by one rule.
+The medication context comes from `BradykinesiaStore.mostRecentDose`, so both tests resolve a dose by one rule.
 
 ### Absolute values are not comparable
-Phones report reaction times with \~80ms delay, which differs between models. This largely cancels when a patient is compared against their own earlier
-sessions on the same phone.
+Phones report reaction times with \~80ms delay, which differs between models. This largely cancels when a patient is compared against their own earlier sessions on the same phone.
 
 # Medication and PDQ-8
 
-Both exist to feed the clinician view. Neither is a motor test, so neither has a capture layer or
-an analyzer; each is a value type, a store, a view model, and a form.
+Both exist to feed the clinician view. Neither is a motor test, so neither has a capture layer or an analyzer; each is a value type, a store, a view model, and a form.
 
 ```text
 OnboardingMeds → MedicationScheduleModel → MedicationSchedulePlan (validate) → MedicationStore
@@ -226,47 +181,100 @@ MedicationLogView → MedicationDayModel → MedicationStore → MedicationLog
 OnboardingPDQ8 → PDQ8Model → PDQ8Score (compute) → PDQ8Store → PDQ8Log
 ```
 
-`MedicationSchedulePlan` and `PDQ8Score` hold every rule. The view models call the same
-validation the stores call, so the message a patient sees and the rule the store enforces cannot
-drift apart, and both are tested without a Core Data stack.
+`MedicationSchedulePlan` and `PDQ8Score` hold every rule. The view models call the same validation the stores call, so the message a patient sees and the rule the store enforces cannot drift apart, and both are tested without a Core Data stack.
 
 ## Why the schedule is deactivated and not deleted
 
-`MedicationLog.schedule` points at the slot a dose was due at. A patient who moves their 8:00
-dose to 9:00 has not changed when last month's doses were due, so `replaceSchedule` sets
-`isActive = false` on the old rows and inserts new ones. Deleting would nullify those links and
-destroy the adherence history silently.
+`MedicationLog.schedule` points at the slot a dose was due at. A patient who moves their 8:00 dose to 9:00 has not changed when last month's doses were due, so `replaceSchedule` sets `isActive = false` on the old rows and inserts new ones. Deleting would nullify those links and destroy the adherence history silently.
+
+The new rows take fresh ids, and that follows from the line above. `MedicationSchedule.id` is under a uniqueness constraint, and the schedule screen loads the saved rows before editing them, so the slots it hands back carry the ids of rows that are still present. Reusing one puts two rows under the constraint and the save throws with `NSCocoaErrorDomain` 133021. A first save has no saved rows to collide with; every later one would.
 
 ## Why a dose is filed under the day it was due
 
-A dose scheduled for 23:00 and taken at 00:30 is 90 minutes late. Resolving `scheduledTime`
-against the taken day alone would make it 22.5 hours early, and the adherence chart would show a
-large negative delay for the most ordinary kind of lateness. `MedicationStore` resolves to the
-occurrence **nearest** the taken time across yesterday/today/tomorrow, and files the row under
-that occurrence's local midnight, so the dose lands in the column for the day it was due.
+A dose scheduled for 23:00 and taken at 00:30 is 90 minutes late. Resolving `scheduledTime` against the taken day alone would make it 22.5 hours early, and the adherence chart would show a large negative delay for the most ordinary kind of lateness. `MedicationStore` resolves to the occurrence **nearest** the taken time across yesterday/today/tomorrow, and files the row under that occurrence's local midnight, so the dose lands in the column for the day it was due.
 
 ## Three states, not two
 
-Not recorded, taken, and skipped are three different facts. The absence of a row means the
-patient has not answered yet; it never means the dose was skipped. `MedicationDayModel` rebuilds
-its rows from Core Data after every write rather than mutating them in place, so a row that looks
-recorded always is.
+Not recorded, taken, and skipped are three different facts. The absence of a row means the patient has not answered yet; it never means the dose was skipped. `MedicationDayModel` rebuilds its rows from Core Data after every write rather than mutating them in place, so a row that looks recorded always is.
 
 ## Decrement and metrics versioning
 
-`BradykinesiaAnalyzer.tapInterSlope` adds the third tapping component the clinician view needs
-alongside speed and rhythm: the OLS slope of tap interval against tap index, in seconds per tap.
-It is computed at save time and persisted as one scalar, because recovering it from the
-`RawCapture` JSON on every chart redraw would not be acceptable for a week of sessions.
+`BradykinesiaAnalyzer.tapInterSlope` adds the third tapping component the clinician view needs alongside speed and rhythm: the OLS slope of tap interval against tap index, in seconds per tap. It is computed at save time and persisted as one scalar, because recovering it from the `RawCapture` JSON on every chart redraw would not be acceptable for a week of sessions.
 
-All three result entities carry a `metricsVersion`. A longitudinal chart spans weeks, and
-without a version a formula change mid-window would silently mix two definitions into one line.
-Rows written before versioning existed hold `0`, meaning "formulas not identified".
+All three result entities carry a `metricsVersion`. A longitudinal chart spans weeks, and without a version a formula change mid-window would silently mix two definitions into one line. Rows written before versioning existed hold `0`, meaning "formulas not identified".
+
+# The shell: opening screen, tabs, dashboard
+
+```text
+KinesiaApp
+  → RootView                  (tab selection, with the opening screen over the top)
+      → OpeningView           (every launch, including the first)
+      → HomeView              (Today)
+      → GardenView            (placeholder)
+      → ClinicianReportView   (Insights)
+```
+
+## The opening screen
+
+`OpeningView` is shown on every launch, not only the first. The photograph, wordmark, subtitle and mark are identical every time; only the block at the foot changes.
+
+| State | Foot of the screen |
+| --- | --- |
+| Onboarding unfinished | Get started, into `OnboardingMeds` then `OnboardingPDQ8` |
+| Returning | greeting, date, streak, Log medicine, Start today's check-in |
+| Returning, all three tests done today | the check-in is done, Open your garden |
+
+Whether onboarding finished is an `@AppStorage("hasCompletedOnboarding")` flag, set when the questionnaire is saved. The other two states come from `HomeSummary`. Choosing an action hands `RootView` an `OpeningView.Exit` case, which selects a tab or presents the medication sheet, and the screen fades away.
+
+## HomeSummary states what is known and nothing else
+
+`HomeSummaryBuilder.make(sessions:slots:now:calendar:)` is pure. It takes `[SessionSnapshot]` from `ReportQuery.allSessions` and the active schedule's slots, and returns four fields.
+
+| Field | Rule |
+| --- | --- |
+| `dayNumber` | days from the first recorded session to today, 1-based; `nil` with no history |
+| `streak` | consecutive days ending today, or ending yesterday when today is not logged yet |
+| `doneToday` | which of the three tests hold a result dated today |
+| `nextDose` | the next schedule slot after now, rolling over to tomorrow's first |
+
+The streak counts back from yesterday when today holds nothing, so opening the app in the morning does not show a streak that has already reset. `checkedInToday` means `doneToday` holds all three tasks, not that a session exists.
+
+`HomeSummaryModel` is the only part that touches Core Data. On a load failure it leaves the summary empty and sets `loadFailed`, and the screens then hide their numbers rather than drawing a zero streak the patient has not earned. It reloads on `NSManagedObjectContextDidSave`, so finishing a test updates the dashboard without a navigation event.
+
+## The dashboard
+
+`HomeView` is the Today tab: greeting and date, the garden card, the three tests, the medication row. There is no primary button at the foot. One would open the first unfinished test, which is what tapping the first row already does.
+
+The garden card holds that job instead, and changes with the data:
+
+- No history: it reads "Begin your first check-in" and pushes the first unfinished test.
+- With history: it reads the streak and switches to the Garden tab.
+
+A card reading "begin your first check-in" that opened an empty garden would be a dead end, so the destination changes with the copy.
+
+No runner chains the three tests. The card opens `CheckInTask.allCases.first { !doneToday.contains($0) }` rather than pretending a sequence exists.
+
+## The tab bar is drawn here, not by TabView
+
+`RootView` switches on its own `Tab` enum and attaches the bar through `safeAreaInset(edge: .bottom)`. The system bar on this iOS is a floating capsule: it does not span the width, and its slots are narrower than the screen allows. Each tab here is `maxWidth: .infinity`, so a target is about 130 pt wide rather than about 60. The selected pill is one view carried between slots with `matchedGeometryEffect`, so it moves instead of fading out and in.
+
+## A hidden navigation bar still takes the touches
+
+`HomeView` keeps a `NavigationStack` for its links, and keeps its navigation bar. Only the bar's background is hidden, with `.toolbarBackground(.hidden, for: .navigationBar)`, so the cream ground runs to the top of the screen. Hiding the bar itself with `.toolbar(.hidden, for: .navigationBar)` stops it drawing but not from receiving touches, and a button placed in that band then never fires. The mark and the settings cog are `ToolbarItem`s for that reason rather than content inside the scroll view. The mark takes `.sharedBackgroundVisibility(.hidden)`, because it is artwork and should not sit in the capsule iOS draws behind a toolbar item.
+
+The cog opens the medication schedule directly rather than a settings list of one item. It is the only way back into `OnboardingMeds` once onboarding has finished, which is why that screen takes a `continueTitle` and reads "Save" there and "Continue" during onboarding.
+
+## Design tokens for the shell
+
+`designSystem/surfaceTokens.swift` holds the gradient ground, the translucent card and hairline, the two text colours used over the photograph, and three gradients. The opening scrim's alphas are measured rather than chosen: the photograph's brightest pixel runs from about 0.22 relative luminance at the top to about 0.70 at the foot, so cream text needs roughly 0.21 alpha at the top rising to 0.77 at the bottom to hold 4.5:1. Replacing the photograph means measuring again.
+
+`designSystem/typographyTokens.swift` carries the dashboard's scale for the whole app, and every token is built from a system text style, so all of them scale with Dynamic Type. The section-label style is a `sectionLabelStyle()` modifier rather than a `Font`, because its tracking and casing cannot live in one.
+
+`Assets.xcassets/brandMark` is a template image whose alpha comes from the artwork's luminance, so one asset renders white over the photograph and moss on the dashboard.
 
 # Clinician view: the read path
 
-Everything above writes measurements. The clinician view is the only code that reads them back,
-and it runs the same pipeline in reverse:
+Everything above writes measurements. The clinician view is the only code that reads them back, and it runs the same pipeline in reverse:
 
 ```text
 Core Data
@@ -278,9 +286,7 @@ Core Data
   → ReportExport           (ImageRenderer → PDF)
 ```
 
-The entry point is the Insights pill at the bottom of `HomeView`, a `NavigationLink` to
-`ClinicianReportView`. There is no second scene and no clinician-side login: the report is a
-patient-facing screen the patient shows or sends.
+The entry point is the Insights tab in `RootView`. There is no second scene and no clinician-side login: the report is a patient-facing screen the patient shows or sends.
 
 | Layer | Knows about | Does not know about |
 | --- | --- | --- |
@@ -293,60 +299,38 @@ patient-facing screen the patient shows or sends.
 
 ## No chart view touches an NSManagedObject
 
-- A derivation that takes `[SessionSnapshot]` and returns `[DoseBin]` is a pure function, so it
-  gets the same microsecond tests as the analyzers, with no Core Data stack.
-- `ImageRenderer` walks a view tree outside the main actor's normal update cycle. Faulting a
-  managed object there is a concurrency hazard; snapshots are `Sendable` and carry no context.
-- `BradykinesiaResult` has around 40 attributes and a week holds dozens of rows. One fetch into
-  flat structs beats hundreds of lazy faults fired from chart body re-evaluation.
+- A derivation that takes `[SessionSnapshot]` and returns `[DoseBin]` is a pure function, so it gets the same microsecond tests as the analyzers, with no Core Data stack.
+- `ImageRenderer` walks a view tree outside the main actor's normal update cycle. Faulting a managed object there is a concurrency hazard; snapshots are `Sendable` and carry no context.
+- `BradykinesiaResult` has around 40 attributes and a week holds dozens of rows. One fetch into flat structs beats hundreds of lazy faults fired from chart body re-evaluation.
 
 ## ReportQuery
 
-`ReportQuery.load(window:in:)` returns one `ReportData` holding the window's sessions, the
-window's doses, every questionnaire, and the patient's whole session history. It runs on
-`viewContext`, matching the other stores: result rows are small and a window holds tens of them.
+`ReportQuery.load(window:in:)` returns one `ReportData` holding the window's sessions, the window's doses, every questionnaire, and the patient's whole session history. It runs on `viewContext`, matching the other stores: result rows are small and a window holds tens of them.
 
-Each fetch sets `relationshipKeyPathsForPrefetching` for the relationships the snapshots read —
-the three result relationships and `medicationContext` on a session, the schedule on a dose — so
-a week does not fire a fault per row.
+Each fetch sets `relationshipKeyPathsForPrefetching` for the relationships the snapshots read — the three result relationships and `medicationContext` on a session, the schedule on a dose — so a week does not fire a fault per row.
 
 Two of the four collections deliberately ignore the window:
 
-- **History.** A baseline needs 5 familiarization days plus 14 baseline days with data, and the
-  default window is 7 days, so the baseline cannot be computed from the window alone.
-- **Questionnaires.** The PDQ-8 chart is a months-scale chart, and a 7-day window usually holds
-  no answers at all.
+- **History.** A baseline needs 5 familiarization days plus 14 baseline days with data, and the default window is 7 days, so the baseline cannot be computed from the window alone.
+- **Questionnaires.** The PDQ-8 chart is a months-scale chart, and a 7-day window usually holds no answers at all.
 
-Sessions are fetched by `startedAt`, doses by `dayStart`, because a dose belongs to the day it
-was due. Both fetches are start-inclusive and end-exclusive, matching `ReportWindow`.
+Sessions are fetched by `startedAt`, doses by `dayStart`, because a dose belongs to the day it was due. Both fetches are start-inclusive and end-exclusive, matching `ReportWindow`.
 
 ## The two snapshot rules
 
-`persistence/ReportSnapShotMapping.swift` holds a failable initialiser per row kind. Both rules
-that the rest of the read path depends on live there and are applied nowhere else.
+`persistence/ReportSnapShotMapping.swift` holds a failable initialiser per row kind. Both rules that the rest of the read path depends on live there and are applied nowhere else.
 
-**`minutesSinceDose` becomes `Double?`, resolved from `medicationContext != nil`.** The stored
-number is a non-optional `Double` defaulting to `0`, so `0` means either "tested at the moment of
-a dose" or "no dose that day". Testing the number would silently drop every pre-first-dose
-session, which is the OFF-state data the wearing-off question depends on.
+**`minutesSinceDose` becomes `Double?`, resolved from `medicationContext != nil`.** The stored number is a non-optional `Double` defaulting to `0`, so `0` means either "tested at the moment of a dose" or "no dose that day". Testing the number would silently drop every pre-first-dose session, which is the OFF-state data the wearing-off question depends on.
 
-**A placeholder zero becomes `nil`, gated on the row's own `isValid`.** All three stores write
-`0` into required numeric columns when a metric was unavailable. A chart that plots one draws a
-dip that is pure artefact, so `measured(_:isValid:)` returns `nil` for an invalid row and for a
-non-finite stored value.
+**A placeholder zero becomes `nil`, gated on the row's own `isValid`.** All three stores write `0` into required numeric columns when a metric was unavailable. A chart that plots one draws a dip that is pure artefact, so `measured(_:isValid:)` returns `nil` for an invalid row and for a non-finite stored value.
 
-One exception, by design: `numTaps`, `numCorrectTaps`, and `durationSec` are not gated.
-`BradykinesiaStore` validates the counts and the duration separately from the statistics and
-throws on a count mismatch or a non-positive duration, so tap rate is still a measurement even
-when an unrelated drift CV was missing. Gating it would throw away whole sessions.
+One exception, by design: `numTaps`, `numCorrectTaps`, and `durationSec` are not gated. `BradykinesiaStore` validates the counts and the duration separately from the statistics and throws on a count mismatch or a non-positive duration, so tap rate is still a measurement even when an unrelated drift CV was missing. Gating it would throw away whole sessions.
 
-`SessionSnapshot` sorts its tapping rows by timestamp, because the relationship is a set and hand
-order is not stored.
+`SessionSnapshot` sorts its tapping rows by timestamp, because the relationship is a set and hand order is not stored.
 
 ## The derivations
 
-One file per concern in `calculations/ClinicianView/`, all pure value types, each with its own
-test suite.
+One file per concern in `calculations/ClinicianView/`, all pure value types, each with its own test suite.
 
 | File | Produces | For |
 | --- | --- | --- |
@@ -361,60 +345,22 @@ test suite.
 
 Two conventions run through all of them:
 
-- **Days come from `Calendar`, never from `/ 86400`.** A window spanning a daylight-saving
-  change has days that are not 86400 seconds long. Sessions are grouped by
-  `window.calendar.startOfDay(for: session.dayStart)`.
-- **A missing value stays missing.** Derivations return `Double?` and keep empty slots in their
-  arrays: every day in the window gets a row, every dose bin keeps its place on the axis. A gap
-  the eye fills in would be a different claim than no data.
+- **Days come from `Calendar`, never from `/ 86400`.** A window spanning a daylight-saving change has days that are not 86400 seconds long. Sessions are grouped by `window.calendar.startOfDay(for: session.dayStart)`.
+- **A missing value stays missing.** Derivations return `Double?` and keep empty slots in their arrays: every day in the window gets a row, every dose bin keeps its place on the axis. A gap the eye fills in would be a different claim than no data.
 
 ## The view model
 
-`ClinicianReportModel` holds the window length, the selected metric, the selected hand, the
-selected day, and one published array per derivation. Changing the metric or the hand calls
-`rebuild()`, which recomputes the derivations from the data already loaded. Changing the window
-length calls `load()`, which goes back to Core Data.
+`ClinicianReportModel` holds the window length, the selected metric, the selected hand, the selected day, and one published array per derivation. Changing the metric or the hand calls `rebuild()`, which recomputes the derivations from the data already loaded. Changing the window length calls `load()`, which goes back to Core Data.
 
-`timelinePoints(for:)` and `doseMarkers(for:)` scope the daily timeline to one day, so a week of
-sessions is not overplotted on one 24-hour axis.
+`timelinePoints(for:)` and `doseMarkers(for:)` scope the daily timeline to one day, so a week of sessions is not overplotted on one 24-hour axis.
 
 ## Charts and export
 
-Each section of the report is described once, as data. `ReportSections.all(for:)` returns one
-`ReportSectionSpec` per section, carrying its title, subtitle, legend, optional caption and a
-content closure that takes the theme. `ReportBody` renders that list as one column;
-`ReportExport` slices the same list into pages through `ReportSections.pageGroups`. Pagination is
-therefore the only thing the export decides for itself, and a heading or caption cannot differ
-between screen and paper because neither caller holds one. `ReportSections.headerSubtitle(for:)`
-is the date-range line, shared the same way.
+Each section of the report is described once, as data. `ReportSections.all(for:)` returns one `ReportSectionSpec` per section, carrying its title, subtitle, legend, optional caption and a content closure that takes the theme. `ReportBody` renders that list as one column; `ReportExport` slices the same list into pages through `ReportSections.pageGroups`. Pagination is therefore the only thing the export decides for itself, and a heading or caption cannot differ between screen and paper because neither caller holds one. `ReportSections.headerSubtitle(for:)` is the date-range line, shared the same way.
 
-A section's closure receives the theme, which is how a screen-only control stays off the page:
-the day-selector strip and the baseline progress bar are drawn only when `!theme.isPrint`.
+A section's closure receives the theme, which is how a screen-only control stays off the page: the day-selector strip and the baseline progress bar are drawn only when `!theme.isPrint`.
 
-`ChartSection` wraps every chart with its task-named title, a line of context, the legend, an
-optional caption, and the method link. `ReportLayout` holds one set of spacing numbers for both
-surfaces: `margin` (16 pt) is applied once to the scroll content, `pageMargin` (48 pt) once to
-the whole PDF page, and neither is re-applied per section, so the two side margins cannot drift
-apart. `ReportTheme` swaps the screen's cream background for white on paper.
+`ChartSection` wraps every chart with its task-named title, a line of context, the legend, an optional caption, and the method link. `ReportLayout` holds one set of spacing numbers for both surfaces: `margin` (16 pt) is applied once to the scroll content, `pageMargin` (48 pt) once to the whole PDF page, and neither is re-applied per section, so the two side margins cannot drift apart. `ReportTheme` swaps the screen's cream background for white on paper.
 
-`ReportExport.renderPDF(model:)` draws the same chart views into a four-page US Letter PDF
-through `ImageRenderer` and a `CGContext` PDF consumer: data quality and the daily timeline,
-time since dose and dose timing, the daily trend and PDQ-8, then the tapping components. The page
-template fills white behind each page and draws the page number and "Not a diagnostic tool." on
-every page, so neither can be forgotten on an individual chart. The file goes to the temporary
-directory and is handed to `ShareLink`. There is no network code in the feature.
+`ReportExport.renderPDF(model:)` draws the same chart views into a four-page US Letter PDF through `ImageRenderer` and a `CGContext` PDF consumer: data quality and the daily timeline, time since dose and dose timing, the daily trend and PDQ-8, then the tapping components. The page template fills white behind each page and draws the page number and "Not a diagnostic tool." on every page, so neither can be forgotten on an individual chart. The file goes to the temporary directory and is handed to `ShareLink`. There is no network code in the feature.
 
-## What the read path does not have yet
-
-- **The method and readings sheet.** `ChartSection` draws the link and takes an `onMethodTap`
-  closure, but no caller passes one, so the plain-language formula and the table of underlying
-  rows are not reachable. The control is a **deliberate placeholder**, kept in place so the
-  layout and the regulatory requirement stay visible, rather than an oversight. The PDF omits
-  the link rather than printing a control that cannot be tapped, which means the same material
-  still has to reach paper some other way before the requirement is met.
-- **Session detail.** Reading one session's `RawCapture.payload` on a background context, which
-  is what shows the within-session interval series behind the decrement scalar.
-- **An export confirmation step.** The share sheet opens straight from the export button.
-
-`views/Clinician/ReportSeed.swift` writes 45 days of history behind a `#if DEBUG` button at the
-bottom of the report, so the charts can be looked at on a device. It is not in a release build.

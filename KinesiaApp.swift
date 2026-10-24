@@ -1,10 +1,3 @@
-//
-//  KinesiaApp.swift
-//  Kinesia
-//
-//  Created by Amanda Hon on 6/29/26.
-//
-
 import SwiftUI
 import CoreData
 
@@ -14,7 +7,7 @@ struct KinesiaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            RootView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }

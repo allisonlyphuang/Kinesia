@@ -131,7 +131,10 @@ struct DexterityTraceSurface: View {
     }
 
     private func markerStyle(for index: Int) -> MarkerStyle {
-        let isNext = model.nextTargetIndex == index
+        let isNext = Self.highlightedTargetIndex(
+            for: model.phase,
+            nextTargetIndex: model.nextTargetIndex
+        ) == index
 
         if index == 0 {
             return MarkerStyle(
@@ -171,6 +174,20 @@ struct DexterityTraceSurface: View {
             isNext: false,
             lineWidth: 2
         )
+    }
+
+    static func highlightedTargetIndex(
+        for phase: DexterityTestModel.Phase,
+        nextTargetIndex: Int?
+    ) -> Int? {
+        switch phase {
+        case .ready:
+            return 0
+        case .tracing:
+            return nextTargetIndex
+        case .completed, .ended, .configurationInvalid:
+            return nil
+        }
     }
 
     private func markerAccessibilityLabel(for index: Int) -> String {

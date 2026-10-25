@@ -46,6 +46,20 @@ final class DexterityRouteLayoutTests: XCTestCase {
         XCTAssertNil(DexterityRouteLayout(configuration: invalid))
     }
 
+    func testReadySurfaceHighlightsStartAndTracingHighlightsExpectedTarget() {
+        XCTAssertEqual(
+            DexterityTraceSurface.highlightedTargetIndex(for: .ready, nextTargetIndex: 1),
+            0
+        )
+        XCTAssertEqual(
+            DexterityTraceSurface.highlightedTargetIndex(for: .tracing, nextTargetIndex: 2),
+            2
+        )
+        XCTAssertNil(
+            DexterityTraceSurface.highlightedTargetIndex(for: .completed, nextTargetIndex: 4)
+        )
+    }
+
     private func configuration(
         route: DexterityRoute? = nil,
         coordinateSpace: DexterityCoordinateSpace = .init(captureWidth: 100, captureHeight: 100, scale: 1, offsetX: 0, offsetY: 0),

@@ -2,7 +2,7 @@
 
 ## Automated coverage
 
-The `KinesiaTests` XCTest target has **644 tests**, all passing as of 2026-10-24. The count is taken from the source, as described under "Counting the tests" below, and the run reported `** TEST SUCCEEDED **` with no failures.
+The `KinesiaTests` XCTest target has **648 tests**, all passing as of 2026-10-25. The count is taken from the source, as described under "Counting the tests" below, and the run reported `** TEST SUCCEEDED **` with no failures.
 
 | Suite | Tests | Covers |
 | --- | --- | --- |
@@ -26,7 +26,7 @@ The `KinesiaTests` XCTest target has **644 tests**, all passing as of 2026-10-24
 | `PDQ8Tests` | 18 | instrument shape, one item per dimension, scoring arithmetic at both ends and the midpoint, item order preservation, refusal to score a partial questionnaire, and stored-value range validation |
 | `PDQ8StoreTests` | 10 | created-row shape, per-item payload round trip, durability across a context reset, incomplete and non-finite input leaving the context empty, missing payload reporting, and fetch ordering in both directions |
 | `PDQ8ModelTests` | 11 | progress and navigation, selecting without auto-advancing, changing an answer, completion gating, saving, discarding a partial questionnaire, and reset |
-| `HomeSummaryTests` | 12 | the streak counting back from today and from yesterday, breaking on a missed day, zero with no history, the day number from the first recorded session, all three tests needed before a day counts as checked in, yesterday's tests not counting as today's, and the next dose later today or rolling to tomorrow |
+| `HomeSummaryTests` | 15 | the streak counting back from today and from yesterday, breaking on a missed day, zero with no history, the day number from the first recorded session, unique activity counts across sessions, all three tests needed before a day counts as checked in, previous-day activity not counting today, local-day reset, and the next dose later today or rolling to tomorrow |
 | `ReportWindowTests` | 28 | day count and ordering, start and end boundaries, adjacent windows not overlapping, zero and negative days rejected, days with no sessions still listed, spring-forward and fall-back windows keeping their day count, and each scale's own spans and default |
 | `ReportFormatTests` | 18 | axis number formatting including the printf half-to-even case, signed values, h:mm, singular and plural counts, the label stride at every window length with a proof that no window exceeds the label budget, picker titles short enough for the one-line Measure control, and task names carrying no symptom word |
 | `ClinicianReportModelTests` | 16 | loading with and without data, every derivation built, the window default and change, metric and hand switching rebuilding, a baseline established from the history a 7 day window could not hold, timeline points scoped to one day, dose markers and their skipped state |

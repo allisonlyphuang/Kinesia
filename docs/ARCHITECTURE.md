@@ -215,7 +215,7 @@ KinesiaApp
   → RootView                  (tab selection, with the opening screen over the top)
       → OpeningView           (every launch, including the first)
       → HomeView              (Today)
-      → GardenView            (placeholder)
+      → GardenView            (today's activity, derived from HomeSummary)
       → ClinicianReportView   (Insights)
 ```
 
@@ -258,6 +258,12 @@ The garden card holds that job instead, and changes with the data:
 A card reading "begin your first check-in" that opened an empty garden would be a dead end, so the destination changes with the copy.
 
 No runner chains the three tests. The card opens `CheckInTask.allCases.first { !doneToday.contains($0) }` rather than pretending a sequence exists.
+
+## The Garden
+
+`GardenView` is a display of today's three recorded motor activities. It uses the same `HomeSummaryModel` and `HomeSummaryBuilder` as the dashboard; it does not define a separate completion rule or write progression data. A task is shown as completed when its existing result is present in `HomeSummary.doneToday` for the current local day: tapping maps to Bradykinesia, firefly to Akinesia, and tracing to Dexterity. The set means multiple sessions or attempts of one task still count once, and the day rolls over using the same calendar boundary as Today.
+
+The central illustration uses four bundled, originally generated transparent garden assets (`gardenStage0` through `gardenStage3`), selected directly by today's completed activity count. The same garden bed grows from a seedling to fuller foliage and small cream blossoms; this is only a visual summary of activity, not health or symptom change. The Garden also shows the existing `HomeSummary.streak`, which counts days with a stored session (ending yesterday when today has not yet been logged). It creates no rewards, persistent unlocks, or new Core Data records. The view reloads on appearance, context saves, app foregrounding, and the local calendar day change, so it reflects new results and the saved store after relaunch. On a read error it shows an unavailable message instead of presenting an empty garden as if the fetch had succeeded.
 
 ## The tab bar is drawn here, not by TabView
 

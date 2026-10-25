@@ -4,7 +4,6 @@ import SwiftUI
 struct DexterityTestView: View {
     @Environment(\.managedObjectContext) private var context
     @StateObject private var model = DexteritySessionModel()
-    @State private var latestSavedResult: DexterityResult?
     @State private var didConfigure = false
 
     var body: some View {
@@ -23,10 +22,6 @@ struct DexterityTestView: View {
             .gameGround()
         .onAppear {
             configure(width: width, height: height)
-            refreshLatestResult()
-        }
-        .onChange(of: model.latestResult) { _, _ in
-            refreshLatestResult()
         }
         }
         .navigationTitle(CheckInTask.constellation.title)
@@ -36,7 +31,7 @@ struct DexterityTestView: View {
     private var header: some View {
         GameHeader(
             game: CheckInTask.constellation.title,
-            instruction: "Use your right index finger. Complete one practice trace, then three more traces without lifting your finger."
+            instruction: "Use your right index finger to trace each path without lifting. Lift between attempts. Complete one practice trace, then three scored traces."
         )
     }
 
@@ -112,6 +107,8 @@ struct DexterityTestView: View {
             .foregroundStyle(Color.textDark)
             .gameCard()
 
+            latestResultSection
+
             Button("Run again") { model.reset() }
                 .buttonStyle(.primaryCapsule)
         }
@@ -119,13 +116,12 @@ struct DexterityTestView: View {
 
     @ViewBuilder
     private var latestResultSection: some View {
-        if let latestSavedResult {
+        if let result = model.latestResult {
             VStack(alignment: .leading, spacing: Spacing.xs) {
-                GameSectionLabel("Latest saved trace")
+                GameSectionLabel("Saved result")
                     .padding(.bottom, Spacing.xxs)
-                Text("Completed traces: \(latestSavedResult.doneSequences)")
-                Text("Mean swipe speed: \(latestSavedResult.swipeSpeedMean, format: .number.precision(.fractionLength(1))) canonical units / second")
-                Text(latestSavedResult.isValid ? "Saved result is available" : "Saved result needs review")
+                Text("Your result was saved on this device.")
+                Text("Completed traces: \(result.doneSequences)")
             }
             .font(.body)
             .foregroundStyle(Color.textDark)
@@ -150,7 +146,4 @@ struct DexterityTestView: View {
         model.configure(configuration)
     }
 
-    private func refreshLatestResult() {
-        latestSavedResult = try? DexterityStore.fetchLatestResult(in: context)
-    }
 }

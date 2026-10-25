@@ -142,6 +142,62 @@ final class HomeSummaryTests: XCTestCase {
         XCTAssertFalse(summary.checkedInToday)
     }
 
+    func testGardenProgressUsesTheSameUniqueActivitySetAsHomeSummary() {
+        let none = HomeSummaryBuilder.make(sessions: [], slots: [], now: date(23), calendar: calendar)
+        XCTAssertEqual(none.doneToday.count, 0)
+
+        let one = HomeSummaryBuilder.make(
+            sessions: [session(day: 23, tapping: true)], slots: [], now: date(23), calendar: calendar
+        )
+        XCTAssertEqual(one.doneToday, [.plants])
+        XCTAssertEqual(one.doneToday.count, 1)
+
+        let two = HomeSummaryBuilder.make(
+            sessions: [session(day: 23, firefly: true, tapping: true)], slots: [], now: date(23), calendar: calendar
+        )
+        XCTAssertEqual(two.doneToday, [.plants, .fireflies])
+        XCTAssertEqual(two.doneToday.count, 2)
+
+        let all = HomeSummaryBuilder.make(
+            sessions: [session(day: 23, tapping: true), session(day: 23, firefly: true, tracing: true)],
+            slots: [], now: date(23), calendar: calendar
+        )
+        XCTAssertEqual(all.doneToday, Set(CheckInTask.allCases))
+        XCTAssertEqual(all.doneToday.count, 3)
+        XCTAssertTrue(all.checkedInToday)
+    }
+
+    func testGardenDoesNotCountDuplicateSessionsAsExtraActivities() {
+        let summary = HomeSummaryBuilder.make(
+            sessions: [
+                session(day: 23, tapping: true),
+                session(day: 23, tapping: true),
+                session(day: 23, firefly: true),
+                session(day: 23, firefly: true)
+            ],
+            slots: [],
+            now: date(23),
+            calendar: calendar
+        )
+
+        XCTAssertEqual(summary.doneToday, [.plants, .fireflies])
+        XCTAssertEqual(summary.doneToday.count, 2)
+        XCTAssertFalse(summary.checkedInToday)
+    }
+
+    func testGardenResetsAtTheNextLocalDayBoundary() {
+        let yesterday = HomeSummaryBuilder.make(
+            sessions: [session(day: 23, firefly: true, tracing: true, tapping: true)],
+            slots: [],
+            now: date(24),
+            calendar: calendar
+        )
+
+        XCTAssertTrue(yesterday.doneToday.isEmpty)
+        XCTAssertFalse(yesterday.checkedInToday)
+        XCTAssertTrue(yesterday.hasHistory)
+    }
+
     // MARK: Next dose
 
     func testNextDoseIsTheNextSlotLaterToday() {

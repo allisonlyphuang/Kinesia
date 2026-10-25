@@ -37,12 +37,17 @@ enum HomeLiftReason: Equatable {
 struct FireflyBoardAppearance: Equatable {
     var boardFill: UIColor
     var jarFill: UIColor
-    var fireflyFill: UIColor // should be the brightest/lightest color
+    /// Whatever the board is, this has to be the thing on it that is hardest to miss.
+    var fireflyFill: UIColor
 
+    /// The board is white, like every other play surface in the app, so the firefly is the dark
+    /// mark on it rather than the bright one. What matters to the measurement is contrast, not
+    /// which way round it runs: a cue that takes longer to notice lengthens the reaction time it
+    /// is supposed to measure.
     static let `default` = FireflyBoardAppearance(
-        boardFill: .kinesiaAsset("pine", fallback: (0x3A, 0x42, 0x3A)),
+        boardFill: .kinesiaAsset("cream", fallback: (0xFF, 0xFD, 0xF8)),
         jarFill: .kinesiaAsset("sage", fallback: (0xA8, 0xB3, 0xA0)),
-        fireflyFill: .kinesiaAsset("cream", fallback: (0xFF, 0xFD, 0xF8))
+        fireflyFill: .kinesiaAsset("pine", fallback: (0x3A, 0x42, 0x3A))
     )
 }
 
@@ -108,8 +113,24 @@ final class FireflyBoard: UIView {
 
     private func applyAppearance() {
         backgroundColor = appearance.boardFill
-        characterView.backgroundColor = appearance.jarFill
-        fireflyView.backgroundColor = appearance.fireflyFill
+        apply(artNamed: GameArtName.jar, to: characterView, plainFill: appearance.jarFill)
+        apply(artNamed: GameArtName.firefly, to: fireflyView, plainFill: appearance.fireflyFill)
+    }
+
+    /// The jar and the firefly are plain circles until their art is in the asset catalogue. This
+    /// is the UIKit half of what `ArtImage` does for the SwiftUI games: adding the file to
+    /// gameJar.imageset is the whole substitution.
+    ///
+    /// The image is set here and not when the firefly spawns. A spawn only moves the view and
+    /// unhides it, so the cue still appears in a single frame.
+    private func apply(artNamed name: String, to view: UIImageView, plainFill: UIColor) {
+        let art = UIImage(named: name)
+        view.image = art
+        view.contentMode = .scaleAspectFit
+        view.backgroundColor = art == nil ? plainFill : .clear
+        // Both are circles, drawn and measured as circles. The mask stays on with art in place:
+        // art that carries its own background would otherwise show as a square on the board.
+        view.layer.masksToBounds = true
     }
     deinit {
         displayLink?.invalidate()
@@ -265,19 +286,17 @@ final class FireflyBoard: UIView {
 
     
     // sizes & corner rounding to turn it into a circle
-    // masksToBounds for if art is replacing the plain fill
-  
+    // whether the circle is clipped is decided in applyAppearance, which knows if art is in use
+
     private func layoutCharacter() {
         let d = CGFloat(geometry.homeBaseRadius * 2)
         characterView.bounds = CGRect(x: 0, y: 0, width: d, height: d)
         characterView.center = CGPoint(x: geometry.center.x, y: geometry.center.y)
         characterView.layer.cornerRadius = d / 2
-        characterView.layer.masksToBounds = true
 
         let f = CGFloat(geometry.fireflyRadius * 2)
         fireflyView.bounds = CGRect(x: 0, y: 0, width: f, height: f)
         fireflyView.layer.cornerRadius = f / 2
-        fireflyView.layer.masksToBounds = true
     }
 }
 

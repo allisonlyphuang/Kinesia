@@ -99,14 +99,6 @@ final class AdherencePointTests: XCTestCase {
         XCTAssertEqual(slots, [8 * 60, 13 * 60, 18 * 60])
     }
 
-    func testThePatientsOwnLabelIsCarriedThrough() {
-        let points = Adherence.points(
-            doses: [ReportFixtures.dose(slotLabel: "Morning")],
-            window: window
-        )
-        XCTAssertEqual(points[0].slotLabel, "Morning")
-    }
-
     // MARK: - Ordering and the window
 
     func testPointsAreSortedByDayThenBySlot() {

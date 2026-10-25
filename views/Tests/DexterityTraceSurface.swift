@@ -20,17 +20,11 @@ struct DexterityTraceSurface: View {
         _model = StateObject(wrappedValue: DexterityTestModel(configuration: configuration))
     }
 
+    /// The surface draws the board and the line under it, and nothing else. The screen around it
+    /// owns the page, the heading and the instruction: when this view carried its own title and
+    /// its own cream background, a patient saw two headings and a card inside a card.
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            Text("Trace the path")
-                .font(.displayMedium)
-                .foregroundStyle(Color.textDark)
-
-            Text("Start at the first point and trace the path without lifting your finger.")
-                .font(.body)
-                .foregroundStyle(Color.textDark)
-                .fixedSize(horizontal: false, vertical: true)
-
             if let layout {
                 tracingSurface(layout: layout)
                 stateFeedback
@@ -38,9 +32,7 @@ struct DexterityTraceSurface: View {
                 unavailableContent
             }
         }
-        .padding(Spacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.bgPrimaryColor.ignoresSafeArea())
         .onAppear {
             onPhaseChanged?(model.phase)
         }
@@ -57,8 +49,7 @@ struct DexterityTraceSurface: View {
 
     private func tracingSurface(layout: DexterityRouteLayout) -> some View {
         ZStack {
-            RoundedRectangle(cornerRadius: Radius.primary, style: .continuous)
-                .fill(Color.bgSecondaryColor)
+            PlaySurface()
 
             routePath(points: layout.localRoutePoints)
                 .stroke(Color.secondaryColor, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
@@ -112,16 +103,27 @@ struct DexterityTraceSurface: View {
         }
     }
 
+    /// A route point is a star, one drawing for all of them, so the state of the point cannot be
+    /// the colour of the star: a point still to come is the same star faded, and the next one to
+    /// reach wears a ring. `fill` and `stroke` are for the drawn star used when there is no art.
+    /// The number stays on top either way: it is how the order is read.
     private func targetMarker(index: Int, point: DexterityRoutePoint, radius: Double) -> some View {
         let style = markerStyle(for: index)
         return ZStack {
-            Circle()
-                .fill(style.fill)
-            Circle()
-                .stroke(style.stroke, lineWidth: style.lineWidth)
+            if style.isNext {
+                Circle()
+                    .fill(Color.accentBlue.opacity(0.16))
+                    .overlay { Circle().stroke(Color.accentBlue, lineWidth: 3) }
+            }
+
+            ArtImage(name: GameArtName.star) {
+                StarGlyph(fill: style.fill, stroke: style.stroke, lineWidth: style.lineWidth)
+            }
+            .opacity(style.opacity)
+
             Text("\(index + 1)")
                 .font(.label)
-                .foregroundStyle(style.text)
+                .foregroundStyle(GameArtName.hasArt(GameArtName.star) ? Color.textDark : style.text)
                 .accessibilityHidden(true)
         }
         .frame(width: radius * 2, height: radius * 2)
@@ -129,16 +131,46 @@ struct DexterityTraceSurface: View {
     }
 
     private func markerStyle(for index: Int) -> MarkerStyle {
+        let isNext = model.nextTargetIndex == index
+
         if index == 0 {
-            return MarkerStyle(fill: Color.primaryColor, stroke: Color.textLight, text: Color.textLight, lineWidth: 2)
+            return MarkerStyle(
+                fill: Color.primaryColor,
+                stroke: Color.textLight,
+                text: Color.textLight,
+                opacity: 1,
+                isNext: isNext,
+                lineWidth: 2
+            )
         }
         if let nextTargetIndex = model.nextTargetIndex, index < nextTargetIndex {
-            return MarkerStyle(fill: Color.secondaryColor, stroke: Color.textDark, text: Color.textDark, lineWidth: 2)
+            return MarkerStyle(
+                fill: Color.secondaryColor,
+                stroke: Color.textDark,
+                text: Color.textDark,
+                opacity: 1,
+                isNext: false,
+                lineWidth: 2
+            )
         }
-        if model.nextTargetIndex == index {
-            return MarkerStyle(fill: Color.accentBlue, stroke: Color.textDark, text: Color.textDark, lineWidth: 4)
+        if isNext {
+            return MarkerStyle(
+                fill: Color.accentBlue,
+                stroke: Color.textDark,
+                text: Color.textDark,
+                opacity: 1,
+                isNext: true,
+                lineWidth: 4
+            )
         }
-        return MarkerStyle(fill: Color.bgPrimaryColor, stroke: Color.textMedium, text: Color.textDark, lineWidth: 2)
+        return MarkerStyle(
+            fill: Color.bgPrimaryColor,
+            stroke: Color.textMedium,
+            text: Color.textDark,
+            opacity: 0.4,
+            isNext: false,
+            lineWidth: 2
+        )
     }
 
     private func markerAccessibilityLabel(for index: Int) -> String {
@@ -159,11 +191,11 @@ struct DexterityTraceSurface: View {
         Group {
             switch model.phase {
             case .ready:
-                Text("Start at the highlighted point")
+                Text("Start at the first point")
             case .tracing:
                 Text("Keep tracing the path")
             case .completed:
-                Text("Path complete")
+                Text("Constellation complete")
             case .ended:
                 Text("Trace ended")
             case .configurationInvalid:
@@ -172,6 +204,7 @@ struct DexterityTraceSurface: View {
         }
         .font(.subheading)
         .foregroundStyle(Color.textDark)
+        .frame(maxWidth: .infinity, alignment: .center)
         .accessibilityAddTraits(.updatesFrequently)
     }
 
@@ -194,6 +227,10 @@ struct DexterityTraceSurface: View {
         let fill: Color
         let stroke: Color
         let text: Color
+        /// How much of the star is shown. A point still to come is faded.
+        let opacity: Double
+        /// The point to reach next, which wears a ring.
+        let isNext: Bool
         let lineWidth: CGFloat
     }
 }

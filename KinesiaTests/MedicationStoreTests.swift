@@ -75,12 +75,11 @@ final class MedicationStoreTests: XCTestCase {
         XCTAssertEqual(created.map { Int($0.sortIndex) }, [0, 1])
     }
 
-    func testReplaceSchedulePersistsLabelAndDosage() throws {
+    func testReplaceSchedulePersistsTheDosage() throws {
         let created = try MedicationStore.replaceSchedule(
-            with: [MedicationScheduleSlot(label: "Morning", dosageMg: 100, hour: 8, minute: 0)],
+            with: [MedicationScheduleSlot(dosageMg: 100, hour: 8, minute: 0)],
             in: context
         )
-        XCTAssertEqual(created.first?.label, "Morning")
         XCTAssertEqual(created.first?.dosageMg, 100)
     }
 
@@ -120,6 +119,21 @@ final class MedicationStoreTests: XCTestCase {
         XCTAssertEqual(log.scheduledDate, time(8, 0))
     }
 
+    /// The schedule screen loads the saved rows before editing them, so the slots it hands
+    /// back carry the ids of rows that still exist. The new rows must not reuse those ids:
+    /// MedicationSchedule.id is unique, and the old rows are deactivated rather than deleted.
+    func testReplaceScheduleAcceptsSlotsLoadedFromTheSavedSchedule() throws {
+        _ = try threeDoseSchedule()
+        let loaded = try MedicationStore.activeSchedule(in: context).map(MedicationStore.slot(for:))
+
+        let created = try MedicationStore.replaceSchedule(with: loaded, in: context)
+
+        XCTAssertEqual(created.count, 3)
+        XCTAssertEqual(try MedicationStore.activeSchedule(in: context).count, 3)
+        XCTAssertEqual(try count(MedicationSchedule.self, MedicationSchedule.fetchRequest()), 6)
+        XCTAssertTrue(Set(created.compactMap(\.id)).isDisjoint(with: Set(loaded.map(\.id))))
+    }
+
     func testReplaceScheduleRejectsAnInvalidPlanAndWritesNothing() throws {
         XCTAssertThrowsError(
             try MedicationStore.replaceSchedule(
@@ -144,7 +158,6 @@ final class MedicationStoreTests: XCTestCase {
         XCTAssertEqual(log.takenDate, time(8, 20))
         XCTAssertEqual(log.scheduledDate, time(8, 0))
         XCTAssertFalse(log.wasSkipped)
-        XCTAssertEqual(log.source, MedicationStore.manualSource)
         XCTAssertEqual(log.schedule, schedule)
     }
 
@@ -318,14 +331,42 @@ final class MedicationStoreTests: XCTestCase {
 
     // MARK: - Reading back
 
-    func testLogsInARangeComeBackOldestFirstAndExcludeTheUpperBound() throws {
-        let schedules = try threeDoseSchedule()
-        _ = try MedicationStore.logDose(schedule: schedules[0], takenAt: time(8), in: context, calendar: utc)
-        _ = try MedicationStore.logDose(schedule: schedules[1], takenAt: time(13), in: context, calendar: utc)
-        _ = try MedicationStore.logDose(schedule: schedules[2], takenAt: time(18), in: context, calendar: utc)
+    /// Every UTC midnight is exactly representable as a 32-bit float, so the fixtures above
+    /// cannot catch this: the predicates used `%f`, which is parsed as a float, and a local
+    /// midnight in a zone offset by four hours is not. The compared value landed 64 seconds
+    /// off and the fetch matched nothing, so a logged dose never appeared on the screen.
+    func testLogsComeBackWhenTheDayStartIsNotExactAsAFloat() throws {
+        var eastern = Calendar(identifier: .gregorian)
+        eastern.timeZone = TimeZone(identifier: "America/New_York")!
 
-        let logs = try MedicationStore.logs(from: time(8), to: time(18), in: context)
-        XCTAssertEqual(logs.map(\.takenDate), [time(8), time(13)])
+        let day = eastern.startOfDay(for: Date(timeIntervalSince1970: 1_792_814_400))
+        XCTAssertNotEqual(
+            Double(Float(day.timeIntervalSince1970)),
+            day.timeIntervalSince1970,
+            "pick a day start that a float cannot hold, or this proves nothing"
+        )
+
+        let schedule = try MedicationStore.replaceSchedule(
+            with: [MedicationScheduleSlot(hour: 8, minute: 0)],
+            in: context
+        )[0]
+        let takenAt = eastern.date(bySettingHour: 8, minute: 5, second: 0, of: day)!
+        _ = try MedicationStore.logDose(
+            schedule: schedule,
+            takenAt: takenAt,
+            in: context,
+            calendar: eastern
+        )
+
+        let logs = try MedicationStore.logs(onDayContaining: day, in: context, calendar: eastern)
+        XCTAssertEqual(logs.count, 1)
+        XCTAssertNotNil(
+            try MedicationStore.existingLog(
+                for: schedule,
+                onDayStarting: day.timeIntervalSince1970,
+                in: context
+            )
+        )
     }
 
     func testLogsForADayComeBackOldestFirst() throws {

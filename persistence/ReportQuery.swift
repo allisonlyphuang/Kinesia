@@ -43,9 +43,9 @@ struct ReportQuery {
     ) throws -> [SessionSnapshot] {
         let request = TestSession.fetchRequest()
         request.predicate = NSPredicate(
-            format: "startedAt >= %f AND startedAt < %f",
-            start.timeIntervalSince1970,
-            end.timeIntervalSince1970
+            format: "startedAt >= %@ AND startedAt < %@",
+            NSNumber(value: start.timeIntervalSince1970),
+            NSNumber(value: end.timeIntervalSince1970)
         )
         return try fetchSessions(request, in: context)
     }
@@ -80,9 +80,9 @@ struct ReportQuery {
     ) throws -> [DoseSnapshot] {
         let request = MedicationLog.fetchRequest()
         request.predicate = NSPredicate(
-            format: "dayStart >= %f AND dayStart < %f",
-            window.startEpoch,
-            window.endEpoch
+            format: "dayStart >= %@ AND dayStart < %@",
+            NSNumber(value: window.startEpoch),
+            NSNumber(value: window.endEpoch)
         )
         request.sortDescriptors = [
             NSSortDescriptor(key: #keyPath(MedicationLog.timestamp), ascending: true)

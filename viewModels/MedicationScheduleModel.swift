@@ -8,7 +8,6 @@ final class MedicationScheduleModel: ObservableObject {
     @Published private(set) var slots: [MedicationScheduleSlot] = []
     @Published private(set) var validationMessage: String?
     @Published private(set) var saveError: Error?
-    @Published private(set) var didSave = false
 
     private let context: NSManagedObjectContext
 
@@ -65,13 +64,6 @@ final class MedicationScheduleModel: ObservableObject {
         revalidate()
     }
 
-    func update(_ slot: MedicationScheduleSlot, label: String?) {
-        guard let index = slots.firstIndex(where: { $0.id == slot.id }) else { return }
-        let trimmed = label?.trimmingCharacters(in: .whitespacesAndNewlines)
-        slots[index].label = (trimmed?.isEmpty ?? true) ? nil : trimmed
-        revalidate()
-    }
-
     @discardableResult
     func save() -> Bool {
         revalidate()
@@ -79,11 +71,9 @@ final class MedicationScheduleModel: ObservableObject {
         do {
             try MedicationStore.replaceSchedule(with: slots, in: context)
             saveError = nil
-            didSave = true
             return true
         } catch {
             saveError = error
-            didSave = false
             return false
         }
     }

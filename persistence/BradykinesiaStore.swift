@@ -132,9 +132,9 @@ struct BradykinesiaStore {
     ) throws -> MedicationLog? {
         let request = MedicationLog.fetchRequest()
         request.predicate = NSPredicate(
-            format: "timestamp >= %f AND timestamp <= %f AND wasSkipped == NO",
-            dayStart,
-            instant
+            format: "timestamp >= %@ AND timestamp <= %@ AND wasSkipped == NO",
+            NSNumber(value: dayStart),
+            NSNumber(value: instant)
         )
         request.sortDescriptors = [
             NSSortDescriptor(key: #keyPath(MedicationLog.timestamp), ascending: false)

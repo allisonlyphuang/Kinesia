@@ -11,7 +11,6 @@ nonisolated struct AdherencePoint: Equatable, Sendable, Identifiable {
     let wasSkipped: Bool
     // identifies the timeslot of the dose
     let slotMinutesIntoDay: Int
-    let slotLabel: String?
 
     var slotTimeLabel: String {
         String(format: "%02d:%02d", slotMinutesIntoDay / 60, slotMinutesIntoDay % 60)
@@ -36,8 +35,7 @@ nonisolated enum Adherence {
                     takenAt: dose.takenAt,
                     delayMinutes: dose.delayMinutes,
                     wasSkipped: dose.wasSkipped,
-                    slotMinutesIntoDay: slotMinutes,
-                    slotLabel: dose.slotLabel
+                    slotMinutesIntoDay: slotMinutes
                 )
             }
             .sorted { first, second in

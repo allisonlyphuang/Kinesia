@@ -4,14 +4,12 @@ import Foundation
 // inputs into `MedicationStore` and turns into `MedicationSchedule` rows
 nonisolated struct MedicationScheduleSlot: Equatable, Codable, Identifiable {
     var id: UUID
-    var label: String?
     var dosageMg: Double
     var hour: Int
     var minute: Int
 
-    init(id: UUID = UUID(), label: String? = nil, dosageMg: Double = 0, hour: Int, minute: Int) {
+    init(id: UUID = UUID(), dosageMg: Double = 0, hour: Int, minute: Int) {
         self.id = id
-        self.label = label
         self.dosageMg = dosageMg
         self.hour = hour
         self.minute = minute

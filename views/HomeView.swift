@@ -1,223 +1,290 @@
-//
-//  Home.swift
-//  MyProject
-//
-//  Designed in DetailsPro
-//  Copyright © (My Organization). All rights reserved.
-//
-
+import CoreData
 import SwiftUI
 
 struct HomeView: View {
+
+    @Environment(\.managedObjectContext) private var context
+    @StateObject private var model = HomeSummaryModel()
+    @State private var showingSchedule = false
+
+    let onOpenGarden: () -> Void
+
     var body: some View {
         NavigationStack {
-        ZStack(alignment: .bottom) {
-            VStack(alignment: .leading) {
-                // Top bar
-                HStack {
-                    Image(systemName: "leaf.circle.fill")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    header
+                    gardenCard.padding(.top, Spacing.lg)
+
+                    if model.loadFailed {
+                        Text("Couldn\u{2019}t read your history.")
+                            .font(.footnote)
+                            .foregroundStyle(Color.textQuiet)
+                            .padding(.top, Spacing.sm)
+                    }
+
+                    sectionLabel(
+                        "Today\u{2019}s check-in",
+                        trailing: model.summary.checkedInToday ? "All done" : nil
+                    )
+                    .padding(.top, Spacing.lg)
+                    checkInList
+                    sectionLabel("Medicine").padding(.top, Spacing.lg)
+                    medicineList
+                }
+                .padding(.horizontal, 22)
+                .padding(.bottom, Spacing.lg)
+            }
+            .background { Rectangle().fill(.pageGround).ignoresSafeArea() }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Image("brandMark")
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 44, height: 44)
-                        .foregroundStyle(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                    Spacer()
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .fill(Color(.sRGB, red: 168/255, green: 179/255, blue: 160/255))
-                            .frame(width: 150, height: 50)
-                            .clipped()
-                            .padding(.horizontal, 0)
+                        .scaledToFit()
+                        .frame(width: 28, height: 28)
+                        .foregroundStyle(Color.primaryColor)
+                        .accessibilityLabel("Kinesia")
+                }
+                // On the logo, lose the capsule that iOS creates by default behind toolbar items
+                .sharedBackgroundVisibility(.hidden)
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showingSchedule = true } label: {
                         Image(systemName: "gearshape")
-                            .imageScale(.large)
-                            .symbolRenderingMode(.monochrome)
-                            .foregroundStyle(.white)
+                            .font(.system(size: 18, weight: .regular))
+                            .foregroundStyle(Color.primaryColor)
                     }
-                }
-                .padding(.horizontal, 24)
-                // Greeting
-                VStack(alignment: .leading) {
-                    // greeting
-                    Text("Good morning, Name")
-                        .font(.system(size: 28, weight: .semibold, design: .default))
-                        .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                    Spacer()
-                        .frame(height: 5)
-                        .clipped()
-                    Text("Monday, January 1")
-                        .font(.system(size: 17, weight: .medium, design: .default))
-                        .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                }
-                .padding(.vertical)
-                // Placeholder for the garden artwork.
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color(.sRGB, red: 232/255, green: 228/255, blue: 218/255))
-                    .frame(maxWidth: .infinity, maxHeight: 180, alignment: .center)
-                    .clipped()
-                // streak
-                HStack {
-                    Text("Day # | #-day streak")
-                        .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        .font(.system(size: 13, weight: .regular, design: .default))
-                    Spacer(minLength: 50)
-                    Text("Tap to view garden")
-                        .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        .font(.system(size: 13, weight: .regular, design: .default))
-                }
-                .padding(.bottom, 8)
-                // Log medicine
-                ZStack {
-                    // Log button
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(Color(.sRGB, red: 59/255, green: 84/255, blue: 101/255))
-                        .frame(maxWidth: .infinity, maxHeight: 110)
-                        .clipped()
-                        .padding(.bottom, 0)
-                    HStack {
-                        Image(systemName: "pills.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 32)
-                            .foregroundStyle(.white)
-                        Text("Log medicine")
-                            .foregroundStyle(.white)
-                            .font(.system(size: 28, weight: .regular, design: .default))
-                    }
-                }
-                // Today's check in
-                VStack(alignment: .leading) {
-                    Text("Today’s check-in")
-                        .font(.system(size: 28, weight: .medium, design: .default))
-                        .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        .padding(.top, 8)
-                    Spacer()
-                        .frame(height: 10)
-                        .clipped()
-                    // Task list
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Image(systemName: "leaf")
-                                .imageScale(.small)
-                                .symbolRenderingMode(.monochrome)
-                            Text("Lily pads")
-                                .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        }
-                        NavigationLink {
-                            AkinesiaTestView()
-                        } label: {
-                            HStack {
-                                Image(systemName: "light.max")
-                                    .imageScale(.small)
-                                    .symbolRenderingMode(.monochrome)
-                                Text("Fireflies")
-                                    .font(.body)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .imageScale(.small)
-                            }
-                            .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        }
-                        NavigationLink {
-                            DexterityTestView()
-                        } label: {
-                            HStack {
-                                Image(systemName: "star")
-                                    .imageScale(.small)
-                                    .symbolRenderingMode(.monochrome)
-                                Text("Constellation")
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .imageScale(.small)
-                            }
-                            .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        }
-                        .buttonStyle(.plain)
-                        NavigationLink {
-                            BradykinesiaTestView()
-                        } label: {
-                            HStack {
-                                Image(systemName: "hand.tap")
-                                    .imageScale(.small)
-                                Text("Bradykinesia Test")
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .imageScale(.small)
-                            }
-                            .foregroundStyle(Color(.sRGB, red: 57/255, green: 66/255, blue: 57/255))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(.leading, 8)
-                    // Check-in button
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .fill(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                            .padding(.bottom, 0)
-                            .frame(height: 60)
-                            .clipped()
-                        Text("Begin check-in")
-                            .font(.system(size: 22, weight: .medium, design: .default))
-                            .foregroundStyle(.white)
-                    }
-                    .padding(6)
-                }
-                .padding(.horizontal, 24)
-                .background {
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color(.sRGB, red: 232/255, green: 228/255, blue: 218/255), lineWidth: 3)
-                        .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(.white))
-                }
-                // Switch tab
-                ZStack(alignment: .leading) {
-                    // Clear capsule to hold shape
-                    Capsule(style: .continuous)
-                        .fill(.clear)
-                        .frame(width: 290, height: 75, alignment: .leading)
-                        .clipped()
-                        .padding()
-                    Capsule(style: .continuous)
-                        .fill(Color(.sRGB, red: 255/255, green: 253/255, blue: 248/255))
-                        .frame(width: 140, height: 50, alignment: .leading)
-                        .clipped()
-                        .padding(24)
-                    HStack {
-                        Spacer()
-                        Text("Garden")
-                            .font(.system(size: 17, weight: .regular, design: .default))
-                            .foregroundStyle(.primary)
-                        Spacer()
-                        NavigationLink {
-                            ClinicianReportView()
-                        } label: {
-                            Text("Insights")
-                                .font(.system(size: 17, weight: .regular, design: .default))
-                                .foregroundStyle(.white)
-                        }
-                        .buttonStyle(.plain)
-                        Spacer()
-                    }
-                }
-                .padding(16)
-                .background {
-                    Capsule(style: .continuous)
-                        .fill(Color(.sRGB, red: 86/255, green: 96/255, blue: 84/255))
-                        .frame(maxWidth: .infinity, maxHeight: 75)
-                        .padding(24)
+                    .accessibilityLabel("Settings")
                 }
             }
-            .padding(24)
-            .frame(maxHeight: .infinity)
-            .clipped()
+            .toolbarBackground(.hidden, for: .navigationBar)
         }
-        .background {
-            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                .fill(Color(.sRGB, red: 255/255, green: 253/255, blue: 248/255))
+        .sheet(isPresented: $showingSchedule) {
+            NavigationStack {
+                OnboardingMeds(continueTitle: "Save")
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") { showingSchedule = false }
+                                .foregroundStyle(Color.primaryColor)
+                        }
+
+                        .sharedBackgroundVisibility(.hidden)
+                    }
+            }
         }
+        .onAppear { model.reload(in: context) }
+        .onReceive(NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave)) { _ in
+            model.reload(in: context)
+        }
+    }
+
+    // MARK: Header
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(greeting)
+                .fontWeight(.medium)
+                .foregroundStyle(Color.textDark)
+            Text(Date.now, format: .dateTime.weekday(.wide).day().month(.wide))
+                .fontWeight(.regular)
+                .foregroundStyle(Color.primaryColor)
+        }
+        .font(.displayMedium)
+        .padding(.top, Spacing.sm)
+    }
+
+    // MARK: Garden
+    @ViewBuilder
+    private var gardenCard: some View {
+        if !model.summary.hasHistory, let next = nextTask {
+            NavigationLink { testView(for: next) } label: { gardenCardFace }
+                .buttonStyle(.plain)
+        } else {
+            Button(action: onOpenGarden) { gardenCardFace }
+                .buttonStyle(.plain)
+        }
+    }
+
+    private var gardenCardFace: some View {
+        ZStack {
+            GeometryReader { proxy in
+                Image("openingBackground")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .clipped()
+                    .overlay(.gardenCardScrim)
+            }
+            .accessibilityHidden(true)
+
+            HStack {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text("Your garden")
+                        .sectionLabelStyle()
+                        .foregroundStyle(Color.textOnPhotoQuiet)
+
+                    gardenHeadline
+
+                    if let day = model.summary.dayNumber {
+                        Text("Day \(day)")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.textOnPhotoQuiet)
+                    }
+                }
+                Spacer(minLength: Spacing.sm)
+                Image(systemName: "chevron.right")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.textOnPhoto)
+            }
+            .padding(.horizontal, 18)
+        }
+        .frame(height: 124)
+        .clipShape(RoundedRectangle(cornerRadius: Radius.primary, style: .continuous))
+    }
+
+    @ViewBuilder
+    private var gardenHeadline: some View {
+        if !model.summary.hasHistory {
+            Text("Begin your first check-in")
+                .font(.heading)
+                .foregroundStyle(Color.textOnPhoto)
+        } else if model.summary.streak > 0 {
+            HStack(alignment: .firstTextBaseline, spacing: Spacing.xxs + 2) {
+                Text("\(model.summary.streak)")
+                    .font(.displayLarge)
+                Text(model.summary.streak == 1 ? "day in a row" : "days in a row")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.textOnPhotoQuiet)
+            }
+            .foregroundStyle(Color.textOnPhoto)
+        } else {
+            Text("Start again today")
+                .font(.heading)
+                .foregroundStyle(Color.textOnPhoto)
+        }
+    }
+
+    // MARK: Lists
+
+    private var checkInList: some View {
+        listCard {
+            row(.fireflies, icon: Image(systemName: "sparkle")) { AkinesiaTestView() }
+            separator
+            row(.constellation, icon: Image(systemName: "point.3.connected.trianglepath.dotted")) { DexterityTestView() }
+            separator
+            row(.plants, icon: Image(systemName: "leaf")){ BradykinesiaTestView() }
+        }
+    }
+
+    private var medicineList: some View {
+        listCard {
+            NavigationLink { MedicationLogView() } label: {
+                rowContent(
+                    title: "Log medicine",
+                    icon: Image(systemName: "pills"),
+                    value: model.summary.nextDose.map { $0.formatted(date: .omitted, time: .shortened) }
+                )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func listCard<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        VStack(spacing: 0) { content() }
+            .padding(.horizontal, 18)
+            .background(
+                Color.cardSurface,
+                in: RoundedRectangle(cornerRadius: Radius.primary, style: .continuous)
+            )
+    }
+
+    private var separator: some View {
+        Rectangle()
+            .fill(Color.hairline)
+            .frame(height: 1)
+    }
+
+    private func row<Destination: View>(
+        _ task: CheckInTask,
+        icon: some View,
+        @ViewBuilder destination: () -> Destination
+    ) -> some View {
+        NavigationLink(destination: destination()) {
+            rowContent(
+                title: task.title,
+                icon: icon,
+                value: model.summary.doneToday.contains(task) ? "Done" : nil
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func rowContent(title: String, icon: some View, value: String?) -> some View {
+        HStack(spacing: Spacing.sm + 2) {
+            icon
+                .font(.system(size: 20, weight: .regular))
+                .frame(width: 26, height: 26)
+                .foregroundStyle(Color.primaryColor)
+
+            Text(title)
+                .font(.body)
+                .foregroundStyle(Color.textDark)
+
+            Spacer(minLength: Spacing.xs)
+
+            if let value {
+                Text(value)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.textQuiet)
+            }
+
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(Color.chevronTint)
+        }
+        .frame(minHeight: 60)
+        .contentShape(Rectangle())
+    }
+
+    private func sectionLabel(_ text: String, trailing: String? = nil) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(text)
+            if let trailing {
+                Spacer(minLength: Spacing.xs)
+                Text(trailing)
+            }
+        }
+        .sectionLabelStyle()
+        .foregroundStyle(Color.primaryColor)
+        .padding(.horizontal, Spacing.xxs)
+        .padding(.bottom, Spacing.xs + 2)
+    }
+
+    // MARK: Routing
+
+  
+    private var nextTask: CheckInTask? {
+        CheckInTask.allCases.first { !model.summary.doneToday.contains($0) }
+    }
+
+    @ViewBuilder
+    private func testView(for task: CheckInTask) -> some View {
+        switch task {
+        case .fireflies:     AkinesiaTestView()
+        case .constellation: DexterityTestView()
+        case .plants:       BradykinesiaTestView()
+        }
+    }
+
+    private var greeting: String {
+        switch Calendar.current.component(.hour, from: Date()) {
+        case 0..<12:  return "Good morning"
+        case 12..<18: return "Good afternoon"
+        default:      return "Good evening"
         }
     }
 }
 
-
-
 #Preview {
-    HomeView()
+    HomeView(onOpenGarden: {})
+        .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
 }

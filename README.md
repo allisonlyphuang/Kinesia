@@ -1,5 +1,10 @@
 
-# Kinesia
+<div align="center">
+  <img src="KinesiaLogo.jpeg" alt="Kinesia Logo" width="220">
+
+  <h1>Kinesia</h1>
+</div>
+
 
 **An iOS app for tracking movement and medication in Parkinson's disease through short, game-based activities.**
 

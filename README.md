@@ -1,91 +1,102 @@
+
 # Kinesia
 
-An iOS app for Parkinson's self-monitoring. A patient runs three short touchscreen tests, logs
-their medication and a quality-of-life questionnaire, and gets a dated report they can show or
-send to a clinician.
+**An iOS app for tracking movement and medication in Parkinson's disease through short, game-based activities.**
 
-Everything stays on the phone. There is no account, no server, and no network code anywhere in
-the app; the only way data leaves the device is a PDF the patient exports through the share
-sheet.
+Parkinson's symptoms can change throughout the day, while clinical appointments capture only a small part of that experience. Patients are often asked to remember and describe those changes themselves. Kinesia explores whether brief, repeatable touchscreen activities can make it easier to record movement over time and review it alongside medication timing.
 
-**Not a diagnostic tool.** The app records movement and displays it. It assigns no severity, no
-composite score, and no diagnosis, and it never recommends a dose change. That boundary is a
-product decision, not a gap waiting to be filled: see [docs/ADR.md](docs/ADR.md) and
-[docs/CLINICAL_BASIS.md](docs/CLINICAL_BASIS.md).
+Instead of presenting each activity as a conventional assessment, Kinesia uses a calm, nature-inspired interface: a plant-watering tapping task, a firefly-catching movement-initiation task, and a constellation-tracing dexterity task. The aim is to make regular tracking more approachable without hiding what is actually being measured.
 
-## What it measures
+## Features
 
-| Task | Interaction | Primary measurement |
+| Feature | What the user does | What the app records or displays |
 | --- | --- | --- |
-| Tapping | alternate between two targets for 20 seconds, one hand at a time | tap rate, interval variability, decrement |
-| Fireflies | rest a finger on a jar, lift and tap each firefly as it appears | reaction time, movement time |
-| Constellation tracing | trace a fixed five-point route without lifting the finger | distance from the route, swipe speed |
+| **Tapping** | Alternates between two targets for 20 seconds, one hand at a time, in a plant-themed task. | Tap counts, timing, rhythm, and positional variation. |
+| **Fireflies** | Starts with a finger on a home position, then lifts and taps a firefly after it appears. | Movement-initiation (reaction) time and movement time. |
+| **Constellation tracing** | Traces a fixed five-point path, with separate attempts and continuous contact within each trace. | Path deviation, movement speed, and trace completion/validity. |
+| **Medication** | Sets scheduled dose times and records medication events. | Scheduled versus logged medication information. |
+| **PDQ-8** | Completes an eight-item Parkinson's quality-of-life questionnaire during onboarding. | Patient-reported responses, separate from motor-test measurements. |
+| **Garden** | Completes the three motor activities during the day. | Four illustrated growth states based on **0–3 distinct activities recorded today**, plus an activity streak. |
+| **Insights** | Reviews saved measurements and medication information. | Dated charts and a PDF report that can be exported using the iOS share sheet. |
 
-Alongside them: a medication schedule and dose log, and the eight-item PDQ-8 questionnaire. Both
-exist so the report can put movement next to when doses were taken.
+The task names describe the movement characteristics being explored, not a clinical diagnosis. For example, constellation tracing provides measurements of fine-motor control; it does not independently identify dyskinesia.
 
-## How the code is arranged
+## How it works
 
-Each test is the same four layers, in this order:
+1. **Get started.** Set up medication times and answer the initial PDQ-8 questions.
+2. **Record a check-in.** Open the three activities from **Today**. Each test collects touch information and saves its own results.
+3. **Log medication.** Record dose events separately from movement tests so the information can be viewed in context.
+4. **Visit Garden.** The garden illustration changes as different activities are completed that day. Repeating one test does not advance the garden multiple times.
+5. **Review Insights.** Look at measurements across sessions and export a dated PDF for discussion with a clinician.
+
+The current Garden is based on **daily activity completion**, not symptom improvement or medication adherence. A streak represents days with recorded motor-test activity; it is not a clinical score.
+
+## Implementation
+
+Kinesia is written in **Swift**, with **SwiftUI** for its interface, **UIKit** for lower-level touch capture where needed, **Core Data** for local persistence, and **Swift Charts** for the clinician-facing graphs.
 
 ```text
-capture (UIKit)   records touches and timestamps, decides nothing
-analyzer (pure)   value types in, metrics struct out, no Core Data
-store (static)    validates everything, then one atomic context.save()
-view model        @MainActor, owns the lifecycle
+Touch coordinates + timestamps
+            |
+            v
+    Test capture / lifecycle
+            |
+            v
+      Calculation + validation
+            |
+            v
+    Core Data: sessions + results
+            |
+            v
+     Report data + chart series
+            |
+            v
+       Insights / PDF export
 ```
 
-The clinician view runs the same pipeline in reverse, and keeps the same property: Core Data rows
-become flat `Sendable` snapshots, pure derivations turn those into one array per chart, and no
-chart view ever touches an `NSManagedObject`.
+The capture, calculation, and storage layers are kept separate so that measurements can be tested without running an entire game. Two details are especially important:
 
-| Folder | Holds |
+- **Time intervals and dates are different things.** The app uses monotonic touch timestamps for elapsed movement time, and wall-clock dates for saved sessions and calendar-based views.
+- **Missing results are not zero results.** Invalid or unavailable measurements are identified as such instead of being plotted as real values, which could create misleading changes in a chart.
+
+The clinician view works from snapshots of saved records and derives chart data separately from the Core Data objects. For the exact metrics, units, formulas, and validity rules, see the [data dictionary](docs/DATA_DICTIONARY.md) and [architecture](docs/ARCHITECTURE.md).
+
+## Data and privacy
+
+Kinesia is **local-first**. The current app does not require an account or use cloud synchronization; recorded sessions, medication information, and questionnaire responses are stored on the device. Users decide whether to share a PDF report through the iOS share sheet.
+
+The report is intended to make recorded information easier to review with a healthcare professional. Patterns visible in a chart should not be treated as proof of medication response or as instructions for treatment.
+
+
+
+## Project structure
+
+| Location | Responsibility |
 | --- | --- |
-| `calculations/` | every pure value type and analyzer, grouped per test, plus `ClinicianView/` for the report derivations |
-| `capture/` | the UIKit views that record touches |
-| `persistence/` | the stores, and the Core Data to snapshot mapping |
-| `models/` | the Core Data model |
-| `viewModels/` | one per test, plus the report |
-| `views/` | SwiftUI screens, with the report under `views/Clinician/` |
-| `designSystem/` | colour, type, spacing, and chart tokens |
-| `KinesiaTests/` | 629 XCTest cases |
-| `docs/` | the documents listed below |
+| `capture/` | UIKit touch collection and timestamps |
+| `calculations/` | Measurement calculations and report derivations |
+| `persistence/` | Data validation, Core Data stores, and report snapshots |
+| `models/` | Core Data schema |
+| `viewModels/` | Test state and lifecycle |
+| `views/` | Onboarding, Today, motor tasks, Garden, medication, and Insights |
+| `designSystem/` | Shared visual styles and UI tokens |
+| `Assets.xcassets/` | Game and Garden illustrations, branding, and app assets |
+| `KinesiaTests/` | Automated tests |
 
-Two rules hold across every layer:
+### Documentation
 
-- **An unavailable value is `nil`, never zero.** Stores write a placeholder zero into required
-  numeric columns and set `isValid = false`; the read path turns those back into `nil`. A
-  placeholder zero plotted as a measurement draws a dip that never happened.
-- **Two clocks, never mixed.** Every interval comes from the monotonic `UITouch.timestamp`. Every
-  stored instant is a wall-clock `Date`. Neither is ever used in place of the other.
+- [Architecture](docs/ARCHITECTURE.md) — capture-to-storage flow and report generation.
+- [Data dictionary](docs/DATA_DICTIONARY.md) — stored fields, measurement definitions, and units.
+- [Clinical basis](docs/CLINICAL_BASIS.md) — research informing the tasks and what it does **not** establish about Kinesia.
+- [Testing](docs/TESTING.md) — automated coverage and manual checks.
+- [Accessibility](docs/ACCESSIBILITY.md) — design accommodations and outstanding verification.
+- [Architecture decisions](docs/ADR.md) — technical and product scope decisions.
+- [Clinician view](CLINICIAN_VIEW.md) — reporting design and implementation notes.
 
-## Building and testing
+The project draws on published work on Parkinson's self-monitoring, tapping tests, movement initiation, and touchscreen dexterity. Those studies informed the selection of tasks and measurements; they do **not** clinically validate this implementation. The papers and measurement-specific rationale are documented in [Clinical basis](docs/CLINICAL_BASIS.md).
 
-Requires Xcode with an iOS 26.5 simulator. Run the suite as a single line:
+## Team and scope
 
-```bash
-xcodebuild -quiet -project Kinesia.xcodeproj -scheme Kinesia -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17' test
-```
+Developed by **Allison Huang and Vandit Bhatia**.
 
-All 629 tests are synchronous and run against an in-memory Core Data store, so a 20-second
-tapping capture and a 12-round firefly session both finish in microseconds. No test sleeps.
-
-**Adding a file needs Xcode, not just the filesystem.** `project.pbxproj` uses classic
-`PBXGroup` membership rather than file-system-synchronized groups, so a new `.swift` file has to
-be added to the `Kinesia` target, and a new test file to `KinesiaTests`, by hand. A file created
-on disk alone will not compile into the target and will not fail loudly.
-
-More on the test suite, including the counting trap and the manual simulator checks that
-automated tests cannot cover: [docs/TESTING.md](docs/TESTING.md).
-
-## Documents
-
-| Document | Covers |
-| --- | --- |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | the layers of each test, the stores, and the clinician view read path |
-| [docs/DATA_DICTIONARY.md](docs/DATA_DICTIONARY.md) | every field, its unit, and what each one means when it is missing |
-| [docs/CLINICAL_BASIS.md](docs/CLINICAL_BASIS.md) | what each task measures, what the literature supports, and the boundaries |
-| [docs/TESTING.md](docs/TESTING.md) | suites, how to run them, and what is checked by hand |
-| [docs/ADR.md](docs/ADR.md) | decisions taken, with their reasons, and what is still open |
-| [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) | what the code does for legibility and touch, and what is untested |
-| [CLINICIAN_VIEW.md](CLINICIAN_VIEW.md) | the clinician view specification, with each section's build state |
+The current prototype focuses on on-device movement measurements, medication logging, patient-reported quality of life, and longitudinal review. Wearable/Apple Watch integration, passive tremor monitoring, expanded tracking, predictive machine learning, and clinical validation remain future possibilities rather than features of this version.

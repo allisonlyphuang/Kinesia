@@ -1,8 +1,8 @@
 
 <div align="center">
-  <img src="KinesiaLogo.jpeg" alt="Kinesia Logo" width="220">
+  <img src="./Assets.xcassets/KinesiaLogo.jpeg" alt="Kinesia Logo" width="220" />
 
-  <h1>Kinesia</h1>
+  <h1></h1>
 </div>
 
 
